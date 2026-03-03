@@ -74,6 +74,7 @@ export function AddEditMilkTypeModal({
       onClose={onClose}
       title={isEdit ? 'Edit Milk Type' : 'Add Milk Type'}
       size="md"
+      className="max-w-lg bg-white"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormInput

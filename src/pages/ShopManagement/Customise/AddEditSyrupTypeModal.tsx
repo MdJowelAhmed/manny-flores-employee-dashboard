@@ -74,6 +74,7 @@ export function AddEditSyrupTypeModal({
       onClose={onClose}
       title={isEdit ? 'Edit Syrup Type' : 'Add Syrup Type'}
       size="md"
+      className="max-w-lg bg-white"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormInput

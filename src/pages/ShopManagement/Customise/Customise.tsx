@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
+import { Pagination } from '@/components/common'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 import {
   deleteMilkType,
@@ -17,6 +18,7 @@ import {
 import type { MilkType, SyrupType } from '@/types'
 import { toast } from '@/utils/toast'
 import { formatCurrency } from '@/utils/formatters'
+import { DEFAULT_PAGINATION } from '@/utils/constants'
 import { AddEditMilkTypeModal } from './AddEditMilkTypeModal'
 import { AddEditSyrupTypeModal } from './AddEditSyrupTypeModal'
 import { ConfirmDialog } from '@/components/common'
@@ -176,6 +178,11 @@ export default function Customise() {
   const milkTypes = useAppSelector((s) => s.milkTypes.filteredList)
   const syrupTypes = useAppSelector((s) => s.syrupTypes.filteredList)
 
+  const [milkPage, setMilkPage] = useState(1)
+  const [milkLimit, setMilkLimit] = useState(DEFAULT_PAGINATION.limit)
+  const [syrupPage, setSyrupPage] = useState(1)
+  const [syrupLimit, setSyrupLimit] = useState(DEFAULT_PAGINATION.limit)
+
   const [milkModalOpen, setMilkModalOpen] = useState(false)
   const [syrupModalOpen, setSyrupModalOpen] = useState(false)
   const [editingMilkId, setEditingMilkId] = useState<string | null>(null)
@@ -187,6 +194,30 @@ export default function Customise() {
 
   const selectedMilk = milkTypes.find((m) => m.id === editingMilkId) ?? null
   const selectedSyrup = syrupTypes.find((s) => s.id === editingSyrupId) ?? null
+
+  const paginatedMilkTypes = useMemo(() => {
+    const start = (milkPage - 1) * milkLimit
+    return milkTypes.slice(start, start + milkLimit)
+  }, [milkTypes, milkPage, milkLimit])
+
+  const paginatedSyrupTypes = useMemo(() => {
+    const start = (syrupPage - 1) * syrupLimit
+    return syrupTypes.slice(start, start + syrupLimit)
+  }, [syrupTypes, syrupPage, syrupLimit])
+
+  const milkTotalPages = Math.ceil(milkTypes.length / milkLimit)
+  const syrupTotalPages = Math.ceil(syrupTypes.length / syrupLimit)
+
+  const handleMilkPageChange = (page: number) => setMilkPage(page)
+  const handleMilkLimitChange = (limit: number) => {
+    setMilkLimit(limit)
+    setMilkPage(1)
+  }
+  const handleSyrupPageChange = (page: number) => setSyrupPage(page)
+  const handleSyrupLimitChange = (limit: number) => {
+    setSyrupLimit(limit)
+    setSyrupPage(1)
+  }
 
   const handleAddMilk = () => {
     setEditingMilkId(null)
@@ -248,32 +279,48 @@ export default function Customise() {
               <TabsTrigger value="milk">Milk Type</TabsTrigger>
               <TabsTrigger value="syrup">Syrup Type</TabsTrigger>
             </TabsList>
-            <TabsContent value="milk" className="mt-4">
-              <div className="flex justify-end mb-4">
+            <TabsContent value="milk" className="mt-4 space-y-4">
+              <div className="flex justify-end">
                 <Button onClick={handleAddMilk} className="bg-primary text-white">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Milk Type
                 </Button>
               </div>
               <MilkTypeTable
-                items={milkTypes}
+                items={paginatedMilkTypes}
                 onEdit={handleEditMilk}
                 onDelete={(m) => handleDelete('milk', m)}
                 onToggle={(m) => dispatch(toggleMilkTypeStatus(m.id))}
               />
+              <Pagination
+                currentPage={milkPage}
+                totalPages={milkTotalPages}
+                totalItems={milkTypes.length}
+                itemsPerPage={milkLimit}
+                onPageChange={handleMilkPageChange}
+                onItemsPerPageChange={handleMilkLimitChange}
+              />
             </TabsContent>
-            <TabsContent value="syrup" className="mt-4">
-              <div className="flex justify-end mb-4">
+            <TabsContent value="syrup" className="mt-4 space-y-4">
+              <div className="flex justify-end">
                 <Button onClick={handleAddSyrup} className="bg-primary text-white">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Syrup Type
                 </Button>
               </div>
               <SyrupTypeTable
-                items={syrupTypes}
+                items={paginatedSyrupTypes}
                 onEdit={handleEditSyrup}
                 onDelete={(s) => handleDelete('syrup', s)}
                 onToggle={(s) => dispatch(toggleSyrupTypeStatus(s.id))}
+              />
+              <Pagination
+                currentPage={syrupPage}
+                totalPages={syrupTotalPages}
+                totalItems={syrupTypes.length}
+                itemsPerPage={syrupLimit}
+                onPageChange={handleSyrupPageChange}
+                onItemsPerPageChange={handleSyrupLimitChange}
               />
             </TabsContent>
           </Tabs>
