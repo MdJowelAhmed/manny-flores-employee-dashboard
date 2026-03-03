@@ -21,15 +21,29 @@ interface AuthState {
   verificationEmail: string | null
 }
 
-const initialState: AuthState = {
-  user: null,
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
-  isLoading: false,
-  error: null,
-  passwordResetEmail: null,
-  verificationEmail: null,
+function getInitialAuthState(): AuthState {
+  const token = localStorage.getItem('token')
+  const userStr = localStorage.getItem('user')
+  let user: User | null = null
+  if (token && userStr) {
+    try {
+      user = JSON.parse(userStr) as User
+    } catch {
+      // Invalid user data in storage
+    }
+  }
+  return {
+    user,
+    token,
+    isAuthenticated: !!(token && user),
+    isLoading: false,
+    error: null,
+    passwordResetEmail: null,
+    verificationEmail: null,
+  }
 }
+
+const initialState: AuthState = getInitialAuthState()
 
 const authSlice = createSlice({
   name: 'auth',
