@@ -2,11 +2,18 @@ import { useEffect, useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { ChevronDown } from 'lucide-react'
 import { ModalWrapper, FormInput, FormSelect, ImageUploader } from '@/components/common'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 import { addShopProduct, updateShopProduct } from '@/redux/slices/shopProductSlice'
-import type { ShopProduct } from '@/types'
+import type { ShopProduct, ShopProductMilkOrSyrup } from '@/types'
 import type { SelectOption } from '@/types'
 import { toast } from '@/utils/toast'
 
@@ -27,6 +34,69 @@ interface AddEditShopProductModalProps {
   product: ShopProduct | null
 }
 
+function CustomizeMultiSelect({
+  label,
+  options,
+  selected,
+  onSelectionChange,
+}: {
+  label: string
+  options: { id: string; name: string; price: number }[]
+  selected: ShopProductMilkOrSyrup[]
+  onSelectionChange: (items: ShopProductMilkOrSyrup[]) => void
+}) {
+  const selectedIds = useMemo(() => new Set(selected.map((s) => s.id)), [selected])
+  const displayText =
+    selected.length > 0
+      ? selected.map((s) => s.name).join(', ')
+      : `Select ${label}...`
+
+  const toggle = (item: { id: string; name: string; price: number }) => {
+    if (selectedIds.has(item.id)) {
+      onSelectionChange(selected.filter((s) => s.id !== item.id))
+    } else {
+      onSelectionChange([...selected, item])
+    }
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium">{label}</label>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-full justify-between font-normal h-11"
+          >
+            <span className="truncate text-left">
+              {displayText}
+            </span>
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-60 overflow-y-auto">
+          {options.length === 0 ? (
+            <p className="px-2 py-4 text-sm text-muted-foreground">No options available</p>
+          ) : (
+            options.map((opt) => (
+              <DropdownMenuCheckboxItem
+                key={opt.id}
+                checked={selectedIds.has(opt.id)}
+                onCheckedChange={() => toggle(opt)}
+              >
+                <span className="flex-1">{opt.name}</span>
+                <span className="text-xs text-muted-foreground ml-2">
+                  +{opt.price.toFixed(2)}
+                </span>
+              </DropdownMenuCheckboxItem>
+            ))
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )
+}
+
 export function AddEditShopProductModal({
   open,
   onClose,
@@ -35,8 +105,22 @@ export function AddEditShopProductModal({
 }: AddEditShopProductModalProps) {
   const dispatch = useAppDispatch()
   const categories = useAppSelector((s) => s.shopCategories.list)
+  const milkTypes = useAppSelector((s) => s.milkTypes.filteredList.filter((m) => m.isActive))
+  const syrupTypes = useAppSelector((s) => s.syrupTypes.filteredList.filter((s) => s.isActive))
+
   const isEdit = !!editingId
   const [image, setImage] = useState<File | string | null>(null)
+  const [selectedMilkTypes, setSelectedMilkTypes] = useState<ShopProductMilkOrSyrup[]>([])
+  const [selectedSyrupTypes, setSelectedSyrupTypes] = useState<ShopProductMilkOrSyrup[]>([])
+
+  const milkOptions = useMemo(
+    () => milkTypes.map((m) => ({ id: m.id, name: m.name, price: m.price })),
+    [milkTypes]
+  )
+  const syrupOptions = useMemo(
+    () => syrupTypes.map((s) => ({ id: s.id, name: s.name, price: s.price })),
+    [syrupTypes]
+  )
 
   const categoryOptions: SelectOption[] = useMemo(
     () => categories.map((c) => ({ value: c.id, label: c.name })),
@@ -67,6 +151,8 @@ export function AddEditShopProductModal({
           pickupTime: product.pickupTime,
         })
         setImage(product.itemsPicture || null)
+        setSelectedMilkTypes(product.milkTypes ?? [])
+        setSelectedSyrupTypes(product.syrupTypes ?? [])
       } else {
         reset({
           itemsName: '',
@@ -76,6 +162,8 @@ export function AddEditShopProductModal({
           pickupTime: '10:00',
         })
         setImage(null)
+        setSelectedMilkTypes([])
+        setSelectedSyrupTypes([])
       }
     }
   }, [open, isEdit, product, reset])
@@ -99,6 +187,8 @@ export function AddEditShopProductModal({
       customizeType: 'both',
       pickupTime: data.pickupTime,
       itemsPicture: picture,
+      milkTypes: selectedMilkTypes,
+      syrupTypes: selectedSyrupTypes,
       isActive: isEdit && product ? product.isActive : true,
       createdAt: isEdit && product ? product.createdAt : now,
       updatedAt: now,
@@ -166,8 +256,19 @@ export function AddEditShopProductModal({
           {...register('pickupTime')}
         />
 
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Customize Type: both</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CustomizeMultiSelect
+            label="Milk Type"
+            options={milkOptions}
+            selected={selectedMilkTypes}
+            onSelectionChange={setSelectedMilkTypes}
+          />
+          <CustomizeMultiSelect
+            label="Syrup Type"
+            options={syrupOptions}
+            selected={selectedSyrupTypes}
+            onSelectionChange={setSelectedSyrupTypes}
+          />
         </div>
 
         <div>

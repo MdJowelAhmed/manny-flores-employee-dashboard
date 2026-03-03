@@ -547,6 +547,12 @@ export interface Shop {
   updatedAt: string
 }
 
+export interface ShopProductMilkOrSyrup {
+  id: string
+  name: string
+  price: number
+}
+
 export interface ShopProduct {
   id: string
   itemsName: string
@@ -557,6 +563,8 @@ export interface ShopProduct {
   customizeType: 'both'
   pickupTime: string
   itemsPicture?: string
+  milkTypes?: ShopProductMilkOrSyrup[]
+  syrupTypes?: ShopProductMilkOrSyrup[]
   isActive: boolean
   createdAt: string
   updatedAt: string
