@@ -14,9 +14,7 @@ export function RecentActivityCard() {
             <Card className="bg-white border-0">
                 <CardHeader className="flex flex-row items-center justify-between pb-6">
                     <CardTitle className="text-xl font-bold text-slate-800">Recent Order</CardTitle>
-                    <button className="rounded-md bg-[#1E63D8] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1654BA]">
-                        View All
-                    </button>
+                  
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="w-full overflow-auto">
@@ -77,7 +75,7 @@ export function RecentActivityCard() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span
-                                                className={`inline-flex min-w-[120px] items-center justify-center gap-1 rounded-sm px-3 py-2 text-xs font-semibold text-white ${order.status === 'Completed'
+                                                className={`inline-flex min-w-[120px] items-center justify-center gap-1 rounded-sm px-3 py-3 text-xs font-semibold text-white ${order.status === 'Completed'
                                                         ? 'bg-[#2FB65D]'
                                                         : order.status === 'Processing'
                                                             ? 'bg-[#2F8DF5]'

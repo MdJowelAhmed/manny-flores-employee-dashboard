@@ -120,11 +120,11 @@ export function OrderTable({ orders, onView, onDelete }: OrderTableProps) {
                   <td className="px-6 py-2">
                     <span
                       className={cn(
-                        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-white',
+                        'inline-flex items-center gap-1.5 px-3 py-3 rounded-sm w-28 text-xs font-medium text-white',
                         config.bg
                       )}
                     >
-                      <StatusIcon className="h-3.5 w-3.5" />
+                      <StatusIcon className="h-4 w-4" />
                       {config.label}
                     </span>
                   </td>

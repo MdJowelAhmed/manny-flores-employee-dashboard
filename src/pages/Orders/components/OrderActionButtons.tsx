@@ -19,17 +19,17 @@ export function OrderActionButtons({
         variant="ghost"
         size="icon-sm"
         onClick={() => onView(order)}
-        className="h-8 w-8 hover:bg-gray-100"
+        className="h-10 w-10 hover:bg-gray-100"
       >
-        <Eye className="h-4 w-4 text-gray-600" />
+        <Eye className="h-6 w-6 text-gray-600" />
       </Button>
       <Button
         variant="ghost"
         size="icon-sm"
         onClick={() => onDelete(order)}
-        className="h-8 w-8 hover:bg-red-50"
+        className="h-10 w-10 hover:bg-red-50"
       >
-        <Trash2 className="h-4 w-4 text-red-600" />
+        <Trash2 className="h-6 w-6 text-red-600" />
       </Button>
     </div>
   )
