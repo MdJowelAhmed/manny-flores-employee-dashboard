@@ -196,7 +196,7 @@ export function Sidebar() {
               <span className="font-display font-bold text-xl text-accent">Dashboard</span>
             )}
           </div>
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon-sm"
             onClick={() => dispatch(toggleSidebar())}
@@ -207,7 +207,7 @@ export function Sidebar() {
             ) : (
               <ChevronLeft className="h-4 w-4 text-accent" />
             )}
-          </Button>
+          </Button> */}
         </div>
 
         {/* Navigation */}
@@ -313,8 +313,8 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
             'group flex w-full items-center gap-3 px-3 py-2.5 rounded-sm transition-all duration-200',
-            'hover:bg-[#a78133] hover:text-[#fff]',
-            isParentActive ? 'bg-[#a78133]/80 text-[#fff]' : 'text-[#656565]'
+            'hover:bg-[#195ABE] hover:text-[#fff]',
+            isParentActive ? 'bg-[#195ABE]/80 text-[#fff]' : 'text-[#656565]'
           )}
         >
           <Icon className="h-5 w-5 flex-shrink-0 text-current" />
@@ -324,7 +324,7 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
           />
         </button>
         {isExpanded && (
-          <div className="ml-4 space-y-0.5 border-l-2 border-[#a78133]/30 pl-3">
+          <div className="ml-4 space-y-0.5 border-l-2 border-[#195ABE]/30 pl-3">
             {item.children!.map((child) => {
               const ChildIcon = child.icon
               return (
@@ -334,8 +334,8 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
                   className={({ isActive }) =>
                     cn(
                       'group flex items-center gap-3 px-3 py-2 rounded-sm transition-all duration-200',
-                      'hover:bg-[#a78133] hover:text-[#fff]',
-                      isActive ? 'bg-[#a78133] text-[#fff] shadow-md' : 'text-[#656565]'
+                      'hover:bg-[#195ABE] hover:text-[#fff]',
+                      isActive ? 'bg-[#195ABE] text-[#fff] shadow-md' : 'text-[#656565]'
                     )
                   }
                 >
@@ -356,9 +356,9 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
       className={({ isActive }) =>
         cn(
           'group flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all duration-200',
-          'hover:bg-[#a78133] hover:text-[#fff]',
+          'hover:bg-[#195ABE] hover:text-[#fff]',
           collapsed && 'justify-center',
-          isActive ? 'bg-[#a78133] text-[#fff] shadow-md' : 'text-[#656565]'
+          isActive ? 'bg-[#195ABE] text-[#fff] shadow-md' : 'text-[#656565]'
         )
       }
     >
