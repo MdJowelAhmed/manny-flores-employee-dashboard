@@ -115,7 +115,7 @@ export default function PushNotificationList() {
             />
 
             <Button
-              className="bg-slate-700 hover:bg-slate-800 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
               onClick={() => setShowSendModal(true)}
             >
               <Bell className="h-4 w-4 mr-2" />

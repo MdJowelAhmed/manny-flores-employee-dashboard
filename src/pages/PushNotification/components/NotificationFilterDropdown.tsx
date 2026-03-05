@@ -36,14 +36,14 @@ export function NotificationFilterDropdown({
       <Select value={typeValue} onValueChange={onTypeChange}>
         <SelectTrigger
           className={cn(
-            'w-40 bg-primary text-primary-foreground hover:bg-primary/90 border-primary rounded-md',
+            'w-40 bg-secondary text-white hover:bg-primary/90 border-primary rounded-md',
             'focus:ring-primary focus:ring-offset-0'
           )}
         >
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 shrink-0" />
             <SelectValue placeholder="Type" />
-            <ChevronDown className="h-4 w-4 ml-auto" />
+            {/* <ChevronDown className="h-4 w-4 ml-auto" /> */}
           </div>
         </SelectTrigger>
         <SelectContent>
@@ -60,12 +60,12 @@ export function NotificationFilterDropdown({
       <Select value={statusValue} onValueChange={onStatusChange}>
         <SelectTrigger
           className={cn(
-            'w-40 bg-primary text-primary-foreground hover:bg-primary/90 border-primary rounded-md',
+            'w-40 bg-secondary text-white hover:bg-primary/90 border-primary rounded-md',
             'focus:ring-primary focus:ring-offset-0'
           )}
         >
           <SelectValue placeholder="Status" />
-          <ChevronDown className="h-4 w-4 ml-auto" />
+          {/* <ChevronDown className="h-4 w-4 ml-auto" /> */}
         </SelectTrigger>
         <SelectContent>
           {statusOptions.map((option) => (
