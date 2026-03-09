@@ -1,6 +1,5 @@
-import { Mail, Phone, MapPin, Calendar, Shield, Edit, Trash2 } from 'lucide-react'
+import { Mail, Phone, MapPin, Calendar, Shield } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { ModalWrapper, StatusBadge } from '@/components/common'
