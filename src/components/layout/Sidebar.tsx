@@ -222,14 +222,14 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex items-center justify-between h-36 px-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
+            <div className="">
               <div className="text-primary text-white font-bold text-lg">
-                <img src="/assets/logo.png" alt="Motly" className="h-10 w-10" />
+                <img src="/assets/logo.png" alt="Motly" className="" />
               </div>
             </div>
-            {!sidebarCollapsed && (
+            {/* {!sidebarCollapsed && (
               <span className="font-display font-bold text-xl text-accent">Dashboard</span>
-            )}
+            )} */}
           </div>
           {/* <Button
             variant="ghost"

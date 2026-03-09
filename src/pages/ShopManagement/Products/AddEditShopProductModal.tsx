@@ -97,6 +97,21 @@ function CustomizeMultiSelect({
   )
 }
 
+const pickupTimeOptions: SelectOption[] = [
+  { value: '5 min', label: '5 min' },
+  { value: '10 min', label: '10 min' },
+  { value: '15 min', label: '15 min' },
+  { value: '20 min', label: '20 min' },
+  { value: '25 min', label: '25 min' },
+  { value: '30 min', label: '30 min' },
+  { value: '35 min', label: '35 min' },
+  { value: '40 min', label: '40 min' },
+  { value: '45 min', label: '45 min' },
+  { value: '50 min', label: '50 min' },
+  { value: '55 min', label: '55 min' },
+  { value: '1 hour', label: '1 hour' },
+]
+
 export function AddEditShopProductModal({
   open,
   onClose,
@@ -134,11 +149,12 @@ export function AddEditShopProductModal({
       price: 0,
       categoryId: '',
       tags: '',
-      pickupTime: '10:00',
+      pickupTime: '15 min',
     },
   })
 
   const watchedCategoryId = watch('categoryId')
+  const watchedPickupTime = watch('pickupTime')
 
   useEffect(() => {
     if (open) {
@@ -159,7 +175,7 @@ export function AddEditShopProductModal({
           price: 0,
           categoryId: '',
           tags: '',
-          pickupTime: '10:00',
+          pickupTime: '15 min',
         })
         setImage(null)
         setSelectedMilkTypes([])
@@ -209,6 +225,7 @@ export function AddEditShopProductModal({
       onClose={onClose}
       title={isEdit ? 'Edit Product' : 'Add Product'}
       size="xl"
+      className="bg-white"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <FormInput
@@ -248,12 +265,14 @@ export function AddEditShopProductModal({
           {...register('tags')}
         />
 
-        <FormInput
+        <FormSelect
           label="Pickup Time"
-          type="time"
+          value={watchedPickupTime}
+          options={pickupTimeOptions}
+          onChange={(v) => setValue('pickupTime', v, { shouldValidate: true })}
+          placeholder="Select pickup time"
           error={errors.pickupTime?.message}
           required
-          {...register('pickupTime')}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
