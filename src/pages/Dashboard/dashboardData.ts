@@ -12,6 +12,7 @@ export const generateYearData = (year: number) => {
         return {
             month,
             revenue: Math.round(baseRevenue * seasonMultiplier * randomVariation() * (1 + index * 0.02)),
+            expenses: Math.round(baseRevenue * 0.7 * seasonMultiplier * randomVariation() * (1 + index * 0.01)),
             users: Math.round(baseUsers * randomVariation() * (1 + index * 0.05)),
             orders: Math.round(baseOrders * seasonMultiplier * randomVariation() * (1 + index * 0.03)),
         }
@@ -97,12 +98,39 @@ export const recentOrdersData = [
     },
 ]
 
-export const recentActivityData = [
-    { id: 1, action: 'New user registered', user: 'John Doe', time: '2 min ago' },
-    { id: 2, action: 'Product updated', user: 'Jane Smith', time: '15 min ago' },
-    { id: 3, action: 'Order completed', user: 'Mike Johnson', time: '1 hour ago' },
-    { id: 4, action: 'Category created', user: 'Sarah Williams', time: '2 hours ago' },
-    { id: 5, action: 'User blocked', user: 'Admin', time: '3 hours ago' },
+export const recentProjectsData = [
+    {
+        id: '#1',
+        customerName: 'Emily Davis',
+        project: 'Garden Design & Installation',
+        status: 'In Progress',
+        progress: 92,
+        value: '$12,560'
+    },
+    {
+        id: '#2',
+        customerName: 'Michael Chen',
+        project: 'Front Yard Landscaping',
+        status: 'Pending Approval',
+        progress: 0,
+        value: '$12,560'
+    },
+    {
+        id: '#3',
+        customerName: 'Sarah Johnson',
+        project: 'Patio & Deck Construction',
+        status: 'In Progress',
+        progress: 45,
+        value: '$12,560'
+    },
+    {
+        id: '#4',
+        customerName: 'Lisa Anderson',
+        project: 'Backyard Renovation',
+        status: 'In Progress',
+        progress: 87,
+        value: '$12,560'
+    },
 ]
 
 export const rentStatusData = [

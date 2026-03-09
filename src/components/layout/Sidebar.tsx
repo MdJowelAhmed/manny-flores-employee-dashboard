@@ -212,7 +212,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full bg-card shadow-xl transition-all duration-300',
+          'fixed top-0 left-0 z-50 h-full bg-card shadow-sm transition-all duration-300',
           'flex flex-col',
           sidebarCollapsed ? 'w-[80px]' : 'w-[280px]',
           'lg:translate-x-0',
@@ -224,7 +224,8 @@ export function Sidebar() {
           <div className="flex items-center gap-3">
             <div className="">
               <div className="text-primary text-white font-bold text-lg">
-                <img src="/assets/logo.png" alt="Motly" className="" />
+                {/* <img src="/assets/logo.png" alt="Motly" className="" /> */}
+                <span className="text-primary font-bold text-2xl">LOGO</span>
               </div>
             </div>
             {/* {!sidebarCollapsed && (
@@ -348,8 +349,8 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
             'group flex w-full items-center gap-3 px-3 py-2.5 rounded-sm transition-all duration-200',
-            'hover:bg-[#195ABE] hover:text-[#fff]',
-            isParentActive ? 'bg-[#195ABE]/80 text-[#fff]' : 'text-[#656565]'
+            'hover:bg-[#00A63E] hover:text-[#fff]',
+            isParentActive ? 'bg-[#00A63E]/80 text-[#fff]' : 'text-[#656565]'
           )}
         >
           <Icon className="h-5 w-5 flex-shrink-0 text-current" />
@@ -359,7 +360,7 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
           />
         </button>
         {isExpanded && (
-          <div className="ml-4 space-y-0.5 border-l-2 border-[#195ABE]/30 pl-3">
+          <div className="ml-4 space-y-0.5 border-l-2 border-[#00A63E]/30 pl-3">
             {item.children!.map((child) => {
               const ChildIcon = child.icon
               return (
@@ -369,7 +370,7 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
                   className={({ isActive }) =>
                     cn(
                       'group flex items-center gap-3 px-3 py-2 rounded-sm transition-all duration-200',
-                      'hover:bg-[#195ABE] hover:text-[#fff]',
+                      'hover:bg-[#00A63E] hover:text-[#fff]',
                       isActive ? 'bg-[#195ABE] text-[#fff] shadow-md' : 'text-[#656565]'
                     )
                   }
@@ -391,9 +392,9 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
       className={({ isActive }) =>
         cn(
           'group flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all duration-200',
-          'hover:bg-[#195ABE] hover:text-[#fff]',
+          'hover:bg-[#00A63E] hover:text-[#fff]',
           collapsed && 'justify-center',
-          isActive ? 'bg-[#195ABE] text-[#fff] shadow-md' : 'text-[#656565]'
+          isActive ? 'bg-[#00A63E] text-[#fff] shadow-md' : 'text-[#656565]'
         )
       }
     >

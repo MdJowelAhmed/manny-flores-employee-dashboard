@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { CheckCircle2, Clock3, XCircle } from 'lucide-react'
-import { recentOrdersData } from './dashboardData'
+import { Eye, Trash2 } from 'lucide-react'
+import { recentProjectsData } from './dashboardData'
 
 export function RecentActivityCard() {
     return (
@@ -13,80 +13,77 @@ export function RecentActivityCard() {
         >
             <Card className="bg-white border-0">
                 <CardHeader className="flex flex-row items-center justify-between pb-6">
-                    <CardTitle className="text-xl font-bold text-slate-800">Recent Order</CardTitle>
-                  
+                    <CardTitle className="text-xl font-bold text-slate-800">Recent Projects</CardTitle>
+                    <button className="text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors">
+                        view all
+                    </button>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="w-full overflow-auto">
                         <table className="w-full min-w-[980px]">
                             <thead>
-                                <tr className="bg-[#E2FBFB] text-slate-800">
-                                    <th className="px-6 py-4 text-left text-sm font-bold">SL</th>
-                                    <th className="px-6 py-4 text-left text-sm font-bold">Items</th>
-                                    <th className="px-6 py-4 text-left text-sm font-bold">Title</th>
-                                    <th className="px-6 py-4 text-left text-sm font-bold">Date &amp; Time</th>
-                                    <th className="px-6 py-4 text-left text-sm font-bold">Customer</th>
-                                    <th className="px-6 py-4 text-left text-sm font-bold">Item Number</th>
-                                    <th className="px-6 py-4 text-left text-sm font-bold">Amount</th>
-                                    <th className="px-6 py-4 text-left text-sm font-bold">status</th>
+                                <tr className="bg-gray-50/80 text-slate-800 border-b border-gray-100">
+                                    <th className="px-6 py-4 text-left text-sm font-bold">ID</th>
+                                    <th className="px-6 py-4 text-left text-sm font-bold">Customer Name</th>
+                                    <th className="px-6 py-4 text-left text-sm font-bold">Project</th>
+                                    <th className="px-6 py-4 text-left text-sm font-bold">Status</th>
+                                    <th className="px-6 py-4 text-left text-sm font-bold">Progress</th>
+                                    <th className="px-6 py-4 text-left text-sm font-bold">Value</th>
+                                    <th className="px-6 py-4 text-left text-sm font-bold">Action</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 text-accent-foreground">
-                                {recentOrdersData.map((order, index) => (
+                            <tbody className="divide-y divide-gray-100 text-slate-700">
+                                {recentProjectsData.map((project, index) => (
                                     <motion.tr
-                                        key={`${order.sl}-${order.orderId}`}
+                                        key={`${project.id}`}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.1 * index }}
                                         className="hover:bg-gray-50/50"
                                     >
-                                        <td className="px-6 py-4 text-sm font-medium text-slate-700">
-                                            {order.sl}
+                                        <td className="px-6 py-4 text-sm font-medium">
+                                            {project.id}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <img
-                                                src={order.itemImage}
-                                                alt={order.title}
-                                                className="h-14 w-16 rounded-md object-cover"
-                                            />
+                                        <td className="px-6 py-4 text-sm">
+                                            {project.customerName}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-sm font-semibold text-slate-800">{order.title}</span>
-                                                <span className="text-sm font-medium text-slate-600">{order.orderId}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-sm font-medium text-slate-700">{order.date}</span>
-                                                <span className="w-fit rounded-sm bg-gray-100 px-3 py-1 text-xs text-slate-700">
-                                                    {order.time}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-700 font-medium">
-                                            {order.customer}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-slate-700 font-medium">
-                                            {order.itemCount}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-slate-700">
-                                            {order.amount}
+                                        <td className="px-6 py-4 text-sm">
+                                            {project.project}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span
-                                                className={`inline-flex min-w-[120px] items-center justify-center gap-1 rounded-sm px-3 py-3 text-xs font-semibold text-white ${order.status === 'Completed'
-                                                        ? 'bg-[#2FB65D]'
-                                                        : order.status === 'Processing'
-                                                            ? 'bg-[#2F8DF5]'
-                                                            : 'bg-[#FF3A3A]'
-                                                    }`}
+                                                className={`inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-medium ${
+                                                    project.status === 'In Progress'
+                                                        ? 'bg-purple-100 text-purple-600'
+                                                        : 'bg-red-100 text-red-500'
+                                                }`}
                                             >
-                                                {order.status === 'Completed' && <CheckCircle2 className="h-3.5 w-3.5" />}
-                                                {order.status === 'Processing' && <Clock3 className="h-3.5 w-3.5" />}
-                                                {order.status === 'Cancelled' && <XCircle className="h-3.5 w-3.5" />}
-                                                {order.status}
+                                                {project.status}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-2 w-24 rounded-full bg-gray-100 overflow-hidden">
+                                                    <div 
+                                                        className={`h-full rounded-full ${project.status === 'In Progress' ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                        style={{ width: `${project.progress}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-sm font-medium text-gray-600">{project.progress}%</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-medium">
+                                            {project.value}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                                                    <Eye className="h-4 w-4" />
+                                                </button>
+                                                <button className="text-red-400 hover:text-red-600 transition-colors">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
                                         </td>
                                     </motion.tr>
                                 ))}
