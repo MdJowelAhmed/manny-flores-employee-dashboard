@@ -668,3 +668,36 @@ export interface ProjectFilters {
   search: string
   status: ProjectStatus | 'all'
 }
+
+// ==================== Customer Management Types ====================
+export interface CustomerProject {
+  id: string
+  customerName: string
+  project: string
+  amount: number
+  projectDate: string
+}
+
+// ==================== Employee Management Types ====================
+export type EmployeeStatus = 'Active' | 'Leave'
+
+export interface EmployeeProject {
+  id: string
+  projectName: string
+  task: string
+  deadline: string
+  status: 'Active' | 'Complete'
+}
+
+export interface Employee {
+  id: string
+  employeeId: string
+  fullName: string
+  email: string
+  department: string
+  status: EmployeeStatus
+  joiningDate: string
+  role: string
+  workSchedule: string
+  projects?: EmployeeProject[]
+}

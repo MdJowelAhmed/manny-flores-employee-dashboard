@@ -40,6 +40,8 @@ import AdManagement from './pages/AdManagement/AdManagement'
 import PushNotificationList from './pages/PushNotification/PushNotificationList'
 import ControllerList from './pages/Controllers/ControllerList'
 import CompanyProjects from './pages/CompanyProjects/CompanyProjects'
+import CustomerManagement from './pages/CustomerManagement/CustomerManagement'
+import EmployeeManagement from './pages/EmployeeManagement/EmployeeManagement'
 
 function AppEntryRedirect() {
   const { user } = useAppSelector((state) => state.auth)
@@ -158,6 +160,26 @@ function App() {
             element={
               <RoleBasedRoute allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN]}>
                 <CompanyProjects />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Customer Management - Super Admin, Admin */}
+          <Route
+            path="customer-management"
+            element={
+              <RoleBasedRoute allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN]}>
+                <CustomerManagement />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Employee Management - Super Admin, Admin */}
+          <Route
+            path="employee-management"
+            element={
+              <RoleBasedRoute allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN]}>
+                <EmployeeManagement />
               </RoleBasedRoute>
             }
           />

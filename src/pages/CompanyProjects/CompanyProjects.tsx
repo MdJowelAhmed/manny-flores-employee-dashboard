@@ -194,13 +194,7 @@ export default function CompanyProjects() {
               className="w-[280px] bg-white"
               debounceMs={150}
             />
-            <Button
-              onClick={handleAddProject}
-              className="bg-primary hover:bg-primary/90 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Project
-            </Button>
+          
             <div className="w-[120px]">
               <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
                 <SelectTrigger className="w-full bg-primary text-white hover:bg-primary/90">
@@ -217,6 +211,14 @@ export default function CompanyProjects() {
                 </SelectContent>
               </Select>
             </div>
+
+            <Button
+              onClick={handleAddProject}
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Project
+            </Button>
           </div>
         </CardHeader>
 

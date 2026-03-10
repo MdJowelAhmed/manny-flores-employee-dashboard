@@ -21,6 +21,8 @@ import {
   Bell,
   ImageIcon,
   Building2,
+  UserCircle,
+  UserCog,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -100,6 +102,18 @@ const navItems: NavItem[] = [
     href: '/company-projects',
     icon: Building2,
     feature: 'company-projects',
+  },
+  {
+    title: 'Customer Management',
+    href: '/customer-management',
+    icon: UserCircle,
+    feature: 'customer-management',
+  },
+  {
+    title: 'Employee Management',
+    href: '/employee-management',
+    icon: UserCog,
+    feature: 'employee-management',
   },
   {
     title: 'Revenue',

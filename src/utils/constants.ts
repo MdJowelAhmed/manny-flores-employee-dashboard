@@ -51,6 +51,7 @@ export const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   Failed: { bg: 'bg-red-100', text: 'text-red-800' },
   Cancelled: { bg: 'bg-gray-100', text: 'text-gray-800' },
   Active: { bg: 'bg-orange-100', text: 'text-orange-800' },
+  Leave: { bg: 'bg-orange-100', text: 'text-orange-600' },
 }
 
 export const ROLE_COLORS: Record<string, { bg: string; text: string }> = {
