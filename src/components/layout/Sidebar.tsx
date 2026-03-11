@@ -27,6 +27,7 @@ import {
   Wrench,
   Star,
   MessageCircle,
+  FileCheck,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -142,6 +143,12 @@ const navItems: NavItem[] = [
     href: '/communication',
     icon: MessageCircle,
     feature: 'communication',
+  },
+  {
+    title: 'Documents & Approvals',
+    href: '/documents-approvals',
+    icon: FileCheck,
+    feature: 'documents-approvals',
   },
   {
     title: 'Revenue',

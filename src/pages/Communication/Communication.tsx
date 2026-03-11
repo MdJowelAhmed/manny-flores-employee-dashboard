@@ -119,14 +119,14 @@ export default function Communication() {
             </TabsList>
           </div>
 
-          <TabsContent value="customer" className="m-0 flex-1 overflow-hidden">
+          <TabsContent value="customer" className="m-0 flex-1 overflow-y-auto">
             <ConversationList
               conversations={customerConversations}
               selected={selectedConversation}
               onSelect={setSelectedConversation}
             />
           </TabsContent>
-          <TabsContent value="employee" className="m-0 flex-1 overflow-hidden">
+          <TabsContent value="employee" className="m-0 flex-1 overflow-y-auto">
             <ConversationList
               conversations={employeeConversations}
               selected={selectedConversation}

@@ -46,6 +46,7 @@ import VehicleMaintenance from './pages/VehicleMaintenance/VehicleMaintenance'
 import EquipmentMaintenance from './pages/EquipmentMaintenance/EquipmentMaintenance'
 import ReviewList from './pages/Reviews/ReviewList'
 import Communication from './pages/Communication/Communication'
+import DocumentsApprovals from './pages/DocumentsApprovals/DocumentsApprovals'
 
 function AppEntryRedirect() {
   const { user } = useAppSelector((state) => state.auth)
@@ -224,6 +225,16 @@ function App() {
             element={
               <RoleBasedRoute allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MARKETING]}>
                 <Communication />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Documents & Approvals - Super Admin, Admin */}
+          <Route
+            path="documents-approvals"
+            element={
+              <RoleBasedRoute allowedRoles={[UserRole.SUPER_ADMIN, UserRole.ADMIN]}>
+                <DocumentsApprovals />
               </RoleBasedRoute>
             }
           />
