@@ -188,7 +188,7 @@ export default function Attendance() {
               itemsPerPage={itemsPerPage}
               onPageChange={setPage}
               onItemsPerPageChange={setLimit}
-              showItemsPerPage={false}
+              showItemsPerPage
             />
           </div>
         )}

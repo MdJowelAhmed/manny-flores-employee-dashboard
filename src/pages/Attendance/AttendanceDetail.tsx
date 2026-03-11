@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useState, useMemo, useEffect } from 'react'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Calendar, UserCheck, UserX, Clock, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { Pagination } from '@/components/common/Pagination'
 import { AttendanceDetailTable } from './AttendanceDetailTable'
 import { ViewAttendanceDetailsModal } from './components/ViewAttendanceDetailsModal'
 import { AddEditAttendanceModal } from './components/AddEditAttendanceModal'
@@ -27,6 +28,10 @@ const detailStats = [
 export default function AttendanceDetail() {
   const { employeeSlug } = useParams<{ employeeSlug: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const itemsPerPage = Math.max(1, parseInt(searchParams.get('limit') || '10', 10)) || 10
+
   const employeeName = employeeSlug ? getEmployeeName(employeeSlug) : ''
   const profile = employeeName ? employeeProfiles[employeeName] : null
 
@@ -39,6 +44,29 @@ export default function AttendanceDetail() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [recordToDelete, setRecordToDelete] = useState<AttendanceRecord | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  const totalPages = Math.max(1, Math.ceil(records.length / itemsPerPage))
+
+  const setPage = (p: number) => {
+    const next = new URLSearchParams(searchParams)
+    p > 1 ? next.set('page', String(p)) : next.delete('page')
+    setSearchParams(next, { replace: true })
+  }
+  const setLimit = (l: number) => {
+    const next = new URLSearchParams(searchParams)
+    l !== 10 ? next.set('limit', String(l)) : next.delete('limit')
+    next.delete('page')
+    setSearchParams(next, { replace: true })
+  }
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages >= 1) setPage(1)
+  }, [totalPages, currentPage])
+
+  const paginatedRecords = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return records.slice(start, start + itemsPerPage)
+  }, [records, currentPage, itemsPerPage])
 
   const stats = useMemo(() => {
     const total = records.length
@@ -228,11 +256,24 @@ export default function AttendanceDetail() {
           <h2 className="text-base font-semibold text-accent">Attendance History</h2>
         </div>
         <AttendanceDetailTable
-          records={records}
+          records={paginatedRecords}
           onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
+        {records.length > 0 && (
+          <div className="border-t border-gray-100 px-4 py-3">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={records.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setPage}
+              onItemsPerPageChange={setLimit}
+              showItemsPerPage
+            />
+          </div>
+        )}
       </div>
 
       <ViewAttendanceDetailsModal
