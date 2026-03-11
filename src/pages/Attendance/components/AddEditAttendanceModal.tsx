@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Calendar } from 'lucide-react'
 import { ModalWrapper } from '@/components/common'
-import { FormInput, FormSelect } from '@/components/common/Form'
+import { FormInput, FormSelect, DatePicker } from '@/components/common/Form'
 import { Button } from '@/components/ui/button'
 import type { AttendanceRecord, AttendanceStatus } from '../attendanceData'
 import { statusOptions } from '../attendanceData'
 import { toast } from '@/utils/toast'
+import { parseFlexibleDate, formatDateShort } from '@/utils/formatters'
 
 interface AddEditAttendanceModalProps {
   open: boolean
@@ -22,7 +22,7 @@ export function AddEditAttendanceModal({
 }: AddEditAttendanceModalProps) {
   const isEdit = !!record?.id
 
-  const [dateInput, setDateInput] = useState('')
+  const [dateInput, setDateInput] = useState<Date | undefined>(undefined)
   const [employee, setEmployee] = useState('')
   const [project, setProject] = useState('')
   const [status, setStatus] = useState<AttendanceStatus>('Present')
@@ -33,15 +33,14 @@ export function AddEditAttendanceModal({
     if (record) {
       setEmployee(record.employee)
       setProject(record.project)
-      setDateInput(formatToInput(record.date))
+      setDateInput(parseFlexibleDate(record.date) ?? undefined)
       setStatus(record.status)
       setCheckIn(record.checkIn === '--:--' ? '' : record.checkIn)
       setCheckOut(record.checkOut === '--:--' ? '' : record.checkOut)
     } else {
       setEmployee('')
       setProject('')
-      const today = new Date()
-      setDateInput(today.toISOString().slice(0, 10))
+      setDateInput(new Date())
       setStatus('Present')
       setCheckIn('09:00 am')
       setCheckOut('06:00 pm')
@@ -50,7 +49,7 @@ export function AddEditAttendanceModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const dateStr = formatFromInput(dateInput)
+    const dateStr = dateInput ? formatDateShort(dateInput) : ''
     const total = computeTotalHours(checkIn, checkOut)
     onSave({
       id: record?.id,
@@ -79,18 +78,11 @@ export function AddEditAttendanceModal({
       className="max-w-md"
     >
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">Attendance Date</label>
-          <div className="relative">
-            <input
-              type="date"
-              value={dateInput}
-              onChange={(e) => setDateInput(e.target.value)}
-              className="flex h-11 w-full rounded-sm border border-input bg-background px-3 py-2 pl-9 text-sm"
-            />
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          </div>
-        </div>
+        <DatePicker
+          label="Attendance Date"
+          value={dateInput}
+          onChange={setDateInput}
+        />
 
         {!isEdit && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -139,22 +131,6 @@ export function AddEditAttendanceModal({
       </form>
     </ModalWrapper>
   )
-}
-
-function formatToInput(dateStr: string): string {
-  if (!dateStr) return ''
-  try {
-    const d = new Date(dateStr.replace(/(\d+)\s+(\w+),\s*(\d+)/, '$2 $1 $3'))
-    return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
-  } catch {
-    return ''
-  }
-}
-
-function formatFromInput(isoDate: string): string {
-  if (!isoDate) return ''
-  const d = new Date(isoDate)
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 function computeTotalHours(inStr: string, outStr: string): string {

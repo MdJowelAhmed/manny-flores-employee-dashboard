@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { parse, format } from 'date-fns'
 import { ModalWrapper } from '@/components/common'
-import { FormInput, FormSelect } from '@/components/common/Form'
+import { FormInput, FormSelect, DatePicker } from '@/components/common/Form'
 import { Button } from '@/components/ui/button'
 import { Eye, EyeOff } from 'lucide-react'
 import type { Employee, EmployeeStatus } from '@/types'
 import { departmentOptions, roleOptions } from '../employeeManagementData'
 import { toast } from '@/utils/toast'
+import { parseFlexibleDate, formatDateJoining } from '@/utils/formatters'
 
 interface AddEditEmployeeModalProps {
   open: boolean
@@ -32,15 +32,6 @@ function to24Hour(time12: string): string {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
-function parseDisplayDateToInput(dateStr: string): string {
-  try {
-    const d = parse(dateStr, 'd MMMM, yyyy', new Date())
-    return format(d, 'yyyy-MM-dd')
-  } catch {
-    return ''
-  }
-}
-
 function to12Hour(time24: string): string {
   const [h, m] = time24.split(':').map(Number)
   const period = h >= 12 ? 'PM' : 'AM'
@@ -58,7 +49,7 @@ export function AddEditEmployeeModal({
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
-  const [joiningDate, setJoiningDate] = useState('')
+  const [joiningDate, setJoiningDate] = useState<Date | undefined>(undefined)
   const [department, setDepartment] = useState('')
   const [role, setRole] = useState('')
   const [scheduleStart, setScheduleStart] = useState('09:00')
@@ -71,7 +62,7 @@ export function AddEditEmployeeModal({
       if (employee) {
         setFullName(employee.fullName)
         setEmail(employee.email)
-        setJoiningDate(parseDisplayDateToInput(employee.joiningDate))
+        setJoiningDate(parseFlexibleDate(employee.joiningDate) ?? undefined)
         setDepartment(employee.department)
         setRole(employee.role)
         const { start, end } = parseWorkSchedule(employee.workSchedule)
@@ -81,7 +72,7 @@ export function AddEditEmployeeModal({
       } else {
         setFullName('')
         setEmail('')
-        setJoiningDate('')
+        setJoiningDate(undefined)
         setDepartment('')
         setRole('')
         setScheduleStart('09:00')
@@ -94,17 +85,7 @@ export function AddEditEmployeeModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const workSchedule = `${to12Hour(scheduleStart)} - ${to12Hour(scheduleEnd)}`
-    let formattedJoiningDate = joiningDate
-    if (joiningDate) {
-      try {
-        formattedJoiningDate = format(
-          parse(joiningDate, 'yyyy-MM-dd', new Date()),
-          'd MMMM, yyyy'
-        )
-      } catch {
-        formattedJoiningDate = employee?.joiningDate ?? joiningDate
-      }
-    }
+    const formattedJoiningDate = joiningDate ? formatDateJoining(joiningDate) : ''
     const payload: Partial<Employee> = {
       fullName: fullName.trim(),
       email: email.trim(),
@@ -171,11 +152,10 @@ export function AddEditEmployeeModal({
         <div>
           <h3 className="text-sm font-bold text-foreground mb-4">Organizational details</h3>
           <div className="grid grid-cols-1 gap-4">
-            <FormInput
+            <DatePicker
               label="Joining Date"
-              type="date"
               value={joiningDate}
-              onChange={(e) => setJoiningDate(e.target.value)}
+              onChange={setJoiningDate}
               className="border-gray-200"
             />
             <FormSelect

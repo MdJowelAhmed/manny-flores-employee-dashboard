@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Calendar, User, Car, CreditCard, Mail, Phone, DollarSign } from 'lucide-react'
+import { User, Car, CreditCard, Mail, Phone, DollarSign } from 'lucide-react'
 import { ModalWrapper } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { DatePicker } from '@/components/common/Form'
+import { parseFlexibleDate, formatDateISO } from '@/utils/formatters'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 import { addBooking } from '@/redux/slices/bookingSlice'
 import { toast } from '@/utils/toast'
@@ -40,6 +42,7 @@ export function AddBookingModal({ open, onClose }: AddBookingModalProps) {
 
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     watch,
@@ -281,41 +284,46 @@ export function AddBookingModal({ open, onClose }: AddBookingModalProps) {
             Booking Dates
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <Label htmlFor="startDate">Start Date *</Label>
-              </div>
-              <Input
-                id="startDate"
-                type="date"
-                error={!!errors.startDate}
-                {...register('startDate')}
-              />
-              {errors.startDate && (
-                <p className="text-xs text-destructive">
-                  {errors.startDate.message}
-                </p>
+            <Controller
+              name="startDate"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-1.5">
+                  <DatePicker
+                    id="startDate"
+                    label="Start Date *"
+                    value={field.value ? parseFlexibleDate(field.value) ?? undefined : undefined}
+                    onChange={(date) => field.onChange(date ? formatDateISO(date) : '')}
+                    placeholder="Pick start date"
+                  />
+                  {errors.startDate && (
+                    <p className="text-xs text-destructive">
+                      {errors.startDate.message}
+                    </p>
+                  )}
+                </div>
               )}
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <Label htmlFor="endDate">End Date *</Label>
-              </div>
-              <Input
-                id="endDate"
-                type="date"
-                error={!!errors.endDate}
-                {...register('endDate')}
-              />
-              {errors.endDate && (
-                <p className="text-xs text-destructive">
-                  {errors.endDate.message}
-                </p>
+            />
+            <Controller
+              name="endDate"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-1.5">
+                  <DatePicker
+                    id="endDate"
+                    label="End Date *"
+                    value={field.value ? parseFlexibleDate(field.value) ?? undefined : undefined}
+                    onChange={(date) => field.onChange(date ? formatDateISO(date) : '')}
+                    placeholder="Pick end date"
+                  />
+                  {errors.endDate && (
+                    <p className="text-xs text-destructive">
+                      {errors.endDate.message}
+                    </p>
+                  )}
+                </div>
               )}
-            </div>
+            />
           </div>
         </div>
 

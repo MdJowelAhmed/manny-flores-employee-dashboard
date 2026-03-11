@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Calendar } from 'lucide-react'
 import { ModalWrapper } from '@/components/common'
-import { FormInput } from '@/components/common/Form'
+import { FormInput, DatePicker } from '@/components/common/Form'
 import { Button } from '@/components/ui/button'
 import type { Material } from '../manageMaterialsData'
 import { toast } from '@/utils/toast'
+import { parseFlexibleDate, formatDateDayMonth } from '@/utils/formatters'
 
 interface AddEditMaterialModalProps {
   open: boolean
@@ -29,7 +29,7 @@ export function AddEditMaterialModal({
   const [supplierName, setSupplierName] = useState('')
   const [supplierEmail, setSupplierEmail] = useState('')
   const [supplierContact, setSupplierContact] = useState('')
-  const [lastPurchaseDate, setLastPurchaseDate] = useState('')
+  const [lastPurchaseDate, setLastPurchaseDate] = useState<Date | undefined>(undefined)
 
   useEffect(() => {
     if (material) {
@@ -41,7 +41,7 @@ export function AddEditMaterialModal({
       setSupplierName(material.supplier)
       setSupplierEmail(material.supplierEmail)
       setSupplierContact(material.supplierContact)
-      setLastPurchaseDate(formatToInput(material.lastPurchaseDate))
+      setLastPurchaseDate(parseFlexibleDate(material.lastPurchaseDate) ?? undefined)
     } else {
       setMaterialName('')
       setCategory('')
@@ -51,7 +51,7 @@ export function AddEditMaterialModal({
       setSupplierName('')
       setSupplierEmail('')
       setSupplierContact('')
-      setLastPurchaseDate('')
+      setLastPurchaseDate(undefined)
     }
   }, [material, open])
 
@@ -72,7 +72,7 @@ export function AddEditMaterialModal({
       supplier: supplierName.trim(),
       supplierEmail: supplierEmail.trim(),
       supplierContact: supplierContact.trim(),
-      lastPurchaseDate: formatFromInput(lastPurchaseDate),
+      lastPurchaseDate: lastPurchaseDate ? formatDateDayMonth(lastPurchaseDate) : '',
       unit: material?.unit ?? 'unit',
       assignedProject: material?.assignedProject ?? '',
       assignedProjects: material?.assignedProjects ?? [],
@@ -165,18 +165,11 @@ export function AddEditMaterialModal({
               value={supplierContact}
               onChange={(e) => setSupplierContact(e.target.value)}
             />
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Last Purchase Date</label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={lastPurchaseDate}
-                  onChange={(e) => setLastPurchaseDate(e.target.value)}
-                  className="flex h-11 w-full rounded-sm border border-input bg-background px-3 py-2 pl-9 text-sm"
-                />
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              </div>
-            </div>
+            <DatePicker
+              label="Last Purchase Date"
+              value={lastPurchaseDate}
+              onChange={setLastPurchaseDate}
+            />
           </div>
         </div>
 
@@ -193,22 +186,3 @@ export function AddEditMaterialModal({
   )
 }
 
-function formatToInput(dateStr: string): string {
-  if (!dateStr) return ''
-  try {
-    const d = new Date(dateStr.replace(/(\d+)\s+(\w+),\s*(\d+)/, '$2 $1 $3'))
-    if (isNaN(d.getTime())) return ''
-    return d.toISOString().slice(0, 10)
-  } catch {
-    return ''
-  }
-}
-
-function formatFromInput(isoDate: string): string {
-  if (!isoDate) return ''
-  const d = new Date(isoDate)
-  const day = d.getDate()
-  const month = d.toLocaleString('default', { month: 'short' })
-  const year = d.getFullYear()
-  return `${day} ${month}, ${year}`
-}

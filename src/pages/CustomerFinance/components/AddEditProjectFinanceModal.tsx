@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Calendar } from 'lucide-react'
 import { ModalWrapper } from '@/components/common'
-import { FormInput, FormSelect, FormTextarea } from '@/components/common/Form'
+import { FormInput, FormSelect, FormTextarea, DatePicker } from '@/components/common/Form'
 import { Button } from '@/components/ui/button'
 import type { Project, ProjectStatus } from '@/types'
 import {
@@ -9,6 +8,7 @@ import {
   paymentMethodOptions,
 } from '../customerFinanceData'
 import { toast } from '@/utils/toast'
+import { parseFlexibleDate, formatDateLong } from '@/utils/formatters'
 
 interface AddEditProjectFinanceModalProps {
   open: boolean
@@ -37,8 +37,7 @@ export function AddEditProjectFinanceModal({
   const [company, setCompany] = useState('')
   const [status, setStatus] = useState<ProjectStatus>('Active')
   const [amountDue, setAmountDue] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [startDateInput, setStartDateInput] = useState('')
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
   const [totalBudget, setTotalBudget] = useState('')
   const [amountSpent, setAmountSpent] = useState('')
   const [email, setEmail] = useState('')
@@ -52,8 +51,7 @@ export function AddEditProjectFinanceModal({
       setCompany(project.company)
       setStatus(project.status)
       setAmountDue(String(project.amountDue ?? project.remaining ?? 0))
-      setStartDate(project.startDate)
-      setStartDateInput(project.startDate ? formatToInput(project.startDate) : '')
+      setStartDate(parseFlexibleDate(project.startDate) ?? undefined)
       setTotalBudget(String(project.totalBudget))
       setAmountSpent(String(project.amountSpent))
       setEmail(project.email)
@@ -65,8 +63,7 @@ export function AddEditProjectFinanceModal({
       setCompany('')
       setStatus('Active')
       setAmountDue('')
-      setStartDate('')
-      setStartDateInput('')
+      setStartDate(undefined)
       setTotalBudget('')
       setAmountSpent('')
       setEmail('')
@@ -87,7 +84,7 @@ export function AddEditProjectFinanceModal({
       company: company.trim(),
       status,
       amountDue: parseFloat(String(amountDue).replace(/[^0-9.-]/g, '')) || remaining,
-      startDate: startDateInput ? formatFromInput(startDateInput) : startDate,
+      startDate: startDate ? formatDateLong(startDate) : '',
       totalBudget: total,
       amountSpent: spent,
       remaining,
@@ -158,21 +155,11 @@ export function AddEditProjectFinanceModal({
         <div>
           <h3 className="text-sm font-semibold mb-3 text-foreground">Timeline & Budget</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Start date</label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={startDateInput}
-                  onChange={(e) => {
-                    setStartDateInput(e.target.value)
-                    setStartDate(formatFromInput(e.target.value))
-                  }}
-                  className="flex h-11 w-full rounded-sm border border-input bg-background px-3 py-2 pl-9 text-sm"
-                />
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              </div>
-            </div>
+            <DatePicker
+              label="Start date"
+              value={startDate}
+              onChange={setStartDate}
+            />
             <FormInput
               label="Total Budget"
               placeholder="e.g. 45880"
@@ -232,14 +219,3 @@ export function AddEditProjectFinanceModal({
   )
 }
 
-function formatToInput(dateStr: string): string {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
-}
-
-function formatFromInput(isoDate: string): string {
-  if (!isoDate) return ''
-  const d = new Date(isoDate)
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-}

@@ -1,9 +1,8 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Plus, Eye, Trash2 } from 'lucide-react'
+import { Plus, Eye, Pencil, Trash2 } from 'lucide-react'
 import { Pagination } from '@/components/common/Pagination'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { mockCustomerProjectsData } from './customerManagementData'
@@ -89,12 +88,23 @@ export default function CustomerManagement() {
     setIsAddModalOpen(true)
   }
 
+  const handleEditProject = (project: CustomerProject) => {
+    setSelectedProject(project)
+    setIsAddModalOpen(true)
+  }
+
   const handleSaveProject = (data: Omit<CustomerProject, 'id'>) => {
-    const newProject: CustomerProject = {
-      id: String(projects.length + 1),
-      ...data,
+    if (selectedProject) {
+      setProjects((prev) =>
+        prev.map((p) => (p.id === selectedProject.id ? { ...selectedProject, ...data } : p))
+      )
+    } else {
+      const newProject: CustomerProject = {
+        id: String(projects.length + 1),
+        ...data,
+      }
+      setProjects((prev) => [newProject, ...prev])
     }
-    setProjects((prev) => [newProject, ...prev])
   }
 
   return (
@@ -102,27 +112,25 @@ export default function CustomerManagement() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
+      className=""
     >
       <div className="border-0">
-        <CardHeader className="flex flex-row items-center justify-between pb-6">
-          <CardTitle className="text-xl font-bold text-accent">
-            Customer Management
-          </CardTitle>
+        <div className="flex flex-row items-center justify-end mb-6">
+       
           <Button
             onClick={handleAddProject}
             className="bg-primary hover:bg-primary/90 text-white"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 " />
             Add Project
           </Button>
-        </CardHeader>
+        </div>
 
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px] border-collapse">
               <thead>
-                <tr className="bg-[#F9FAFB]">
+                <tr className="bg-secondary-foreground">
                   <th className="px-6 py-4 text-left text-sm font-bold text-slate-800">
                     ID
                   </th>
@@ -160,7 +168,7 @@ export default function CustomerManagement() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.05 * index }}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-gray-50 transition-colors shadow-sm"
                     >
                       <td className="px-6 py-3 text-sm text-slate-700">
                         #{project.id}
@@ -186,6 +194,14 @@ export default function CustomerManagement() {
                             className="h-9 w-9 hover:bg-gray-100"
                           >
                             <Eye className="h-5 w-5 text-slate-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => handleEditProject(project)}
+                            className="h-9 w-9 hover:bg-gray-100"
+                          >
+                            <Pencil className="h-5 w-5 text-slate-600" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -234,7 +250,7 @@ export default function CustomerManagement() {
           setIsAddModalOpen(false)
           setSelectedProject(null)
         }}
-        project={null}
+        project={selectedProject}
         onSave={handleSaveProject}
       />
 

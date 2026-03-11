@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { ModalWrapper } from '@/components/common'
-import { FormInput, FormSelect, FormTextarea } from '@/components/common/Form'
+import { FormInput, FormSelect, FormTextarea, DatePicker } from '@/components/common/Form'
 import { Button } from '@/components/ui/button'
 import type { Project, ProjectStatus } from '@/types'
 import { projectStatusFilterOptions, paymentMethodOptions } from '../companyProjectsData'
 import { toast } from '@/utils/toast'
+import { parseFlexibleDate, formatDateLong } from '@/utils/formatters'
 
 interface AddEditProjectModalProps {
   open: boolean
@@ -30,7 +31,7 @@ export function AddEditProjectModal({ open, onClose, project, onSave }: AddEditP
   const [company, setCompany] = useState('')
   const [status, setStatus] = useState<ProjectStatus | 'all'>('Active')
   const [amountDue, setAmountDue] = useState('')
-  const [startDate, setStartDate] = useState('')
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
   const [totalBudget, setTotalBudget] = useState('')
   const [amountSpent, setAmountSpent] = useState('')
   const [email, setEmail] = useState('')
@@ -44,7 +45,7 @@ export function AddEditProjectModal({ open, onClose, project, onSave }: AddEditP
       setCompany(project.company)
       setStatus(project.status)
       setAmountDue(String(project.amountDue ?? project.remaining))
-      setStartDate(project.startDate)
+      setStartDate(parseFlexibleDate(project.startDate) ?? undefined)
       setTotalBudget(String(project.totalBudget))
       setAmountSpent(String(project.amountSpent))
       setEmail(project.email)
@@ -56,7 +57,7 @@ export function AddEditProjectModal({ open, onClose, project, onSave }: AddEditP
       setCompany('')
       setStatus('Active')
       setAmountDue('')
-      setStartDate('')
+      setStartDate(undefined)
       setTotalBudget('')
       setAmountSpent('')
       setEmail('')
@@ -77,7 +78,7 @@ export function AddEditProjectModal({ open, onClose, project, onSave }: AddEditP
       company: company.trim(),
       status: status as ProjectStatus,
       amountDue: parseFloat(amountDue) || remaining,
-      startDate,
+      startDate: startDate ? formatDateLong(startDate) : '',
       totalBudget: total,
       amountSpent: spent,
       remaining,
@@ -151,11 +152,10 @@ export function AddEditProjectModal({ open, onClose, project, onSave }: AddEditP
         <div>
           <h3 className="text-sm font-semibold mb-4 text-foreground">Timeline & Budget</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormInput
+            <DatePicker
               label="Start date"
-              placeholder="dd/mm/yyyy"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={setStartDate}
             />
             <FormInput
               label="Total Budget"

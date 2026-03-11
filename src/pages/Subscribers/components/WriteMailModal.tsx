@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/utils/cn'
 import { toast } from '@/utils/toast'
+import { DatePicker } from '@/components/common/Form'
+import { formatDateISO } from '@/utils/formatters'
 import type { SendMailPayload } from '@/types'
 
 interface WriteMailModalProps {
@@ -25,15 +27,15 @@ export function WriteMailModal({
   onClose,
   onSent,
 }: WriteMailModalProps) {
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined)
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleClose = () => {
-    setDateFrom('')
-    setDateTo('')
+    setDateFrom(undefined)
+    setDateTo(undefined)
     setTitle('')
     setDescription('')
     onClose()
@@ -63,8 +65,8 @@ export function WriteMailModal({
         title: title.trim(),
         description: description.trim(),
       }
-      if (dateFrom) payload.dateFrom = dateFrom
-      if (dateTo) payload.dateTo = dateTo
+      if (dateFrom) payload.dateFrom = formatDateISO(dateFrom)
+      if (dateTo) payload.dateTo = formatDateISO(dateTo)
 
       if (onSent) {
         await onSent(payload)
@@ -91,18 +93,14 @@ export function WriteMailModal({
 
   const dateRangeDisplay = (() => {
     if (!dateFrom && !dateTo) return ''
-    try {
-      if (dateFrom && dateTo) {
-        return `${format(parseISO(dateFrom), 'dd-MM-yyyy')} - ${format(parseISO(dateTo), 'dd-MM-yyyy')}`
-      }
-      return dateFrom
-        ? format(parseISO(dateFrom), 'dd-MM-yyyy')
-        : dateTo
-          ? format(parseISO(dateTo), 'dd-MM-yyyy')
-          : ''
-    } catch {
-      return ''
+    if (dateFrom && dateTo) {
+      return `${format(dateFrom, 'dd-MM-yyyy')} - ${format(dateTo, 'dd-MM-yyyy')}`
     }
+    return dateFrom
+      ? format(dateFrom, 'dd-MM-yyyy')
+      : dateTo
+        ? format(dateTo, 'dd-MM-yyyy')
+        : ''
   })()
 
   return (
@@ -129,20 +127,20 @@ export function WriteMailModal({
               Date (Optional)
             </Label>
             <div className="flex items-center gap-2 flex-wrap">
-              <Input
+              <DatePicker
                 id="mail-date-from"
-                type="date"
                 value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-                className="flex-1 min-w-[120px] rounded-md border border-primary/40 focus-visible:ring-2 focus-visible:ring-primary"
+                onChange={setDateFrom}
+                placeholder="From"
+                className="flex-1 min-w-[120px]"
               />
-              <span className="text-muted-foreground">-</span>
-              <Input
+              <span className="text-muted-foreground self-center">-</span>
+              <DatePicker
                 id="mail-date-to"
-                type="date"
                 value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-                className="flex-1 min-w-[120px] rounded-md border border-primary/40 focus-visible:ring-2 focus-visible:ring-primary"
+                onChange={setDateTo}
+                placeholder="To"
+                className="flex-1 min-w-[120px]"
               />
             </div>
             {dateRangeDisplay && (

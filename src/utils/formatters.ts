@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, parseISO } from 'date-fns'
+import { format, formatDistanceToNow, parse, parseISO } from 'date-fns'
 
 export function formatDate(date: string | Date, formatStr = 'MMM dd, yyyy'): string {
   const dateObj = typeof date === 'string' ? parseISO(date) : date
@@ -83,6 +83,71 @@ export function generateSKU(categoryPrefix: string): string {
   const timestamp = Date.now().toString(36).toUpperCase()
   const random = Math.random().toString(36).substring(2, 6).toUpperCase()
   return `${categoryPrefix}-${timestamp}-${random}`
+}
+
+/** Parse date from various display formats (dd/MM/yyyy, MMM dd yyyy, yyyy-MM-dd, etc.) */
+export function parseFlexibleDate(dateStr: string): Date | undefined {
+  if (!dateStr?.trim()) return undefined
+  const formats = [
+    'd/M/yyyy',
+    'dd/MM/yyyy',
+    'M/d/yyyy',
+    'MM/dd/yyyy',
+    'yyyy-MM-dd',
+    'MMM dd, yyyy',
+    'MMM d, yyyy',
+    'MMMM d, yyyy',
+    'dd MMM, yyyy',
+    'd MMM, yyyy',
+    'd MMM yyyy',
+    'd MMMM, yyyy',
+    'd MMM yyyy',
+  ]
+  for (const fmt of formats) {
+    try {
+      const d = parse(dateStr.trim().replace(/\s*,/g, ','), fmt, new Date())
+      return isNaN(d.getTime()) ? undefined : d
+    } catch {
+      continue
+    }
+  }
+  const d = new Date(dateStr)
+  return isNaN(d.getTime()) ? undefined : d
+}
+
+/** Format Date for display (d/M/yyyy) - use for form storage where format varies by feature */
+export function formatDateForInput(date: Date): string {
+  return format(date, 'd/M/yyyy')
+}
+
+/** Format for display like "Jan 12, 2023" */
+export function formatDateDisplay(date: Date): string {
+  return format(date, 'MMM dd, yyyy')
+}
+
+/** Format like "10 Feb, 2025" (day first) */
+export function formatDateDayMonth(date: Date): string {
+  return format(date, 'd MMM, yyyy')
+}
+
+/** Format like "January 15, 2026" (long month) */
+export function formatDateLong(date: Date): string {
+  return format(date, 'MMMM d, yyyy')
+}
+
+/** Format like "1 January, 2025" (day first, long month) */
+export function formatDateJoining(date: Date): string {
+  return format(date, 'd MMMM, yyyy')
+}
+
+/** Format like "18 Feb 2026" (en-GB style) */
+export function formatDateShort(date: Date): string {
+  return format(date, 'd MMM yyyy')
+}
+
+/** Format for ISO/API (yyyy-MM-dd) */
+export function formatDateISO(date: Date): string {
+  return format(date, 'yyyy-MM-dd')
 }
 
 

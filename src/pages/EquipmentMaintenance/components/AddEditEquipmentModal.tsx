@@ -1,43 +1,17 @@
 import { useState, useEffect } from 'react'
-import { parse, format } from 'date-fns'
 import { ModalWrapper } from '@/components/common'
-import { FormInput, FormSelect } from '@/components/common/Form'
+import { FormInput, FormSelect, DatePicker } from '@/components/common/Form'
 import { Button } from '@/components/ui/button'
 import type { Equipment } from '@/types'
 import { equipmentCategoryOptions } from '../equipmentMaintenanceData'
 import { toast } from '@/utils/toast'
+import { parseFlexibleDate, formatDateDisplay } from '@/utils/formatters'
 
 interface AddEditEquipmentModalProps {
   open: boolean
   onClose: () => void
   equipment: Equipment | null
   onSave: (data: Partial<Equipment>) => void
-}
-
-function parseDateToInput(dateStr: string): string {
-  if (!dateStr) return ''
-  try {
-    const d = parse(dateStr.replace(/\s*,/g, ','), 'MMM dd, yyyy', new Date())
-    return format(d, 'yyyy-MM-dd')
-  } catch {
-    try {
-      const d = new Date(dateStr)
-      if (!isNaN(d.getTime())) return format(d, 'yyyy-MM-dd')
-    } catch {
-      //
-    }
-    return dateStr
-  }
-}
-
-function formatInputToDisplay(val: string): string {
-  if (!val) return ''
-  try {
-    const d = parse(val, 'yyyy-MM-dd', new Date())
-    return format(d, 'MMM dd, yyyy')
-  } catch {
-    return val
-  }
 }
 
 export function AddEditEquipmentModal({
@@ -50,43 +24,43 @@ export function AddEditEquipmentModal({
 
   const [model, setModel] = useState('')
   const [category, setCategory] = useState('')
-  const [purchaseDate, setPurchaseDate] = useState('')
+  const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(undefined)
   const [purchaseCost, setPurchaseCost] = useState('')
-  const [warrantyExpiry, setWarrantyExpiry] = useState('')
+  const [warrantyExpiry, setWarrantyExpiry] = useState<Date | undefined>(undefined)
   const [empName, setEmpName] = useState('')
   const [empProject, setEmpProject] = useState('')
-  const [empStartDate, setEmpStartDate] = useState('')
+  const [empStartDate, setEmpStartDate] = useState<Date | undefined>(undefined)
   const [empLocation, setEmpLocation] = useState('')
-  const [lastService, setLastService] = useState('')
-  const [nextService, setNextService] = useState('')
+  const [lastService, setLastService] = useState<Date | undefined>(undefined)
+  const [nextService, setNextService] = useState<Date | undefined>(undefined)
 
   useEffect(() => {
     if (open) {
       if (equipment) {
         setModel(equipment.model)
         setCategory(equipment.category)
-        setPurchaseDate(parseDateToInput(equipment.purchaseDate))
+        setPurchaseDate(parseFlexibleDate(equipment.purchaseDate) ?? undefined)
         setPurchaseCost(equipment.purchaseCost)
-        setWarrantyExpiry(parseDateToInput(equipment.warrantyExpiry))
+        setWarrantyExpiry(parseFlexibleDate(equipment.warrantyExpiry) ?? undefined)
         const emp = equipment.assignedEmployee
         setEmpName(emp?.name ?? '')
         setEmpProject(emp?.project ?? '')
-        setEmpStartDate(parseDateToInput(emp?.startDate ?? ''))
+        setEmpStartDate(parseFlexibleDate(emp?.startDate ?? '') ?? undefined)
         setEmpLocation(emp?.location ?? '')
-        setLastService(parseDateToInput(equipment.lastService))
-        setNextService(parseDateToInput(equipment.nextService))
+        setLastService(parseFlexibleDate(equipment.lastService) ?? undefined)
+        setNextService(parseFlexibleDate(equipment.nextService) ?? undefined)
       } else {
         setModel('')
         setCategory('')
-        setPurchaseDate('')
+        setPurchaseDate(undefined)
         setPurchaseCost('')
-        setWarrantyExpiry('')
+        setWarrantyExpiry(undefined)
         setEmpName('')
         setEmpProject('')
-        setEmpStartDate('')
+        setEmpStartDate(undefined)
         setEmpLocation('')
-        setLastService('')
-        setNextService('')
+        setLastService(undefined)
+        setNextService(undefined)
       }
     }
   }, [equipment, open])
@@ -96,17 +70,17 @@ export function AddEditEquipmentModal({
     const payload: Partial<Equipment> = {
       model: model.trim(),
       category,
-      purchaseDate: purchaseDate ? formatInputToDisplay(purchaseDate) : '',
+      purchaseDate: purchaseDate ? formatDateDisplay(purchaseDate) : '',
       purchaseCost: purchaseCost.trim(),
-      warrantyExpiry: warrantyExpiry ? formatInputToDisplay(warrantyExpiry) : '',
+      warrantyExpiry: warrantyExpiry ? formatDateDisplay(warrantyExpiry) : '',
       assignedEmployee: {
         name: empName.trim(),
         project: empProject.trim(),
-        startDate: empStartDate ? formatInputToDisplay(empStartDate) : '',
+        startDate: empStartDate ? formatDateDisplay(empStartDate) : '',
         location: empLocation.trim(),
       },
-      lastService: lastService ? formatInputToDisplay(lastService) : '',
-      nextService: nextService ? formatInputToDisplay(nextService) : '',
+      lastService: lastService ? formatDateDisplay(lastService) : '',
+      nextService: nextService ? formatDateDisplay(nextService) : '',
     }
     if (isEdit && equipment) {
       payload.equipmentName = equipment.equipmentName
@@ -158,11 +132,10 @@ export function AddEditEquipmentModal({
               placeholder="Select category"
               className="border-gray-200"
             />
-            <FormInput
+            <DatePicker
               label="Purchase Date"
-              type="date"
               value={purchaseDate}
-              onChange={(e) => setPurchaseDate(e.target.value)}
+              onChange={setPurchaseDate}
               className="border-gray-200"
             />
             <FormInput
@@ -172,11 +145,10 @@ export function AddEditEquipmentModal({
               onChange={(e) => setPurchaseCost(e.target.value)}
               className="border-gray-200"
             />
-            <FormInput
+            <DatePicker
               label="Warranty Expiry"
-              type="date"
               value={warrantyExpiry}
-              onChange={(e) => setWarrantyExpiry(e.target.value)}
+              onChange={setWarrantyExpiry}
               className="border-gray-200 col-span-2"
             />
           </div>
@@ -199,11 +171,10 @@ export function AddEditEquipmentModal({
               onChange={(e) => setEmpProject(e.target.value)}
               className="border-gray-200"
             />
-            <FormInput
+            <DatePicker
               label="Start date"
-              type="date"
               value={empStartDate}
-              onChange={(e) => setEmpStartDate(e.target.value)}
+              onChange={setEmpStartDate}
               className="border-gray-200"
             />
             <FormInput
@@ -219,18 +190,16 @@ export function AddEditEquipmentModal({
         <div>
           <h3 className="text-sm font-bold text-foreground mb-3">Maintenance</h3>
           <div className="grid grid-cols-2 gap-4">
-            <FormInput
+            <DatePicker
               label="Last Service"
-              type="date"
               value={lastService}
-              onChange={(e) => setLastService(e.target.value)}
+              onChange={setLastService}
               className="border-gray-200"
             />
-            <FormInput
+            <DatePicker
               label="Next Service"
-              type="date"
               value={nextService}
-              onChange={(e) => setNextService(e.target.value)}
+              onChange={setNextService}
               className="border-gray-200"
             />
           </div>

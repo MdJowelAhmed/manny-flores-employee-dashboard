@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Calendar } from 'lucide-react'
 import { ModalWrapper } from '@/components/common'
-import { FormInput } from '@/components/common/Form'
+import { FormInput, DatePicker } from '@/components/common/Form'
 import { Button } from '@/components/ui/button'
 import type { ScheduledProject } from '../projectSchedulingData'
 import { toast } from '@/utils/toast'
+import { parseFlexibleDate, formatDateDisplay } from '@/utils/formatters'
 
 interface AddEditScheduleModalProps {
   open: boolean
@@ -22,7 +22,7 @@ export function AddEditScheduleModal({
   const isEdit = !!schedule?.id
 
   const [projectName, setProjectName] = useState('')
-  const [uploadDate, setUploadDate] = useState('')
+  const [uploadDate, setUploadDate] = useState<Date | undefined>(undefined)
   const [uploadedBy, setUploadedBy] = useState('')
   const [email, setEmail] = useState('')
   const [company, setCompany] = useState('')
@@ -31,14 +31,14 @@ export function AddEditScheduleModal({
   useEffect(() => {
     if (schedule) {
       setProjectName(schedule.projectTitle)
-      setUploadDate(formatToInput(schedule.uploadDate))
+      setUploadDate(parseFlexibleDate(schedule.uploadDate) ?? undefined)
       setUploadedBy(schedule.uploadedBy)
       setEmail(schedule.email)
       setCompany(schedule.company)
       setTeam(schedule.team)
     } else {
       setProjectName('')
-      setUploadDate('')
+      setUploadDate(undefined)
       setUploadedBy('')
       setEmail('')
       setCompany('')
@@ -51,7 +51,7 @@ export function AddEditScheduleModal({
     onSave({
       id: schedule?.id,
       projectTitle: projectName.trim(),
-      uploadDate: formatFromInput(uploadDate),
+      uploadDate: uploadDate ? formatDateDisplay(uploadDate) : '',
       uploadedBy: uploadedBy.trim(),
       email: email.trim(),
       company: company.trim(),
@@ -84,18 +84,11 @@ export function AddEditScheduleModal({
               onChange={(e) => setProjectName(e.target.value)}
               required
             />
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Upload Date</label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={uploadDate}
-                  onChange={(e) => setUploadDate(e.target.value)}
-                  className="flex h-11 w-full rounded-sm border border-input bg-background px-3 py-2 pl-9 text-sm"
-                />
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              </div>
-            </div>
+            <DatePicker
+              label="Upload Date"
+              value={uploadDate}
+              onChange={setUploadDate}
+            />
             <FormInput
               label="Upload by"
               placeholder="Enter name"
@@ -137,15 +130,3 @@ export function AddEditScheduleModal({
   )
 }
 
-function formatToInput(dateStr: string): string {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  if (isNaN(d.getTime())) return ''
-  return d.toISOString().slice(0, 10)
-}
-
-function formatFromInput(isoDate: string): string {
-  if (!isoDate) return ''
-  const d = new Date(isoDate)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}

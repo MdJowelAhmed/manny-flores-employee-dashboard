@@ -120,6 +120,31 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* React Day Picker - match theme */
+.rdp-root {
+  --rdp-accent-color: var(--primary);
+  --rdp-accent-background-color: rgba(57, 177, 91, 0.15);
+}
+.rdp [data-selected] {
+  background-color: var(--primary) !important;
+  color: white !important;
+}
+.rdp [data-selected]:hover {
+  background-color: var(--primary) !important;
+  opacity: 0.9;
+}
+
+/* Calendar nav arrows - primary color */
+.rdp .rdp-button_previous,
+.rdp .rdp-button_next {
+  color: var(--primary) !important;
+}
+.rdp .rdp-button_previous svg,
+.rdp .rdp-button_next svg {
+  color: var(--primary) !important;
+  fill: var(--primary) !important;
+}
+
 
 
 

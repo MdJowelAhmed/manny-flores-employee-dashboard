@@ -35,6 +35,7 @@ import {
   DollarSign,
   FileBarChart,
   ClipboardList,
+  Info,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -57,41 +58,41 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
     feature: 'dashboard',
   },
-  {
-    title: 'Orders',
-    href: '/orders',
-    icon: ShoppingBag,
-    feature: 'orders',
-  },
-  {
-    title: 'Shop Management',
-    href: '/shop-management/customise',
-    icon: Store,
-    feature: 'shop-management',
-    children: [
-      {
-        title: 'Customise',
-        href: '/shop-management/customise',
-        icon: Coffee,
-      },
-      {
-        title: 'Category',
-        href: '/shop-management/category',
-        icon: Layers,
-      },
-      {
-        title: 'Shop',
-        href: '/shop-management/shop',
-        icon: Store,
-        feature: 'shop-management-shop',
-      },
-      {
-        title: 'Products',
-        href: '/shop-management/products',
-        icon: Package,
-      },
-    ],
-  },
+  // {
+  //   title: 'Orders',
+  //   href: '/orders',
+  //   icon: ShoppingBag,
+  //   feature: 'orders',
+  // },
+  // {
+  //   title: 'Shop Management',
+  //   href: '/shop-management/customise',
+  //   icon: Store,
+  //   feature: 'shop-management',
+  //   children: [
+  //     {
+  //       title: 'Customise',
+  //       href: '/shop-management/customise',
+  //       icon: Coffee,
+  //     },
+  //     {
+  //       title: 'Category',
+  //       href: '/shop-management/category',
+  //       icon: Layers,
+  //     },
+  //     {
+  //       title: 'Shop',
+  //       href: '/shop-management/shop',
+  //       icon: Store,
+  //       feature: 'shop-management-shop',
+  //     },
+  //     {
+  //       title: 'Products',
+  //       href: '/shop-management/products',
+  //       icon: Package,
+  //     },
+  //   ],
+  // },
   // {
   //   title: 'Booking Management',
   //   href: '/booking-management',
@@ -205,36 +206,36 @@ const navItems: NavItem[] = [
     icon: CreditCard,
     feature: 'revenue',
   },
-  {
-    title: 'User Management',
-    href: '/users',
-    icon: Users,
-    feature: 'user-management',
-  },
-  {
-    title: 'Subscribers',
-    href: '/subscribers',
-    icon: Mail,
-    feature: 'subscribers',
-  },
-  {
-    title: 'Ad Management',
-    href: '/ad-management',
-    icon: ImageIcon,
-    feature: 'ad-management',
-  },
-  {
-    title: 'Push Notification',
-    href: '/push-notification',
-    icon: Bell,
-    feature: 'push-notification',
-  },
-  {
-    title: 'Controllers',
-    href: '/controllers',
-    icon: ShieldCheck,
-    feature: 'controllers',
-  },
+  // {
+  //   title: 'User Management',
+  //   href: '/users',
+  //   icon: Users,
+  //   feature: 'user-management',
+  // },
+  // {
+  //   title: 'Subscribers',
+  //   href: '/subscribers',
+  //   icon: Mail,
+  //   feature: 'subscribers',
+  // },
+  // {
+  //   title: 'Ad Management',
+  //   href: '/ad-management',
+  //   icon: ImageIcon,
+  //   feature: 'ad-management',
+  // },
+  // {
+  //   title: 'Push Notification',
+  //   href: '/push-notification',
+  //   icon: Bell,
+  //   feature: 'push-notification',
+  // },
+  // {
+  //   title: 'Controllers',
+  //   href: '/controllers',
+  //   icon: ShieldCheck,
+  //   feature: 'controllers',
+  // },
 ]
 
 const settingsItems: NavItem[] = [
@@ -260,6 +261,12 @@ const settingsItems: NavItem[] = [
     title: 'Privacy',
     href: '/settings/privacy',
     icon: Shield,
+    feature: 'profile',
+  },
+  {
+    title: 'About Us',
+    href: '/settings/about-us',
+    icon: Info,
     feature: 'profile',
   },
   // {

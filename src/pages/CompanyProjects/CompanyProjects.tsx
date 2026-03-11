@@ -236,7 +236,7 @@ export default function CompanyProjects() {
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg shadow-sm bg-white hover:shadow-sm transition-shadow"
                 >
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-accent truncate">{project.projectName}</h4>
+                    <h4 className="font-semibold text-accent truncate">{project.projectName}</h4>
                     <p className="text-sm text-muted-foreground mt-0.5">{project.category}</p>
                     <div className="flex flex-wrap gap-4 mt-5">
                       <div className="flex flex-col gap-2">
