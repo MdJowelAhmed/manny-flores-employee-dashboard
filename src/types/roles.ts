@@ -39,6 +39,7 @@ export const FEATURE_ACCESS: Record<string, UserRole[]> = {
   reviews: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MARKETING],
   communication: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MARKETING],
   'documents-approvals': [UserRole.SUPER_ADMIN, UserRole.ADMIN],
+  'project-scheduling': [UserRole.SUPER_ADMIN, UserRole.ADMIN],
 }
 
 export type FeatureKey = keyof typeof FEATURE_ACCESS

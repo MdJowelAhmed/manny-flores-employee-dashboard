@@ -28,6 +28,7 @@ import {
   Star,
   MessageCircle,
   FileCheck,
+  CalendarDays,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -149,6 +150,12 @@ const navItems: NavItem[] = [
     href: '/documents-approvals',
     icon: FileCheck,
     feature: 'documents-approvals',
+  },
+  {
+    title: 'Project Scheduling',
+    href: '/project-scheduling',
+    icon: CalendarDays,
+    feature: 'project-scheduling',
   },
   {
     title: 'Revenue',
