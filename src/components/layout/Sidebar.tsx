@@ -29,6 +29,7 @@ import {
   MessageCircle,
   FileCheck,
   CalendarDays,
+  Package2,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -156,6 +157,12 @@ const navItems: NavItem[] = [
     href: '/project-scheduling',
     icon: CalendarDays,
     feature: 'project-scheduling',
+  },
+  {
+    title: 'Manage Materials',
+    href: '/manage-materials',
+    icon: Package2,
+    feature: 'manage-materials',
   },
   {
     title: 'Revenue',
