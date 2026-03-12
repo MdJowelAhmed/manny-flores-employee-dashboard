@@ -174,7 +174,7 @@ export default function EmployeeManagement() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.5 }}
       className="space-y-6"
     >
       {/* Stats Cards */}
@@ -203,8 +203,8 @@ export default function EmployeeManagement() {
 
       {/* Track Employee Section */}
       <div className="border-0">
-        <CardHeader className="flex flex-row items-center justify-between pb-6">
-          <CardTitle className="text-xl font-bold text-accent">Track Employee</CardTitle>
+        <div className="flex flex-row items-center justify-between pb-6">
+          <h2 className="text-xl font-bold text-accent">Track Employee</h2>
           <div className="flex items-center gap-3">
             <SearchInput
               value={searchQuery}
@@ -218,7 +218,7 @@ export default function EmployeeManagement() {
               Add Employee
             </Button>
           </div>
-        </CardHeader>
+        </div>
 
         <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
           <EmployeeTable

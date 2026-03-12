@@ -113,21 +113,30 @@ export function AddEditEmployeeModal({
       onClose={onClose}
       title={isEdit ? 'Edit Employee Details' : 'Add Employee'}
       size="lg"
-      className="max-w-xl bg-white max-h-[90vh] overflow-y-auto rounded-xl"
+      className="max-w-3xl bg-white max-h-[90vh] overflow-y-auto rounded-xl"
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
         <div>
           <h3 className="text-sm font-bold text-foreground mb-4">Basic Information</h3>
-          <div className="grid grid-cols-1 gap-4">
-            {isEdit && employee && (
-              <FormInput
-                label="Employee ID"
-                value={employee.employeeId}
-                disabled
-                className="bg-gray-100 border-gray-200"
-              />
-            )}
+          <div className="grid grid-cols-2 gap-4">
+
+            <FormInput
+              label="Employee ID"
+              value={employee?.employeeId}
+              // disabled
+              required
+              className=""
+            />
+
+            {/* <FormInput
+              label=" Name"
+              placeholder="Enter full name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="border-gray-200"
+            /> */}
             <FormInput
               label="Full Name"
               placeholder="Enter full name"
@@ -151,7 +160,7 @@ export function AddEditEmployeeModal({
         {/* Organizational details */}
         <div>
           <h3 className="text-sm font-bold text-foreground mb-4">Organizational details</h3>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <DatePicker
               label="Joining Date"
               value={joiningDate}
@@ -173,58 +182,59 @@ export function AddEditEmployeeModal({
               placeholder="Select role"
             />
             <div>
-              <h4 className="text-sm font-medium mb-2 text-foreground">Working Schedule</h4>
-              <div className="flex gap-3">
+              <h3 className="text-sm font-bold text-foreground mb-2">Password</h3>
+              <div className="relative">
                 <FormInput
-                  type="time"
-                  value={scheduleStart}
-                  onChange={(e) => setScheduleStart(e.target.value)}
-                  className="border-gray-200 flex-1"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={isEdit ? 'Enter new password' : 'Enter password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required={!isEdit}
+                  className="pr-10 border-gray-200"
                 />
-                <FormInput
-                  type="time"
-                  value={scheduleEnd}
-                  onChange={(e) => setScheduleEnd(e.target.value)}
-                  className="border-gray-200 flex-1"
-                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
+              {isEdit && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leave blank to keep current password
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="mt-3">
+            <h4 className="text-sm font-medium mb-2 text-foreground">Working Schedule</h4>
+            <div className=" grid grid-cols-2 gap-4 w-full">
+              <FormInput
+                type="time"
+                value={scheduleStart}
+                onChange={(e) => setScheduleStart(e.target.value)}
+                className="border-gray-200 flex-1"
+              />
+              <FormInput
+                type="time"
+                value={scheduleEnd}
+                onChange={(e) => setScheduleEnd(e.target.value)}
+                className="border-gray-200 flex-1"
+              />
             </div>
           </div>
         </div>
 
         {/* Password */}
-        <div>
-          <h3 className="text-sm font-bold text-foreground mb-2">Password</h3>
-          <div className="relative">
-            <FormInput
-              type={showPassword ? 'text' : 'password'}
-              placeholder={isEdit ? 'Enter new password' : 'Enter password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required={!isEdit}
-              className="pr-10 border-gray-200"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-          {isEdit && (
-            <p className="text-xs text-muted-foreground mt-1">
-              Leave blank to keep current password
-            </p>
-          )}
-        </div>
 
-        <div className="pt-4 border-t border-gray-200">
+
+        <div className="pt-4 border-t border-gray-200 flex justify-end w-full">
           <Button
             type="submit"
-            className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-medium"
+            className=" bg-primary hover:bg-primary/90 text-white py-3 rounded-md font-medium "
           >
-            Save
+           {isEdit ? 'Update Employee' : 'Add Employee'}
           </Button>
         </div>
       </form>

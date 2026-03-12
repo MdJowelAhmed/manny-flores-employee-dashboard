@@ -25,7 +25,7 @@ export function EmployeeTable({
     <div className="w-full overflow-auto">
       <table className="w-full min-w-[700px]">
         <thead>
-          <tr className="bg-green-50 text-slate-800">
+          <tr className="bg-secondary-foreground text-accent">
             <th className="px-6 py-4 text-left text-sm font-bold">ID</th>
             <th className="px-6 py-4 text-left text-sm font-bold">Name</th>
             <th className="px-6 py-4 text-left text-sm font-bold">Email</th>

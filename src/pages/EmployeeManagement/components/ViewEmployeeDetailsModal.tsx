@@ -20,7 +20,7 @@ function DetailRow({
   statusColor?: string
 }) {
   return (
-    <div className="flex justify-between items-center py-2.5 px-4 bg-gray-100 rounded-md">
+    <div className="flex justify-between items-center py-2.5 px-4 bg-white rounded-md ">
       <span className="text-sm text-muted-foreground">{label}</span>
       <span className={cn('text-sm font-medium text-foreground', statusColor)}>{value}</span>
     </div>
@@ -42,7 +42,7 @@ function ProjectDetailCard({
 }) {
   const isActive = status === 'Active'
   return (
-    <div className="space-y-2 p-4 bg-gray-100 rounded-lg">
+    <div className="space-y-2 p-4 bg-white rounded-lg border">
       <h4 className="text-sm font-semibold text-foreground mb-3">
         {index}. {projectName}
       </h4>
@@ -71,11 +71,11 @@ export function ViewEmployeeDetailsModal({
       onClose={onClose}
       title="Employee Details"
       size="lg"
-      className="max-w-xl bg-white rounded-xl"
+      className="max-w-xl bg-secondary-foreground rounded-xl"
     >
       <div className="space-y-6">
         {/* Basic Information */}
-        <div className="p-4 bg-gray-100 rounded-lg space-y-2">
+        <div className="p-4 bg-white rounded-lg space-y-2">
           <h3 className="text-sm font-bold text-foreground mb-3">Basic Information</h3>
           <DetailRow label="Full Name" value={employee.fullName} />
           <DetailRow label="Employee ID" value={employee.employeeId} />
@@ -83,7 +83,7 @@ export function ViewEmployeeDetailsModal({
         </div>
 
         {/* Organizational Details */}
-        <div className="p-4 bg-gray-100 rounded-lg space-y-2">
+        <div className="p-4 bg-white rounded-lg space-y-2">
           <h3 className="text-sm font-bold text-foreground mb-3">Organizational Details</h3>
           <DetailRow label="Joining Date" value={employee.joiningDate} />
           <DetailRow label="Department" value={employee.department} />
@@ -93,9 +93,9 @@ export function ViewEmployeeDetailsModal({
 
         {/* Project Details */}
         {employee.projects && employee.projects.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-4 bg-white rounded-lg p-4">
             <h3 className="text-sm font-bold text-foreground">Project Details</h3>
-            <div className="space-y-3">
+            <div className="space-y-6 b">
               {employee.projects.map((proj, idx) => (
                 <ProjectDetailCard
                   key={proj.id}
