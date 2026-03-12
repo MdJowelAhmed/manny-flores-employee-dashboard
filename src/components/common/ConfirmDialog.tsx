@@ -93,7 +93,7 @@ export function ConfirmDialog({
           <AlertDialogCancel disabled={isLoading}>{cancelText}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
-            className={cn(config.buttonClass)}
+            className={cn(config.buttonClass, 'text-white')}
             disabled={isLoading}
           >
             {isLoading ? (

@@ -44,6 +44,12 @@ export default function AttendanceDetail() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [recordToDelete, setRecordToDelete] = useState<AttendanceRecord | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isStatusConfirmOpen, setIsStatusConfirmOpen] = useState(false)
+  const [pendingStatusChange, setPendingStatusChange] = useState<{
+    record: AttendanceRecord
+    isActive: boolean
+  } | null>(null)
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
   const totalPages = Math.max(1, Math.ceil(records.length / itemsPerPage))
 
@@ -130,15 +136,35 @@ export default function AttendanceDetail() {
     }
   }
 
-  const handleStatusChange = (r: AttendanceRecord, isActive: boolean) => {
-    setRecords((prev) =>
-      prev.map((rec) => (rec.id === r.id ? { ...rec, isActive } : rec))
-    )
-    toast({
-      variant: 'success',
-      title: 'Status Updated',
-      description: `Record marked as ${isActive ? 'Active' : 'Inactive'}.`,
-    })
+  const handleStatusChangeClick = (r: AttendanceRecord, isActive: boolean) => {
+    setPendingStatusChange({ record: r, isActive })
+    setIsStatusConfirmOpen(true)
+  }
+
+  const handleConfirmStatusChange = async () => {
+    if (!pendingStatusChange) return
+    setIsUpdatingStatus(true)
+    try {
+      await new Promise((r) => setTimeout(r, 200))
+      setRecords((prev) =>
+        prev.map((rec) =>
+          rec.id === pendingStatusChange.record.id
+            ? { ...rec, isActive: pendingStatusChange.isActive }
+            : rec
+        )
+      )
+      toast({
+        variant: 'success',
+        title: 'Status Updated',
+        description: `Record marked as ${pendingStatusChange.isActive ? 'Active' : 'Inactive'}.`,
+      })
+      setIsStatusConfirmOpen(false)
+      setPendingStatusChange(null)
+    } catch {
+      toast({ title: 'Error', description: 'Failed to update status.', variant: 'destructive' })
+    } finally {
+      setIsUpdatingStatus(false)
+    }
   }
 
   const handleDelete = (r: AttendanceRecord) => {
@@ -270,7 +296,7 @@ export default function AttendanceDetail() {
           onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          onStatusChange={handleStatusChange}
+          onStatusChange={handleStatusChangeClick}
         />
         {records.length > 0 && (
           <div className="border-t border-gray-100 px-4 py-3">
@@ -324,6 +350,24 @@ export default function AttendanceDetail() {
         confirmText="Delete"
         variant="danger"
         isLoading={isDeleting}
+      />
+
+      <ConfirmDialog
+        open={isStatusConfirmOpen}
+        onClose={() => {
+          setIsStatusConfirmOpen(false)
+          setPendingStatusChange(null)
+        }}
+        onConfirm={handleConfirmStatusChange}
+        title="Change Status"
+        description={
+          pendingStatusChange
+            ? `Are you sure you want to mark this record as ${pendingStatusChange.isActive ? 'Active' : 'Inactive'}?`
+            : ''
+        }
+        confirmText="Update"
+        variant="info"
+        isLoading={isUpdatingStatus}
       />
     </motion.div>
   )

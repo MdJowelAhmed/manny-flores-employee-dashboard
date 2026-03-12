@@ -40,7 +40,7 @@ export function ViewAttendanceDetailsModal({
       onClose={onClose}
       title="Attendance Details"
       size="md"
-      className="max-w-md"
+      className="max-w-xl bg-white"
     >
       <div className="space-y-5">
         <div className="space-y-1">
@@ -64,14 +64,14 @@ export function ViewAttendanceDetailsModal({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 pt-4 border-t">
+        <div className="flex flex-wrap gap-2 pt-4 border-t justify-between">
           <Button onClick={onEdit} className="bg-primary hover:bg-primary/90 text-white">
             Edit Entry
           </Button>
           <Button variant="outline" onClick={onMarkAbsent} className="bg-gray-100">
             Mark as Absent
           </Button>
-          <Button variant="destructive" onClick={onDelete}>
+          <Button variant="destructive" onClick={onDelete} className="bg-destructive hover:bg-destructive/90 text-white">
             Delete
           </Button>
         </div>
