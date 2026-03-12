@@ -10,7 +10,6 @@ import { ViewSafetyReportModal } from './components/ViewSafetyReportModal'
 import { ViewIncidentDetailsModal } from './components/ViewIncidentDetailsModal'
 import { ViewTemplateModal } from './components/ViewTemplateModal'
 import { AddTemplateModal } from './components/AddTemplateModal'
-import { EditTemplateModal } from './components/EditTemplateModal'
 import {
   mockSafetyChecklistSubmissions,
   mockIncidentReportSubmissions,
@@ -156,11 +155,7 @@ export default function DailySafetyReports() {
             >
               View Template
             </Button>
-            {templateBadgeCount > 0 && (
-              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
-                {templateBadgeCount}
-              </span>
-            )}
+         
           </div>
         </div>
 
@@ -244,18 +239,17 @@ export default function DailySafetyReports() {
 
       <ViewTemplateModal
         open={isViewTemplateOpen}
-        onClose={() => setIsViewTemplateOpen(false)}
+        onClose={() => {
+          setIsViewTemplateOpen(false)
+          setEditingTemplateItem(null)
+        }}
         items={templateItems}
         onAddNew={handleAddNewTemplateItem}
-        onEdit={handleEditTemplateItem}
+        editingItem={editingTemplateItem}
+        onEditStart={handleEditTemplateItem}
+        onSaveEdit={handleSaveEditTemplateItem}
+        onCancelEdit={() => setEditingTemplateItem(null)}
         onDelete={openDeleteConfirm}
-      />
-
-      <EditTemplateModal
-        open={!!editingTemplateItem}
-        onClose={() => setEditingTemplateItem(null)}
-        item={editingTemplateItem}
-        onSave={handleSaveEditTemplateItem}
       />
 
       <ConfirmDialog

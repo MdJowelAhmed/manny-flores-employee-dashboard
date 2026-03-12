@@ -34,6 +34,7 @@ export function AddTemplateModal({
       title="Add Template"
       description="Add a new item to the safety checklist template"
       size="md"
+      className="bg-white max-w-xl"
     >
       <div className="space-y-4">
           <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">

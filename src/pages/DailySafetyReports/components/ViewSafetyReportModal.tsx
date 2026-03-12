@@ -31,6 +31,7 @@ export function ViewSafetyReportModal({
       title="Safety Verification"
       description={`${submission.projectName} – ${submission.supervisorName} (${submission.supervisorRole}) • ${submission.dateSubmitted}`}
       size="lg"
+      className="bg-white max-w-2xl"
     >
       <div className="space-y-6">
           <div>

@@ -40,6 +40,7 @@ export function ViewIncidentDetailsModal({
       title="Incident Details"
       description={`${submission.projectName} – ${submission.incidentType}`}
       size="lg"
+      className="bg-white max-w-2xl"
     >
       <div className="space-y-6">
           {logistics && (

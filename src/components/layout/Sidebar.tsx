@@ -3,7 +3,6 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { UserRole, hasFeatureAccess, type FeatureKey } from '@/types/roles'
 import {
   LayoutDashboard,
-  Users,
   Settings,
   ChevronDown,
   User,
@@ -11,15 +10,7 @@ import {
   FileText,
   Shield,
   ShieldCheck,
-  ShoppingBag,
-  CreditCard,
-  Store,
-  Layers,
-  Coffee,
-  Package,
-  Mail,
-  Bell,
-  ImageIcon,
+
   Building2,
   UserCircle,
   UserCog,
