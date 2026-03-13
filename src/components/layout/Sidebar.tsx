@@ -194,10 +194,10 @@ const navItems: NavItem[] = [
     feature: 'change-orders',
   },
   {
-    title: 'Vehicle Maintenance',
-    href: '/vehicle-maintenance',
+    title: 'Vehicles',
+    href: '/vehicles',
     icon: Truck,
-    feature: 'vehicle-maintenance',
+    feature: 'vehicles',
   },
   {
     title: 'Equipment Maintenance',
