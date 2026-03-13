@@ -48,26 +48,10 @@ export default function Login() {
   const demoUsers = [
     {
       id: "1",
-      email: "superadmin@example.com",
+      email: "employee@example.com",
       password: "password",
-      role: "super-admin" as const,
-      firstName: "Super",
-      lastName: "Admin",
-    },
-    {
-      id: "2",
-      email: "admin@example.com",
-      password: "password",
-      role: "admin" as const,
-      firstName: "Admin",
-      lastName: "User",
-    },
-    {
-      id: "3",
-      email: "marketing@example.com",
-      password: "password",
-      role: "marketing" as const,
-      firstName: "Marketing",
+      role: "employee" as const,
+      firstName: "Employee",
       lastName: "User",
     },
   ];
@@ -236,17 +220,9 @@ export default function Login() {
         <p className="font-semibold text-foreground">Demo Credentials:</p>
         <div className="space-y-2">
           <div>
-            <p className="font-medium">Super Admin:</p>
-            <p className="text-muted-foreground">superadmin@example.com / password</p>
+            <p className="font-medium">Employee:</p>
+            <p className="text-muted-foreground">employee@example.com / password</p>
           </div>
-          {/* <div>
-            <p className="font-medium">Admin:</p>
-            <p className="text-muted-foreground">admin@example.com / password</p>
-          </div>
-          <div>
-            <p className="font-medium">Marketing:</p>
-            <p className="text-muted-foreground">marketing@example.com / password</p>
-          </div> */}
         </div>
       </div>
     </div>

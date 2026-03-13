@@ -26,7 +26,7 @@ type ProfileFormData = z.infer<typeof profileSchema>
 
 export default function ProfileSettings() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [avatar, setAvatar] = useState('https://api.dicebear.com/7.x/avataaars/svg?seed=Admin')
+  const [avatar, setAvatar] = useState('https://api.dicebear.com/7.x/avataaars/svg?seed=Employee')
 
   const {
     register,

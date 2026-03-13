@@ -22,7 +22,7 @@ export const selectUserRole = (state: RootState): UserRole | null => {
 }
 
 /**
- * Role-based cars: super-admin sees all; others filter by business.
+ * Role-based cars: employee sees assigned/filtered list.
  */
 export const selectRoleBasedCars = (state: RootState): Car[] => {
   const { user } = state.auth
@@ -30,7 +30,7 @@ export const selectRoleBasedCars = (state: RootState): Car[] => {
 
   if (!user) return []
 
-  if (user.role === UserRole.SUPER_ADMIN) {
+  if (user.role === UserRole.EMPLOYEE) {
     return filteredList
   }
 
@@ -65,7 +65,7 @@ export const selectRoleBasedTotalPages = (state: RootState): number => {
 }
 
 /**
- * Permission: only super-admin can modify items (admin/marketing read-only for modifiable features).
+ * Permission: employee can modify own items only (read-only for shared resources).
  */
 export const selectCanModifyItem = (
   state: RootState,
@@ -75,5 +75,5 @@ export const selectCanModifyItem = (
 
   if (!user) return false
 
-  return user.role === UserRole.SUPER_ADMIN
+  return user.role === UserRole.EMPLOYEE
 }

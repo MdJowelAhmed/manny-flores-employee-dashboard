@@ -10,7 +10,7 @@ import {
   FileText,
   Shield,
   ShieldCheck,
-
+  Bell,
   Building2,
   UserCircle,
   UserCog,
@@ -49,6 +49,12 @@ const navItems: NavItem[] = [
     href: '/dashboard',
     icon: LayoutDashboard,
     feature: 'dashboard',
+  },
+  {
+    title: 'Notifications',
+    href: '/notifications',
+    icon: Bell,
+    feature: 'notifications',
   },
   // {
   //   title: 'Orders',
@@ -308,7 +314,7 @@ export function Sidebar() {
   const { user } = useAppSelector((state) => state.auth)
   const location = useLocation()
 
-  const userRole = (user?.role as UserRole) ?? UserRole.SUPER_ADMIN
+  const userRole = (user?.role as UserRole) ?? UserRole.EMPLOYEE
   const filteredNavItems = filterNavByRole(navItems, userRole)
   const filteredSettingsItems = filterNavByRole(settingsItems, userRole)
 

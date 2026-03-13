@@ -9,33 +9,31 @@ interface DataItem {
 }
 
 /**
- * Single-role hook: super-admin can access all data.
+ * Employee dashboard: employee sees filtered data.
  */
 export const useRoleBasedData = <T extends DataItem>(data: T[]): T[] => {
   const { user } = useAppSelector((state) => state.auth)
 
   return useMemo(() => {
     if (!user) return []
-    if (user.role === UserRole.SUPER_ADMIN) return data
+    if (user.role === UserRole.EMPLOYEE) return data
     return []
   }, [data, user])
 }
 
 /**
- * Legacy helper kept for compatibility.
- * In single-role mode, super-admin is treated as admin-equivalent.
+ * Check if user is admin (none in employee-only mode).
  */
 export const useIsAdmin = (): boolean => {
-  const { user } = useAppSelector((state) => state.auth)
-  return user?.role === UserRole.SUPER_ADMIN
+  return false
 }
 
 /**
- * Business role removed in single-role mode.
+ * Employee is the primary role.
  */
 export const useIsBusiness = (): boolean => {
   const { user } = useAppSelector((state) => state.auth)
-  return !!user && user.role !== UserRole.SUPER_ADMIN
+  return !!user && user.role === UserRole.EMPLOYEE
 }
 
 /**
@@ -47,12 +45,14 @@ export const useBusinessId = (): string | undefined => {
 }
 
 /**
- * Hook to check if user can modify/delete an item
+ * Hook to check if user can modify/delete an item (employee: own items only)
  */
 export const useCanModifyItem = (item: DataItem): boolean => {
   const { user } = useAppSelector((state) => state.auth)
 
   if (!user) return false
-  if (user.role === UserRole.SUPER_ADMIN) return true
-  return item.businessId === user.businessId || item.userId === user.id
+  if (user.role === UserRole.EMPLOYEE) {
+    return item.businessId === user.businessId || item.userId === user.id
+  }
+  return false
 }

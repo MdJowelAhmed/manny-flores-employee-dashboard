@@ -27,12 +27,12 @@ interface RouteGuardProps {
   children: ReactNode
 }
 
-/** Legacy: allows super-admin only. Prefer RoleBasedRoute with allowedRoles. */
+/** Legacy: allows employee only. Prefer RoleBasedRoute with allowedRoles. */
 export function RouteGuard({ children }: RouteGuardProps) {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth)
   const location = useLocation()
 
-  if (!isAuthenticated || !user || user.role !== UserRole.SUPER_ADMIN) {
+  if (!isAuthenticated || !user || user.role !== UserRole.EMPLOYEE) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />
   }
 

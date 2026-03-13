@@ -17,7 +17,7 @@ export const addBusinessIdToMockData = <T extends Record<string, unknown>>(
 }
 
 /**
- * Multi-role filtering: super-admin sees all, others filter by business.
+ * Role filtering: employee sees own/assigned data.
  */
 export const filterDataByRole = <T extends Record<string, unknown>>(
   data: T[],
@@ -25,7 +25,7 @@ export const filterDataByRole = <T extends Record<string, unknown>>(
   userBusinessId?: string,
   businessIdField: string = 'businessId'
 ): T[] => {
-  if (userRole === UserRole.SUPER_ADMIN) return data
+  if (userRole === UserRole.EMPLOYEE) return data
   if (userBusinessId)
     return data.filter((item) => item[businessIdField] === userBusinessId)
   return []
@@ -40,7 +40,7 @@ export const canAccessItem = (
   userBusinessId?: string,
   businessIdField: string = 'businessId'
 ): boolean => {
-  if (userRole === UserRole.SUPER_ADMIN) return true
+  if (userRole === UserRole.EMPLOYEE) return true
   if (userBusinessId) return item[businessIdField] === userBusinessId
   return false
 }
@@ -60,12 +60,8 @@ export const canAccessFeature = (
  */
 export const getRoleBadgeColor = (role: string): string => {
   switch (role) {
-    case UserRole.SUPER_ADMIN:
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-    case UserRole.ADMIN:
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-    case UserRole.MARKETING:
-      return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
+    case UserRole.EMPLOYEE:
+      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
     default:
       return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
   }
@@ -76,13 +72,9 @@ export const getRoleBadgeColor = (role: string): string => {
  */
 export const getRoleDisplayName = (role: string): string => {
   switch (role) {
-    case UserRole.SUPER_ADMIN:
-      return 'Super Admin'
-    case UserRole.ADMIN:
-      return 'Admin'
-    case UserRole.MARKETING:
-      return 'Marketing'
+    case UserRole.EMPLOYEE:
+      return 'Employee'
     default:
-      return 'Unknown Role'
+      return 'Employee'
   }
 }

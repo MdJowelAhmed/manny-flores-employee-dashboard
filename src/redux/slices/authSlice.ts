@@ -31,7 +31,7 @@ function getInitialAuthState(): AuthState {
   if (token && userStr) {
     try {
       const parsed = JSON.parse(userStr) as User
-      if (Object.values(UserRole).includes(parsed.role)) {
+      if (Object.values(UserRole).includes(parsed.role as UserRole)) {
         user = parsed
       }
     } catch {
@@ -98,7 +98,7 @@ const authSlice = createSlice({
       if (token && userStr) {
         try {
           const parsed = JSON.parse(userStr) as User
-          if (Object.values(UserRole).includes(parsed.role)) {
+          if (Object.values(UserRole).includes(parsed.role as UserRole)) {
             state.user = parsed
             state.token = token
             state.isAuthenticated = true

@@ -118,7 +118,7 @@ export function Header() {
           <div>
             <h1 className="text-xl font-semibold text-accent">{pageTitle}</h1>
             <p className="text-sm text-accent hidden sm:block">
-              Welcome back, {user?.firstName || 'Admin'}
+              Welcome back, {user?.firstName || 'Employee'}
             </p>
           </div>
         </div>
@@ -220,10 +220,10 @@ export function Header() {
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">
-                    {user ? `${user.firstName} ${user.lastName}` : 'Admin User'}
+                    {user ? `${user.firstName} ${user.lastName}` : 'Employee'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {user?.email || 'superadmin@example.com'}
+                    {user?.email || 'employee@example.com'}
                   </p>
                 </div>
               </DropdownMenuLabel>

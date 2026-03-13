@@ -2,10 +2,7 @@ import type { SelectOption } from '@/types'
 
 export const USER_ROLES: SelectOption[] = [
   { value: 'all', label: 'All Roles' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'moderator', label: 'Moderator' },
-  { value: 'editor', label: 'Editor' },
-  { value: 'user', label: 'User' },
+  { value: 'employee', label: 'Employee' },
 ]
 
 export const USER_STATUSES: SelectOption[] = [
@@ -55,10 +52,7 @@ export const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 }
 
 export const ROLE_COLORS: Record<string, { bg: string; text: string }> = {
-  admin: { bg: 'bg-primary/10', text: 'text-primary' },
-  moderator: { bg: 'bg-warning/10', text: 'text-warning' },
-  editor: { bg: 'bg-success/10', text: 'text-success' },
-  user: { bg: 'bg-muted', text: 'text-muted-foreground' },
+  employee: { bg: 'bg-primary/10', text: 'text-primary' },
 }
 
 export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
