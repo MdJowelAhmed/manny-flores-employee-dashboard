@@ -158,7 +158,7 @@ const navItems: NavItem[] = [
     feature: 'customer-finance',
   },
   {
-    title: 'Manage Materials',
+    title: 'Materials',
     href: '/manage-materials',
     icon: Package2,
     feature: 'manage-materials',

@@ -42,7 +42,7 @@ export const FEATURE_ACCESS: Record<string, UserRole[]> = {
   'vehicle-maintenance': [],
   'equipment-maintenance': [],
   reviews: [],
-  'manage-materials': [],
+  'manage-materials': [UserRole.EMPLOYEE],
   'customer-finance': [],
   'resource-requests-report': [],
   'change-orders': [],

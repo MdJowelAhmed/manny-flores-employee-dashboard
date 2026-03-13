@@ -1,173 +1,116 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Plus } from 'lucide-react'
+import { useMemo, useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { MaterialsTable } from './components/MaterialsTable'
-import { ViewMaterialDetailsModal } from './components/ViewMaterialDetailsModal'
-import { AddEditMaterialModal } from './components/AddEditMaterialModal'
-import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import { mockMaterialsData, type Material } from './manageMaterialsData'
+import { Pagination } from '@/components/common/Pagination'
+import { MaterialCard } from './components/MaterialCard'
+import { RequestMaterialModal } from './components/RequestMaterialModal'
+import {
+  mockProjectMaterialsData,
+  getMaterialLabel,
+  PROJECT_OPTIONS,
+  type ProjectMaterial,
+} from './materialsData'
+import type { RequestMaterialFormData } from './components/RequestMaterialModal'
 import { toast } from '@/utils/toast'
 
 export default function ManageMaterials() {
-  const [materials, setMaterials] = useState<Material[]>(mockMaterialsData)
-  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
-  const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false)
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const itemsPerPage = parseInt(searchParams.get('limit') || '9', 10) || 9
 
-  const handleView = (m: Material) => {
-    setSelectedMaterial(m)
-    setIsViewModalOpen(true)
+  const [materials, setMaterials] = useState<ProjectMaterial[]>(mockProjectMaterialsData)
+  const [showRequestModal, setShowRequestModal] = useState(false)
+
+  const setPage = (p: number) => {
+    const next = new URLSearchParams(searchParams)
+    p > 1 ? next.set('page', String(p)) : next.delete('page')
+    setSearchParams(next, { replace: true })
   }
 
-  const handleEdit = (m: Material, e: React.MouseEvent) => {
-    e?.stopPropagation?.()
-    setSelectedMaterial(m)
-    setIsViewModalOpen(false)
-    setIsAddEditModalOpen(true)
+  const setLimit = (l: number) => {
+    const next = new URLSearchParams(searchParams)
+    l !== 9 ? next.set('limit', String(l)) : next.delete('limit')
+    next.delete('page')
+    setSearchParams(next, { replace: true })
   }
 
-  const handleOpenEditFromView = () => {
-    if (selectedMaterial) {
-      setIsViewModalOpen(false)
-      setIsAddEditModalOpen(true)
-    }
-  }
+  const totalItems = materials.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
 
-  const handleAdd = () => {
-    setSelectedMaterial(null)
-    setIsAddEditModalOpen(true)
-  }
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages >= 1) setPage(1)
+  }, [totalPages, currentPage])
 
-  const handleSave = (data: Partial<Material>) => {
-    if (data.id) {
-      setMaterials((prev) =>
-        prev.map((m) => (m.id === data.id ? { ...m, ...data } : m))
+  const paginatedMaterials = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return materials.slice(start, start + itemsPerPage)
+  }, [materials, currentPage, itemsPerPage])
+
+  const handleMarkTaken = (material: ProjectMaterial) => {
+    setMaterials((prev) =>
+      prev.map((m) =>
+        m.id === material.id ? { ...m, status: 'Taken' as const } : m
       )
-    } else {
-      const newMaterial: Material = {
-        id: `mat-${Date.now()}`,
-        materialName: data.materialName ?? '',
-        category: data.category ?? '',
-        unit: data.unit ?? 'unit',
-        currentStock: data.currentStock ?? 0,
-        supplier: data.supplier ?? '',
-        costPrice: data.costPrice ?? 0,
-        projectRate: data.projectRate ?? 0,
-        assignedProject: data.assignedProject ?? '',
-        unitPrice: data.unitPrice ?? 0,
-        minimumStock: data.minimumStock ?? 0,
-        supplierEmail: data.supplierEmail ?? '',
-        supplierContact: data.supplierContact ?? '',
-        lastPurchaseDate: data.lastPurchaseDate ?? '',
-        assignedProjects: data.assignedProjects ?? [],
-      }
-      setMaterials((prev) => [newMaterial, ...prev])
-    }
-    setIsAddEditModalOpen(false)
-    setSelectedMaterial(null)
+    )
+    toast({ title: 'Material marked as taken', variant: 'success' })
   }
 
-  const handleDelete = (m: Material) => {
-    setMaterialToDelete(m)
-    setIsConfirmOpen(true)
-  }
-
-  const handleDeleteFromView = () => {
-    if (selectedMaterial) {
-      setMaterialToDelete(selectedMaterial)
-      setIsViewModalOpen(false)
-      setIsConfirmOpen(true)
+  const handleRequestMaterial = (data: RequestMaterialFormData) => {
+    const projectLabel = PROJECT_OPTIONS.find((o) => o.value === data.projectName)?.label ?? 'Green Villa Project'
+    const newMaterial: ProjectMaterial = {
+      id: `pm-${Date.now()}`,
+      projectName: projectLabel,
+      materialName: getMaterialLabel(data.materialName),
+      required: `${data.quantityNeeded} Unit`,
+      delivered: '0 Unit',
+      status: 'Delivered',
     }
-  }
-
-  const handleConfirmDelete = async () => {
-    if (!materialToDelete) return
-    setIsDeleting(true)
-    try {
-      await new Promise((r) => setTimeout(r, 300))
-      setMaterials((prev) => prev.filter((m) => m.id !== materialToDelete.id))
-      toast({
-        variant: 'success',
-        title: 'Material Deleted',
-        description: `${materialToDelete.materialName} has been removed.`,
-      })
-      setIsConfirmOpen(false)
-      setMaterialToDelete(null)
-      if (selectedMaterial?.id === materialToDelete.id) {
-        setSelectedMaterial(null)
-      }
-    } catch {
-      toast({ title: 'Error', description: 'Failed to delete material.', variant: 'destructive' })
-    } finally {
-      setIsDeleting(false)
-    }
+    setMaterials((prev) => [newMaterial, ...prev])
+    toast({
+      title: 'Material request submitted successfully',
+      variant: 'success',
+    })
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-xl font-bold text-foreground">Manage Materials</h1>
+        <h1 className="text-xl font-semibold text-accent">
+          Track Project Materials
+        </h1>
         <Button
-          onClick={handleAdd}
-          className="bg-primary hover:bg-primary/90 text-white shrink-0"
+          onClick={() => setShowRequestModal(true)}
+          className="bg-primary text-white  shrink-0"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Material
+          Request Material
         </Button>
       </div>
 
-      <div className="rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
-        <MaterialsTable
-          materials={materials}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {paginatedMaterials.map((material) => (
+          <MaterialCard
+            key={material.id}
+            material={material}
+            onMarkTaken={handleMarkTaken}
+          />
+        ))}
       </div>
 
-      <ViewMaterialDetailsModal
-        open={isViewModalOpen}
-        onClose={() => {
-          setIsViewModalOpen(false)
-          setSelectedMaterial(null)
-        }}
-        material={selectedMaterial}
-        onEdit={handleOpenEditFromView}
-        onDelete={handleDeleteFromView}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setPage}
+        onItemsPerPageChange={setLimit}
+        showItemsPerPage
       />
 
-      <AddEditMaterialModal
-        open={isAddEditModalOpen}
-        onClose={() => {
-          setIsAddEditModalOpen(false)
-          setSelectedMaterial(null)
-        }}
-        material={selectedMaterial}
-        onSave={handleSave}
+      <RequestMaterialModal
+        open={showRequestModal}
+        onClose={() => setShowRequestModal(false)}
+        onRequest={handleRequestMaterial}
       />
-
-      <ConfirmDialog
-        open={isConfirmOpen}
-        onClose={() => {
-          setIsConfirmOpen(false)
-          setMaterialToDelete(null)
-        }}
-        onConfirm={handleConfirmDelete}
-        title="Delete Material"
-        description={`Are you sure you want to delete "${materialToDelete?.materialName}"? This action cannot be undone.`}
-        confirmText="Delete"
-        variant="danger"
-        isLoading={isDeleting}
-      />
-    </motion.div>
+    </div>
   )
 }

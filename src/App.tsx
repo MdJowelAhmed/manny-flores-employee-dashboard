@@ -225,7 +225,14 @@ function App() {
           <Route path="vehicle-maintenance" element={<RoleBasedRoute allowedRoles={[]}><VehicleMaintenance /></RoleBasedRoute>} />
           <Route path="equipment-maintenance" element={<RoleBasedRoute allowedRoles={[]}><EquipmentMaintenance /></RoleBasedRoute>} />
           <Route path="reviews" element={<RoleBasedRoute allowedRoles={[]}><ReviewList /></RoleBasedRoute>} />
-          <Route path="manage-materials" element={<RoleBasedRoute allowedRoles={[]}><ManageMaterials /></RoleBasedRoute>} />
+          <Route
+            path="manage-materials"
+            element={
+              <RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]}>
+                <ManageMaterials />
+              </RoleBasedRoute>
+            }
+          />
           <Route path="customer-finance" element={<RoleBasedRoute allowedRoles={[]}><CustomerFinance /></RoleBasedRoute>} />
           <Route path="resource-requests-report" element={<RoleBasedRoute allowedRoles={[]}><ResourceRequestsReport /></RoleBasedRoute>} />
           <Route path="change-orders" element={<RoleBasedRoute allowedRoles={[]}><ChangeOrders /></RoleBasedRoute>} />
