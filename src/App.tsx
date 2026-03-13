@@ -44,7 +44,7 @@ import CompanyProjects from './pages/CompanyProjects/CompanyProjects'
 import CustomerManagement from './pages/CustomerManagement/CustomerManagement'
 import EmployeeManagement from './pages/EmployeeManagement/EmployeeManagement'
 import Vehicles from './pages/Vehicles'
-import EquipmentMaintenance from './pages/EquipmentMaintenance/EquipmentMaintenance'
+import Equipment from './pages/Equipment'
 import ReviewList from './pages/Reviews/ReviewList'
 import Communication from './pages/Communication/Communication'
 import DocumentsApprovals from './pages/DocumentsApprovals/DocumentsApprovals'
@@ -212,7 +212,7 @@ function App() {
           <Route path="customer-management" element={<RoleBasedRoute allowedRoles={[]}><CustomerManagement /></RoleBasedRoute>} />
           <Route path="employee-management" element={<RoleBasedRoute allowedRoles={[]}><EmployeeManagement /></RoleBasedRoute>} />
           <Route path="vehicles" element={<RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]}><Vehicles /></RoleBasedRoute>} />
-          <Route path="equipment-maintenance" element={<RoleBasedRoute allowedRoles={[]}><EquipmentMaintenance /></RoleBasedRoute>} />
+          <Route path="equipment" element={<RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]}><Equipment /></RoleBasedRoute>} />
           <Route path="reviews" element={<RoleBasedRoute allowedRoles={[]}><ReviewList /></RoleBasedRoute>} />
           <Route
             path="manage-materials"

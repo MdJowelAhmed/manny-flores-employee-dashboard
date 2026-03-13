@@ -200,10 +200,10 @@ const navItems: NavItem[] = [
     feature: 'vehicles',
   },
   {
-    title: 'Equipment Maintenance',
-    href: '/equipment-maintenance',
+    title: 'Equipment',
+    href: '/equipment',
     icon: Wrench,
-    feature: 'equipment-maintenance',
+    feature: 'equipment',
   },
   {
     title: 'Review',
