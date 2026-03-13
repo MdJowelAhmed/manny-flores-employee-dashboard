@@ -52,7 +52,7 @@ import ProjectScheduling from './pages/ProjectScheduling/ProjectScheduling'
 import ManageMaterials from './pages/ManageMaterials/ManageMaterials'
 import CustomerFinance from './pages/CustomerFinance/CustomerFinance'
 import Attendance from './pages/Attendance/Attendance'
-import PayrollManagement from './pages/PayrollManagement/PayrollManagement'
+import Payroll from './pages/Payroll'
 import ResourceRequestsReport from './pages/ResourceRequestsReport/ResourceRequestsReport'
 import ChangeOrders from './pages/ChangeOrders/ChangeOrders'
 import DailySafetyReports from './pages/DailySafetyReports/DailySafetyReports'
@@ -181,12 +181,12 @@ function App() {
             }
           />
 
-          {/* Payroll Management - Employee */}
+          {/* Payroll - Employee */}
           <Route
-            path="payroll-management"
+            path="payroll"
             element={
               <RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]}>
-                <PayrollManagement />
+                <Payroll />
               </RoleBasedRoute>
             }
           />

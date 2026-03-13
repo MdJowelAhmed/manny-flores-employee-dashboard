@@ -33,7 +33,7 @@ const routeTitles: Record<string, string> = {
   '/manage-materials': 'Materials',
   '/project-scheduling': 'Project Scheduling',
   '/documents-approvals': 'Documents & Approvals',
-  '/payroll-management': 'Payroll Management',
+  '/payroll': 'Payment History',
   '/resource-requests-report': 'Resource Requests & Report',
   '/change-orders': 'Change Orders',
   '/vehicles': 'Vehicles',

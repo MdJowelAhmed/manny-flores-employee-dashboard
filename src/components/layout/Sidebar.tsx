@@ -176,10 +176,10 @@ const navItems: NavItem[] = [
     feature: 'documents-approvals',
   },
   {
-    title: 'Payroll management',
-    href: '/payroll-management',
+    title: 'Payroll',
+    href: '/payroll',
     icon: DollarSign,
-    feature: 'payroll-management',
+    feature: 'payroll',
   },
   {
     title: 'Resource Requests & Report',

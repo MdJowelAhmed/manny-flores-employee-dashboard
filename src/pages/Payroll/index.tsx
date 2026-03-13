@@ -1,0 +1,146 @@
+import { useMemo, useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { Download } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Pagination } from '@/components/common/Pagination'
+import {
+  mockPaymentHistoryData,
+  type PaymentHistoryRecord,
+} from './payrollData'
+import { formatCurrency } from '@/utils/formatters'
+import { toast } from '@/utils/toast'
+
+export default function Payroll() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const itemsPerPage = parseInt(searchParams.get('limit') || '10', 10) || 10
+
+  const [records] = useState<PaymentHistoryRecord[]>(mockPaymentHistoryData)
+
+  const setPage = (p: number) => {
+    const next = new URLSearchParams(searchParams)
+    p > 1 ? next.set('page', String(p)) : next.delete('page')
+    setSearchParams(next, { replace: true })
+  }
+
+  const setLimit = (l: number) => {
+    const next = new URLSearchParams(searchParams)
+    l !== 10 ? next.set('limit', String(l)) : next.delete('limit')
+    next.delete('page')
+    setSearchParams(next, { replace: true })
+  }
+
+  const totalItems = records.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages >= 1) setPage(1)
+  }, [totalPages, currentPage])
+
+  const paginatedRecords = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return records.slice(start, start + itemsPerPage)
+  }, [records, currentPage, itemsPerPage])
+
+  const handleDownloadAll = () => {
+    toast({
+      title: 'Payslips Downloaded',
+      description: `All ${records.length} payslips have been downloaded.`,
+      variant: 'success',
+    })
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-xl font-bold text-accent">Payment History</h1>
+        <Button
+          onClick={handleDownloadAll}
+          className="bg-primary text-white shrink-0 hover:bg-primary/90 rounded-lg"
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Download Payslip
+        </Button>
+      </div>
+
+      <div className="rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-primary/10">
+                <th className="px-4 py-4 text-left text-sm font-semibold text-accent rounded-tl-xl">
+                  Month
+                </th>
+                <th className="px-4 py-4 text-left text-sm font-semibold text-accent">
+                  Overtime
+                </th>
+                <th className="px-4 py-4 text-left text-sm font-semibold text-accent">
+                  Net Pay
+                </th>
+                <th className="px-4 py-4 text-left text-sm font-semibold text-accent rounded-tr-xl">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedRecords.map((record) => (
+                <tr
+                  key={record.id}
+                  className="border-t border-gray-100 hover:bg-muted/30 transition-colors"
+                >
+                  <td className="px-4 py-3 text-sm text-foreground">
+                    {record.month}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-foreground">
+                    {formatCurrency(record.overtime)}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-foreground">
+                    {formatCurrency(record.netPay)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex items-center gap-2 text-sm font-medium ${
+                        record.status === 'Paid'
+                          ? 'text-green-600'
+                          : 'text-amber-600'
+                      }`}
+                    >
+                      <span
+                        className={`h-2 w-2 rounded-full ${
+                          record.status === 'Paid'
+                            ? 'bg-green-500'
+                            : 'bg-amber-500'
+                        }`}
+                      />
+                      {record.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {totalItems > 0 && (
+          <div className="border-t border-gray-100 px-4 py-3">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setPage}
+              onItemsPerPageChange={setLimit}
+              showItemsPerPage
+            />
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )
+}
