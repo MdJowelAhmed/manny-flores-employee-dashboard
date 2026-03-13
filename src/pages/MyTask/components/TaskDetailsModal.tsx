@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Calendar, MapPin, Camera } from 'lucide-react'
 import { ModalWrapper } from '@/components/common'
 import { Button } from '@/components/ui/button'
@@ -66,7 +66,8 @@ interface TaskDetailsModalProps {
   open: boolean
   onClose: () => void
   task: MyTask | null
-  onStart?: (task: MyTask) => void
+  /** When true, shows Upload Photos, Add Note, Submit. When false, details only (no form). */
+  showForm?: boolean
   onSubmit?: (task: MyTask, data: { beforePhoto?: File; afterPhoto?: File; note?: string }) => void
 }
 
@@ -74,7 +75,7 @@ export function TaskDetailsModal({
   open,
   onClose,
   task,
-  onStart,
+  showForm = false,
   onSubmit,
 }: TaskDetailsModalProps) {
   const [beforePhoto, setBeforePhoto] = useState<File | null>(null)
@@ -82,7 +83,6 @@ export function TaskDetailsModal({
   const [note, setNote] = useState('')
 
   const isInProgress = task?.status === 'In Progress'
-  const isPending = task?.status === 'Pending'
 
   const handleClose = useCallback(() => {
     setBeforePhoto(null)
@@ -91,10 +91,13 @@ export function TaskDetailsModal({
     onClose()
   }, [onClose])
 
-  const handleStart = () => {
-    if (task && onStart) onStart(task)
-    handleClose()
-  }
+  useEffect(() => {
+    if (!open) {
+      setBeforePhoto(null)
+      setAfterPhoto(null)
+      setNote('')
+    }
+  }, [open])
 
   const handleSubmit = () => {
     if (task && onSubmit) {
@@ -115,20 +118,17 @@ export function TaskDetailsModal({
     Low: 'bg-gray-100 text-gray-700',
   }
 
-  const footer = (
-    <div className="flex justify-end">
-      {isPending && onStart && (
-        <Button onClick={handleStart} className="w-full bg-primary text-white rounded-lg">
-          Start
-        </Button>
-      )}
-      {isInProgress && onSubmit && (
-        <Button onClick={handleSubmit} className="w-full bg-primary text-white rounded-lg">
+  const footer =
+    showForm && onSubmit ? (
+      <div className="flex justify-end">
+        <Button
+          onClick={handleSubmit}
+          className="w-full bg-primary text-white rounded-lg"
+        >
           Submit
         </Button>
-      )}
-    </div>
-  )
+      </div>
+    ) : undefined
 
   return (
     <ModalWrapper
@@ -248,8 +248,8 @@ export function TaskDetailsModal({
           </Card>
         )}
 
-        {/* Upload Photos & Add Note - Only when In Progress */}
-        {isInProgress && onSubmit && (
+        {/* Upload Photos & Add Note - Only when showForm (Start/Complete flow) */}
+        {showForm && (
           <>
             <Card className="rounded-xl">
               <CardContent className="p-4 space-y-4">

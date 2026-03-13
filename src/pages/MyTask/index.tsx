@@ -13,6 +13,7 @@ export default function MyTask() {
   const [tasks, setTasks] = useState<MyTask[]>(myTaskMockData)
   const [selectedTask, setSelectedTask] = useState<MyTask | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [modalShowForm, setModalShowForm] = useState(false)
 
   const setPage = (p: number) => {
     const next = new URLSearchParams(searchParams)
@@ -41,46 +42,32 @@ export default function MyTask() {
 
   const handleViewDetails = (task: MyTask) => {
     setSelectedTask(task)
+    setModalShowForm(false)
     setShowDetailsModal(true)
   }
 
-  const handleStartOrComplete = (task: MyTask) => {
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === task.id
-          ? {
-              ...t,
-              status:
-                t.status === 'Pending'
-                  ? ('In Progress' as const)
-                  : t.status === 'In Progress'
-                    ? ('Completed' as const)
-                    : t.status,
-            }
-          : t
-      )
-    )
-    if (task.status === 'Pending') {
-      toast.success('Task started successfully')
-    } else if (task.status === 'In Progress') {
-      toast.success('Task completed successfully')
-    }
-  }
-
-  const handleStartFromModal = (task: MyTask) => {
-    handleStartOrComplete(task)
+  const handleStartOrCompleteClick = (task: MyTask) => {
+    setSelectedTask(task)
+    setModalShowForm(true)
+    setShowDetailsModal(true)
   }
 
   const handleSubmitFromModal = (
     task: MyTask,
     _data: { beforePhoto?: File; afterPhoto?: File; note?: string }
   ) => {
+    const isPending = task.status === 'Pending'
+    const updatedTask = isPending
+      ? { ...task, status: 'In Progress' as const }
+      : { ...task, status: 'Completed' as const }
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === task.id ? { ...t, status: 'Completed' as const } : t
-      )
+      prev.map((t) => (t.id === task.id ? updatedTask : t))
     )
-    toast.success('Task submitted successfully')
+    setShowDetailsModal(false)
+    setSelectedTask(null)
+    toast.success(
+      isPending ? 'Task started successfully' : 'Task submitted successfully'
+    )
   }
 
   return (
@@ -93,7 +80,7 @@ export default function MyTask() {
             key={task.id}
             task={task}
             onViewDetails={handleViewDetails}
-            onStartOrComplete={handleStartOrComplete}
+            onStart={handleStartOrCompleteClick}
           />
         ))}
       </div>
@@ -115,7 +102,7 @@ export default function MyTask() {
           setSelectedTask(null)
         }}
         task={selectedTask}
-        onStart={handleStartFromModal}
+        showForm={modalShowForm}
         onSubmit={handleSubmitFromModal}
       />
     </div>

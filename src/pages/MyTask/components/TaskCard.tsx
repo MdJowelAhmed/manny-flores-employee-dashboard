@@ -9,7 +9,7 @@ import type { MyTask } from '../myTaskData'
 interface TaskCardProps {
   task: MyTask
   onViewDetails: (task: MyTask) => void
-  onStartOrComplete: (task: MyTask) => void
+  onStart?: (task: MyTask) => void
 }
 
 const priorityClasses: Record<string, string> = {
@@ -18,7 +18,7 @@ const priorityClasses: Record<string, string> = {
   Low: 'bg-gray-100 text-gray-700',
 }
 
-export function TaskCard({ task, onViewDetails, onStartOrComplete }: TaskCardProps) {
+export function TaskCard({ task, onViewDetails, onStart }: TaskCardProps) {
   const isInProgress = task.status === 'In Progress'
   const isCompleted = task.status === 'Completed'
   const primaryButtonText = isCompleted ? 'Completed' : isInProgress ? 'Complete' : 'Start'
@@ -52,8 +52,10 @@ export function TaskCard({ task, onViewDetails, onStartOrComplete }: TaskCardPro
 
         <div className="space-y-5 mb-3">
           <div className="flex flex-col  gap-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-success shrink-0" />
+            <div className="flex items-center gap-1">
+              <div className="bg-secondary-foreground p-1 rounded-full">
+              <Calendar className="h-4 w-4 text-success shrink-0   " />
+              </div>
               <span className="font-medium text-foreground">Deadline </span>
             </div>
             <span>
@@ -62,8 +64,10 @@ export function TaskCard({ task, onViewDetails, onStartOrComplete }: TaskCardPro
             </span>
           </div>
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-success shrink-0 mt-0.5" />
+            <div className="flex items-center gap-1">
+             <div className="bg-secondary-foreground p-1 rounded-full">
+             <MapPin className="h-4 w-4 text-success shrink-0 mt-0.5   " />
+             </div>
               <span className="font-medium text-foreground">Location </span>
             </div>
             <span>
@@ -86,7 +90,7 @@ export function TaskCard({ task, onViewDetails, onStartOrComplete }: TaskCardPro
               'flex-1 rounded-lg',
               isInProgress ? 'bg-primary text-white' : 'border-primary text-primary'
             )}
-            onClick={() => onStartOrComplete(task)}
+            onClick={() => (onStart ?? onViewDetails)(task)}
             disabled={isCompleted}
           >
             {primaryButtonText}
