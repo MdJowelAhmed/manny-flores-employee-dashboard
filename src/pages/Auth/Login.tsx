@@ -239,14 +239,14 @@ export default function Login() {
             <p className="font-medium">Super Admin:</p>
             <p className="text-muted-foreground">superadmin@example.com / password</p>
           </div>
-          <div>
+          {/* <div>
             <p className="font-medium">Admin:</p>
             <p className="text-muted-foreground">admin@example.com / password</p>
           </div>
           <div>
             <p className="font-medium">Marketing:</p>
             <p className="text-muted-foreground">marketing@example.com / password</p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
