@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Paperclip, Send, CheckCheck } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -9,7 +8,6 @@ import {
   mockCustomerConversations,
   mockEmployeeConversations,
   type Conversation,
-  type ConversationType,
   type Message,
 } from './communicationData'
 import { cn } from '@/utils/cn'
@@ -32,25 +30,17 @@ function getTimeForList() {
   return `${h}:${mins.toString().padStart(2, '0')}${ampm}`
 }
 
+const allConversationsInitial = [
+  ...JSON.parse(JSON.stringify(mockCustomerConversations)),
+  ...JSON.parse(JSON.stringify(mockEmployeeConversations)),
+]
+
 export default function Communication() {
-  const [activeTab, setActiveTab] = useState<ConversationType>('customer')
-  const [customerConversations, setCustomerConversations] = useState<Conversation[]>(
-    () => JSON.parse(JSON.stringify(mockCustomerConversations))
-  )
-  const [employeeConversations, setEmployeeConversations] = useState<Conversation[]>(
-    () => JSON.parse(JSON.stringify(mockEmployeeConversations))
-  )
+  const [conversations, setConversations] = useState<Conversation[]>(allConversationsInitial)
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(
-    () => JSON.parse(JSON.stringify(mockCustomerConversations[0]))
+    () => allConversationsInitial[0]
   )
   const [messageInput, setMessageInput] = useState('')
-
-  const handleTabChange = (tab: ConversationType) => {
-    setActiveTab(tab)
-    const list = tab === 'customer' ? customerConversations : employeeConversations
-    const isStillValid = list.some((c) => c.id === selectedConversation?.id)
-    setSelectedConversation(isStillValid ? list.find((c) => c.id === selectedConversation!.id)! : list[0] ?? null)
-  }
 
   const handleSendMessage = () => {
     const text = messageInput.trim()
@@ -73,13 +63,9 @@ export default function Communication() {
       lastMessageIsFromYou: true,
       lastMessageTime: listTime,
     }
-    const updateInList = (conv: Conversation) =>
-      conv.id === selectedConversation.id ? updated : conv
-    if (selectedConversation.type === 'customer') {
-      setCustomerConversations((prev) => prev.map(updateInList))
-    } else {
-      setEmployeeConversations((prev) => prev.map(updateInList))
-    }
+    setConversations((prev) =>
+      prev.map((conv) => (conv.id === selectedConversation.id ? updated : conv))
+    )
     setSelectedConversation(updated)
     setMessageInput('')
   }
@@ -93,47 +79,17 @@ export default function Communication() {
     >
       {/* Left Panel - Conversation List */}
       <div className="w-[340px] min-w-[340px] flex flex-col border-r border-gray-100 bg-white">
-        <Tabs value={activeTab} onValueChange={(v) => handleTabChange(v as ConversationType)}>
-          <div className="px-4 pt-4 pb-2 border-b border-gray-100">
-            <TabsList className="w-full h-auto p-0 bg-transparent gap-0 rounded-none border-0">
-              <TabsTrigger
-                value="customer"
-                className={cn(
-                  'flex-1 rounded-none border-b-2 border-transparent py-3 px-4 -mb-px',
-                  'data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-                  'data-[state=inactive]:text-muted-foreground'
-                )}
-              >
-                Customer
-              </TabsTrigger>
-              <TabsTrigger
-                value="employee"
-                className={cn(
-                  'flex-1 rounded-none border-b-2 border-transparent py-3 px-4 -mb-px',
-                  'data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-                  'data-[state=inactive]:text-muted-foreground'
-                )}
-              >
-                Employee
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="customer" className="m-0 flex-1 overflow-y-auto">
-            <ConversationList
-              conversations={customerConversations}
-              selected={selectedConversation}
-              onSelect={setSelectedConversation}
-            />
-          </TabsContent>
-          <TabsContent value="employee" className="m-0 flex-1 overflow-y-auto">
-            <ConversationList
-              conversations={employeeConversations}
-              selected={selectedConversation}
-              onSelect={setSelectedConversation}
-            />
-          </TabsContent>
-        </Tabs>
+        <div className="px-4 pt-4 pb-2 border-b border-gray-100">
+          <h2 className="font-semibold text-accent">Messages</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            All contacts
+          </p>
+        </div>
+        <ConversationList
+          conversations={conversations}
+          selected={selectedConversation}
+          onSelect={setSelectedConversation}
+        />
       </div>
 
       {/* Right Panel - Chat */}
