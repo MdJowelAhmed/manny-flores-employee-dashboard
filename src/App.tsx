@@ -53,7 +53,7 @@ import ManageMaterials from './pages/ManageMaterials/ManageMaterials'
 import CustomerFinance from './pages/CustomerFinance/CustomerFinance'
 import Attendance from './pages/Attendance/Attendance'
 import Payroll from './pages/Payroll'
-import ResourceRequestsReport from './pages/ResourceRequestsReport/ResourceRequestsReport'
+import SafetyCompliance from './pages/SafetyCompliance/SafetyCompliance'
 import ChangeOrders from './pages/ChangeOrders/ChangeOrders'
 import DailySafetyReports from './pages/DailySafetyReports/DailySafetyReports'
 import RecentProjects from './pages/RecentProjects'
@@ -223,7 +223,7 @@ function App() {
             }
           />
           <Route path="customer-finance" element={<RoleBasedRoute allowedRoles={[]}><CustomerFinance /></RoleBasedRoute>} />
-          <Route path="resource-requests-report" element={<RoleBasedRoute allowedRoles={[]}><ResourceRequestsReport /></RoleBasedRoute>} />
+          <Route path="safety-compliance" element={<RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]}><SafetyCompliance /></RoleBasedRoute>} />
           <Route path="change-orders" element={<RoleBasedRoute allowedRoles={[]}><ChangeOrders /></RoleBasedRoute>} />
           <Route path="transactions-history" element={<RoleBasedRoute allowedRoles={[]}><TransactionsHistory /></RoleBasedRoute>} />
           <Route path="orders" element={<RoleBasedRoute allowedRoles={[]}><OrderList /></RoleBasedRoute>} />

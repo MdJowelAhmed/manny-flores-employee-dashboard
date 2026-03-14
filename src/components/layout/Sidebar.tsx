@@ -24,7 +24,6 @@ import {
   Wallet,
   ClipboardCheck,
   DollarSign,
-  FileBarChart,
   ClipboardList,
   ListTodo,
   FolderKanban,
@@ -182,10 +181,10 @@ const navItems: NavItem[] = [
     feature: 'payroll',
   },
   {
-    title: 'Resource Requests & Report',
-    href: '/resource-requests-report',
-    icon: FileBarChart,
-    feature: 'resource-requests-report',
+    title: 'Safety & Compliance',
+    href: '/safety-compliance',
+    icon: Shield,
+    feature: 'safety-compliance',
   },
   {
     title: 'Change Orders',

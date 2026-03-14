@@ -48,6 +48,7 @@ export const FEATURE_ACCESS: Record<string, UserRole[]> = {
   'manage-materials': [UserRole.EMPLOYEE],
   'customer-finance': [],
   'resource-requests-report': [],
+  'safety-compliance': [UserRole.EMPLOYEE],
   'change-orders': [],
 }
 
