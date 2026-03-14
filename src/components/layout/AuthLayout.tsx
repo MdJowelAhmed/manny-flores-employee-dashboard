@@ -39,10 +39,8 @@ export default function AuthLayout() {
           >
             {/* Logo */}
             <div className="flex items-center gap-3 mb-12">
-              <div className="h-12 w-12 rounded-xl bg-white flex items-center justify-center">
-                <span className="text-primary font-bold text-2xl">D</span>
-              </div>
-              <span className="text-white font-display font-bold text-3xl">Dashboard</span>
+          
+              <span className="text-white font-display font-bold text-3xl">Employee Dashboard</span>
             </div>
 
             <h1 className="text-4xl xl:text-5xl font-bold text-white mb-6 leading-tight">
@@ -51,11 +49,11 @@ export default function AuthLayout() {
             </h1>
 
             <p className="text-white/70 text-lg max-w-md mb-12">
-              A powerful admin dashboard to manage your users, products, and business analytics with ease.
+             This is a dashboard for employees to manage their tasks, materials, vehicles, equipment, and safety compliance.
             </p>
 
             {/* Features */}
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
               {[
                 "Analytics",
                 "Orders",
@@ -84,7 +82,7 @@ export default function AuthLayout() {
                   <span className="text-white/90">{feature}</span>
                 </motion.div>
               ))}
-            </div>
+            </div> */}
           </motion.div>
         </div>
       </div>

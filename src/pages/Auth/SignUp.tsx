@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, ArrowRight, User, Shield } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, ArrowRight, User, Shield, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -89,13 +89,7 @@ export default function SignUp() {
         <span className="font-display font-bold text-2xl">Dashboard</span>
       </div>
 
-      <Link
-        to="/auth/login"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to login
-      </Link>
+   
 
       <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">Create account</h1>
@@ -122,20 +116,7 @@ export default function SignUp() {
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="role">Role</Label>
-          <div className="relative">
-            <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="role"
-              type="text"
-              disabled
-              className="pl-10 bg-muted/50 cursor-not-allowed capitalize"
-              {...register('role')}
-            />
-          </div>
-        </div>
-
+     
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <div className="relative">
@@ -152,6 +133,20 @@ export default function SignUp() {
             <p className="text-xs text-destructive">{errors.email.message}</p>
           )}
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="role">Role</Label>
+          <div className="relative">
+            <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="role"
+              type="text"
+              disabled
+              className="pl-10 bg-muted/50 cursor-not-allowed capitalize"
+              {...register('role')}
+            />
+          </div>
+        </div>
+
 
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
@@ -182,30 +177,7 @@ export default function SignUp() {
           {errors.password && (
             <p className="text-xs text-destructive">{errors.password.message}</p>
           )}
-          <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">
-              Password Requirements
-            </p>
-            <div className="grid grid-cols-2 gap-1">
-              {passwordRequirements.map((req) => (
-                <div
-                  key={req.label}
-                  className={cn(
-                    'flex items-center gap-1.5 text-xs',
-                    req.met ? 'text-success' : 'text-muted-foreground'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'h-1.5 w-1.5 rounded-full',
-                      req.met ? 'bg-success' : 'bg-muted-foreground'
-                    )}
-                  />
-                  {req.label}
-                </div>
-              ))}
-            </div>
-          </div>
+         
         </div>
 
         <div className="space-y-2">
@@ -240,6 +212,30 @@ export default function SignUp() {
             </p>
           )}
         </div>
+
+        <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">
+              Password Requirements
+            </p>
+            <div className="grid grid-cols-2 gap-1">
+              {passwordRequirements.map((req) => (
+                <div
+                  key={req.label}
+                  className={cn(
+                    'flex items-center gap-1.5 text-xs',
+                    req.met ? 'text-success' : 'text-muted-foreground'
+                  )}
+                >
+                  {req.met ? (
+                    <Check className="h-4 w-4 shrink-0" />
+                  ) : (
+                    <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground shrink-0" />
+                  )}
+                  {req.label}
+                </div>
+              ))}
+            </div>
+          </div>
 
         <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
           {!isLoading && (
