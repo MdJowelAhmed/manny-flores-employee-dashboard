@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Camera } from 'lucide-react'
+// import { Camera } from 'lucide-react'
 import { ModalWrapper, FormSelect, FormTextarea } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import {
@@ -33,7 +33,7 @@ export function RequestVehicleModal({
   onRequest,
 }: RequestVehicleModalProps) {
   const { t } = useTranslation()
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  // const fileInputRef = useRef<HTMLInputElement>(null)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
 
   const {
@@ -152,7 +152,7 @@ export function RequestVehicleModal({
             />
           )}
         />
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <p className="text-sm font-medium">{t('vehicles.uploadPhoto')}</p>
           <input
             ref={fileInputRef}
@@ -175,7 +175,7 @@ export function RequestVehicleModal({
               </span>
             )}
           </Button>
-        </div>
+        </div> */}
       </form>
     </ModalWrapper>
   )
