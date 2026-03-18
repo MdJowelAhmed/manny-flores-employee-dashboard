@@ -13,7 +13,9 @@ export default function DashboardLayout() {
       <div
         className={cn(
           'transition-all duration-300',
-          sidebarCollapsed ? 'lg:ml-[80px]' : 'lg:ml-[280px]'
+          // Sidebar is always expanded on desktop; on mobile it overlays content
+          'lg:ml-[280px]',
+          sidebarCollapsed && 'lg:ml-[280px]'
         )}
       >
         <Header />

@@ -21,7 +21,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
-import { toggleSidebar } from '@/redux/slices/uiSlice'
+import { setSidebarCollapsed, toggleSidebar } from '@/redux/slices/uiSlice'
 import { cn } from '@/utils/cn'
 import { useTranslation } from 'react-i18next'
 
@@ -173,6 +173,22 @@ export function Sidebar() {
 
   const isSettingsActive = location.pathname.startsWith('/settings')
 
+  // Ensure desktop view is always expanded without needing a reload
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleResize = () => {
+      const isDesktop = window.innerWidth >= 1024 // Tailwind's lg breakpoint
+      if (isDesktop && sidebarCollapsed) {
+        dispatch(setSidebarCollapsed(false))
+      }
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [dispatch, sidebarCollapsed])
+
   return (
     <>
       {/* Mobile overlay */}
@@ -187,9 +203,9 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full bg-card shadow-sm transition-all duration-300',
+          'fixed top-0 left-0 z-50 h-full bg-white shadow-sm transition-all duration-300',
           'flex flex-col',
-          sidebarCollapsed ? 'w-[80px]' : 'w-[280px]',
+          'w-[280px]',
           'lg:translate-x-0',
           sidebarCollapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'
         )}
@@ -198,7 +214,7 @@ export function Sidebar() {
         <div className="flex items-center justify-between h-28 px-4 border-b">
           <div className="flex items-center gap-3">
             <div className="">
-              <div className="text-primary text-white font-bold text-lg flex items-center justify-center w-72  mx-auto">
+              <div className="text-primary text-white font-bold text-lg  w-72  mx-auto hidden lg:block">
                 <img src="/assets/image3.svg" alt="manny Flores" className="" />
               </div>
             </div>
@@ -312,7 +328,7 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
           className={cn(
             'group flex w-full items-center gap-3 px-3 py-2.5 rounded-sm transition-all duration-200',
             'hover:bg-[#00A63E] hover:text-[#fff]',
-            isParentActive ? 'bg-[#00A63E]/80 text-[#fff]' : 'text-[#656565]'
+            isParentActive ? 'bg-[#00A63E] text-[#fff] font-semibold' : 'text-[#374151]'
           )}
         >
           <Icon className="h-5 w-5 flex-shrink-0 text-current" />
@@ -333,7 +349,9 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
                     cn(
                       'group flex items-center gap-3 px-3 py-2 rounded-sm transition-all duration-200',
                       'hover:bg-[#00A63E] hover:text-[#fff]',
-                      isActive ? 'bg-[#195ABE] text-[#fff] shadow-md' : 'text-[#656565]'
+                      isActive
+                        ? 'bg-[#00A63E] text-[#fff] font-semibold'
+                        : 'text-[#4B5563]'
                     )
                   }
                 >
@@ -356,7 +374,9 @@ function SidebarNavItem({ item, collapsed }: SidebarNavItemProps) {
           'group flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all duration-200',
           'hover:bg-[#00A63E] hover:text-[#fff]',
           collapsed && 'justify-center',
-          isActive ? 'bg-[#00A63E] text-[#fff] shadow-md' : 'text-[#656565]'
+          isActive
+            ? 'bg-[#00A63E] text-[#fff] font-semibold'
+            : 'text-[#4B5563]'
         )
       }
     >
