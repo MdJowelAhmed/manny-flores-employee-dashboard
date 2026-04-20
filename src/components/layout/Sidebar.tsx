@@ -59,11 +59,18 @@ const navItems: NavItem[] = [
     feature: 'communication',
   },
   {
-    title: 'Attendance',
-    titleKey: 'sidebar.attendance',
-    href: '/attendance',
-    icon: ClipboardCheck,
-    feature: 'attendance',
+    title: 'Estimate',
+    titleKey: 'sidebar.estimate',
+    href: '/estimate',
+    icon: FileSpreadsheet,
+    feature: 'estimate',
+  },
+  {
+    title: 'Invoice',
+    titleKey: 'sidebar.invoice',
+    href: '/invoice',
+    icon: Receipt,
+    feature: 'invoice',
   },
   {
     title: 'Materials',
@@ -72,13 +79,16 @@ const navItems: NavItem[] = [
     icon: Package2,
     feature: 'manage-materials',
   },
+
   {
-    title: 'Safety & Compliance',
-    titleKey: 'sidebar.safetyCompliance',
-    href: '/safety-compliance',
-    icon: Shield,
-    feature: 'safety-compliance',
+    title: 'Attendance',
+    titleKey: 'sidebar.attendance',
+    href: '/attendance',
+    icon: ClipboardCheck,
+    feature: 'attendance',
   },
+
+
   {
     title: 'Vehicles',
     titleKey: 'sidebar.vehicles',
@@ -94,26 +104,20 @@ const navItems: NavItem[] = [
     feature: 'equipment',
   },
   {
+    title: 'Safety & Compliance',
+    titleKey: 'sidebar.safetyCompliance',
+    href: '/safety-compliance',
+    icon: Shield,
+    feature: 'safety-compliance',
+  },
+  {
     title: 'Payroll',
     titleKey: 'sidebar.payroll',
     href: '/payroll',
     icon: DollarSign,
     feature: 'payroll',
   },
-  {
-    title: 'Estimate',
-    titleKey: 'sidebar.estimate',
-    href: '/estimate',
-    icon: FileSpreadsheet,
-    feature: 'estimate',
-  },
-  {
-    title: 'Invoice',
-    titleKey: 'sidebar.invoice',
-    href: '/invoice',
-    icon: Receipt,
-    feature: 'invoice',
-  },
+
 ]
 
 const settingsItems: NavItem[] = [
