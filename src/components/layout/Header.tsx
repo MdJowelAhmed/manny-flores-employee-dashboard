@@ -31,6 +31,8 @@ const routeTitleKeys: Record<string, string> = {
   '/resource-requests-report': 'header.routeTitles.resourceRequests',
   '/vehicles': 'header.routeTitles.vehicles',
   '/equipment': 'header.routeTitles.assignedEquipment',
+  '/estimate': 'header.routeTitles.estimate',
+  '/invoice': 'header.routeTitles.invoice',
   '/settings/profile': 'header.routeTitles.profileSettings',
   '/settings/password': 'header.routeTitles.changePassword',
   '/settings/terms': 'header.routeTitles.termsConditions',

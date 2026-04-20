@@ -37,6 +37,8 @@ import Payroll from './pages/Payroll'
 import Notifications from './pages/Notifications/Notifications'
 import MyTask from './pages/MyTask'
 import SafetyCompliance from './pages/SafetyCompliance/SafetyCompliance'
+import EstimatePage from './pages/Estimate'
+import InvoicePage from './pages/Invoice'
 
 function AppEntryRedirect() {
   const { user } = useAppSelector((state) => state.auth)
@@ -143,6 +145,26 @@ function App() {
             element={
               <RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]}>
                 <Payroll />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Estimate - Employee */}
+          <Route
+            path="estimate"
+            element={
+              <RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]}>
+                <EstimatePage />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Invoice - Employee */}
+          <Route
+            path="invoice"
+            element={
+              <RoleBasedRoute allowedRoles={[UserRole.EMPLOYEE]}>
+                <InvoicePage />
               </RoleBasedRoute>
             }
           />
