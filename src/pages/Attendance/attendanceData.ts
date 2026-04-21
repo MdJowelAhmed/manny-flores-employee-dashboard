@@ -1,11 +1,5 @@
 export type AttendanceStatus = 'Present' | 'Absent'
 
-export interface TodaySummary {
-  checkIn: string
-  checkOut: string
-  workingPeriod: string
-}
-
 export interface AttendanceRecord {
   id: string
   date: string
@@ -15,17 +9,27 @@ export interface AttendanceRecord {
   attendance: AttendanceStatus
 }
 
-export const todaySummaryData: TodaySummary = {
-  checkIn: '09:10 am',
-  checkOut: '06:15 pm',
-  workingPeriod: '1 hr 30 min',
+/** In-memory check-in/out for the current workday (local date). */
+export interface AttendanceDaySession {
+  workDate: string
+  checkInIso: string | null
+  checkOutIso: string | null
 }
 
-export const ATTENDANCE_FILTER_OPTIONS = [
-  { value: 'all', label: 'All' },
-  { value: 'Present', label: 'Present' },
-  { value: 'Absent', label: 'Absent' },
-]
+export function getLocalDateKey(d = new Date()) {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+export function createEmptyDaySession(): AttendanceDaySession {
+  return {
+    workDate: getLocalDateKey(),
+    checkInIso: null,
+    checkOutIso: null,
+  }
+}
 
 export const mockAttendanceRecords: AttendanceRecord[] = [
   {
@@ -33,47 +37,47 @@ export const mockAttendanceRecords: AttendanceRecord[] = [
     date: '21 February, 2025',
     checkIn: '09:00 AM',
     checkOut: '06:00 PM',
-    workHour: '1 hr 30 min',
+    workHour: '9 hr 0 min',
     attendance: 'Present',
   },
   {
     id: 'att-2',
-    date: '21 February, 2025',
-    checkIn: '09:00 AM',
-    checkOut: '06:00 PM',
-    workHour: '1 hr 30 min',
+    date: '20 February, 2025',
+    checkIn: '09:05 AM',
+    checkOut: '06:10 PM',
+    workHour: '9 hr 5 min',
     attendance: 'Present',
   },
   {
     id: 'att-3',
-    date: '21 February, 2025',
-    checkIn: '--',
-    checkOut: '--',
-    workHour: '--',
+    date: '19 February, 2025',
+    checkIn: '--:--',
+    checkOut: '--:--',
+    workHour: '--:--',
     attendance: 'Absent',
   },
   {
     id: 'att-4',
-    date: '21 February, 2025',
-    checkIn: '09:00 AM',
-    checkOut: '06:00 PM',
-    workHour: '1 hr 30 min',
+    date: '18 February, 2025',
+    checkIn: '08:55 AM',
+    checkOut: '05:45 PM',
+    workHour: '8 hr 50 min',
     attendance: 'Present',
   },
   {
     id: 'att-5',
-    date: '21 February, 2025',
-    checkIn: '--',
-    checkOut: '--',
-    workHour: '--',
+    date: '17 February, 2025',
+    checkIn: '--:--',
+    checkOut: '--:--',
+    workHour: '--:--',
     attendance: 'Absent',
   },
   {
     id: 'att-6',
-    date: '21 February, 2025',
+    date: '16 February, 2025',
     checkIn: '09:00 AM',
     checkOut: '06:00 PM',
-    workHour: '1 hr 30 min',
+    workHour: '9 hr 0 min',
     attendance: 'Present',
   },
 ]

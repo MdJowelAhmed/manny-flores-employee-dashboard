@@ -176,7 +176,16 @@
     "todayWorkingPeriod": "Today Working Period",
     "all": "All",
     "present": "Present",
-    "absent": "Absent"
+    "absent": "Absent",
+    "checkInButton": "Check in",
+    "checkOutButton": "Check out",
+    "checkedInSuccess": "Checked in successfully",
+    "checkedOutSuccess": "Checked out successfully",
+    "checkInFirst": "Please check in first",
+    "alreadyCheckedIn": "You have already checked in today",
+    "alreadyCheckedOut": "You have already checked out today",
+    "dayComplete": "Attendance for today is already complete",
+    "dayCompleteShort": "Completed"
   },
   "communication": {
     "messages": "Messages",

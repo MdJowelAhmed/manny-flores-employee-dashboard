@@ -176,7 +176,16 @@
     "todayWorkingPeriod": "Período de Trabajo Hoy",
     "all": "Todos",
     "present": "Presente",
-    "absent": "Ausente"
+    "absent": "Ausente",
+    "checkInButton": "Registrar entrada",
+    "checkOutButton": "Registrar salida",
+    "checkedInSuccess": "Entrada registrada correctamente",
+    "checkedOutSuccess": "Salida registrada correctamente",
+    "checkInFirst": "Registre la entrada primero",
+    "alreadyCheckedIn": "Ya registró la entrada hoy",
+    "alreadyCheckedOut": "Ya registró la salida hoy",
+    "dayComplete": "La asistencia de hoy ya está completa",
+    "dayCompleteShort": "Completado"
   },
   "communication": {
     "messages": "Mensajes",
