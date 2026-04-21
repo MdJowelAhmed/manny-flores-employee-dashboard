@@ -362,7 +362,31 @@
     "confirmNewPasswordPlaceholder": "Confirm new password"
   },
   "estimate": {
-    "pageTitle": "Estimate Items",
+    "pageTitle": "Estimate Item",
+    "table": {
+      "projectName": "Project Name",
+      "location": "Location",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "payment": "Payment",
+      "status": "Status",
+      "action": "Action"
+    },
+    "status": {
+      "reviewed": "Reviewed",
+      "pending": "Pending"
+    },
+    "actions": {
+      "details": "View estimate",
+      "lock": "Lock",
+      "delete": "Delete"
+    },
+    "lockNotice": "This estimate is locked for editing.",
+    "deleteTitle": "Delete estimate?",
+    "deleteDescription": "This row will be removed from the list. This cannot be undone.",
+    "deleteConfirm": "Delete",
+    "deleteCancel": "Cancel",
+    "deletedSuccess": "Estimate removed",
     "companyName": "Company Name",
     "deadline": "Deadline",
     "dateRangeTo": "to",

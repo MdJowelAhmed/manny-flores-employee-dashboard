@@ -362,7 +362,31 @@
     "confirmNewPasswordPlaceholder": "Confirmar nueva contraseña"
   },
   "estimate": {
-    "pageTitle": "Partidas de estimación",
+    "pageTitle": "Partida de estimación",
+    "table": {
+      "projectName": "Nombre del proyecto",
+      "location": "Ubicación",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "payment": "Pago",
+      "status": "Estado",
+      "action": "Acción"
+    },
+    "status": {
+      "reviewed": "Revisado",
+      "pending": "Pendiente"
+    },
+    "actions": {
+      "details": "Ver estimación",
+      "lock": "Bloquear",
+      "delete": "Eliminar"
+    },
+    "lockNotice": "Esta estimación está bloqueada para edición.",
+    "deleteTitle": "¿Eliminar estimación?",
+    "deleteDescription": "Esta fila se quitará de la lista. No se puede deshacer.",
+    "deleteConfirm": "Eliminar",
+    "deleteCancel": "Cancelar",
+    "deletedSuccess": "Estimación eliminada",
     "companyName": "Nombre de la empresa",
     "deadline": "Fecha límite",
     "dateRangeTo": "a",
