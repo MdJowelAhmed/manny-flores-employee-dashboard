@@ -448,6 +448,10 @@
   },
   "invoice": {
     "pageTitle": "Invoice",
+    "detailModalTitle": "Invoice details",
+    "details": "Details",
+    "customer": "Customer",
+    "closeDetails": "Close",
     "customerDetails": "Customer Details",
     "invoiceReference": "Invoice Reference",
     "issued": "Issued",

@@ -448,6 +448,10 @@
   },
   "invoice": {
     "pageTitle": "Factura",
+    "detailModalTitle": "Detalle de factura",
+    "details": "Detalles",
+    "customer": "Cliente",
+    "closeDetails": "Cerrar",
     "customerDetails": "Datos del cliente",
     "invoiceReference": "Referencia de factura",
     "issued": "Emitida",
