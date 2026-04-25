@@ -17,8 +17,8 @@ import {
   DollarSign,
   // ListTodo,
   Info,
-  FileSpreadsheet,
-  Receipt,
+  // FileSpreadsheet,
+  // Receipt,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -58,20 +58,20 @@ const navItems: NavItem[] = [
     icon: MessageCircle,
     feature: 'communication',
   },
-  {
-    title: 'Estimate',
-    titleKey: 'sidebar.estimate',
-    href: '/estimate',
-    icon: FileSpreadsheet,
-    feature: 'estimate',
-  },
-  {
-    title: 'Invoice',
-    titleKey: 'sidebar.invoice',
-    href: '/invoice',
-    icon: Receipt,
-    feature: 'invoice',
-  },
+  // {
+  //   title: 'Estimate',
+  //   titleKey: 'sidebar.estimate',
+  //   href: '/estimate',
+  //   icon: FileSpreadsheet,
+  //   feature: 'estimate',
+  // },
+  // {
+  //   title: 'Invoice',
+  //   titleKey: 'sidebar.invoice',
+  //   href: '/invoice',
+  //   icon: Receipt,
+  //   feature: 'invoice',
+  // },
   {
     title: 'Materials',
     titleKey: 'sidebar.materials',
