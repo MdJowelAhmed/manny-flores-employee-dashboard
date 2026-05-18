@@ -17,6 +17,7 @@ import {
   DollarSign,
   // ListTodo,
   Info,
+  ListTodo,
   // FileSpreadsheet,
   // Receipt,
 } from 'lucide-react'
@@ -44,13 +45,13 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
     feature: 'dashboard',
   },
-  // {
-  //   title: 'My Task',
-  //   titleKey: 'sidebar.myTask',
-  //   href: '/my-task',
-  //   icon: ListTodo,
-  //   feature: 'my-task',
-  // },
+  {
+    title: 'My Task',
+    titleKey: 'sidebar.myTask',
+    href: '/my-task',
+    icon: ListTodo,
+    feature: 'my-task',
+  },
   {
     title: 'Communication',
     titleKey: 'sidebar.communication',

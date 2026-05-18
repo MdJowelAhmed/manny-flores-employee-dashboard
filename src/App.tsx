@@ -16,21 +16,16 @@ import { Login, SignUp, ForgotPassword, VerifyEmail, ResetPassword } from '@/pag
 // Dashboard Pages
 import Dashboard from '@/pages/Dashboard'
 import UserList from '@/pages/Users/UserList'
-import ProductList from '@/pages/Products/ProductList'
-import CategoryList from '@/pages/Categories/CategoryList'
 import ProfileSettings from '@/pages/Settings/Profile/ProfileSettings'
 import ChangePassword from '@/pages/Settings/ChangePassword/ChangePassword'
 import TermsSettings from '@/pages/Settings/Terms/TermsSettings'
 import PrivacySettings from '@/pages/Settings/Privacy/PrivacySettings'
 import AboutUsSettings from '@/pages/Settings/AboutUs/AboutUsSettings'
-// import AddCar from './pages/carlist/AddCar'
-import ClientManagement from './pages/ClientManagement/ClientManagement'
-import Calender from './pages/calender/Calender'
 import NotFound from './pages/NotFound/NotFound'
 
 import Vehicles from './pages/Vehicles'
 import Equipment from './pages/Equipment'
-  import Communication from './pages/Communication/Communication'
+import Communication from './pages/Communication/Communication'
 import ManageMaterials from './pages/ManageMaterials/ManageMaterials'
 import Attendance from './pages/Attendance/Attendance'
 import Payroll from './pages/Payroll'
@@ -192,11 +187,6 @@ function App() {
             }
           />
 
-          {/* Admin-only routes (no employee access) */}
-          <Route path="calender" element={<RoleBasedRoute allowedRoles={[]}><Calender /></RoleBasedRoute>} />
-          <Route path="clients" element={<RoleBasedRoute allowedRoles={[]}><ClientManagement /></RoleBasedRoute>} />
-          <Route path="products" element={<RoleBasedRoute allowedRoles={[]}><ProductList /></RoleBasedRoute>} />
-          <Route path="categories" element={<RoleBasedRoute allowedRoles={[]}><CategoryList /></RoleBasedRoute>} />
             
 
           {/* Settings - Employee */}
