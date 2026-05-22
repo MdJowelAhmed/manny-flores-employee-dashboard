@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { baseApi } from './baseApi'
 import authReducer from './slices/authSlice'
 import userReducer from './slices/userSlice'
 import uiReducer from './slices/uiSlice'
@@ -10,6 +11,7 @@ import pushNotificationReducer from './slices/pushNotificationSlice'
 
 export const store = configureStore({
   reducer: {
+    [baseApi.reducerPath]: baseApi.reducer,
     auth: authReducer,
     users: userReducer,
     ui: uiReducer,
@@ -22,7 +24,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }),
+    }).concat(baseApi.middleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>

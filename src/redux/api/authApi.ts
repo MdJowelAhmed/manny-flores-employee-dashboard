@@ -1,14 +1,17 @@
 import { baseApi } from "../baseApi";
 
-interface LoginResponse {
+export interface LoginResponse {
     success: boolean;
+    statusCode?: number;
     message: string;
-    data?: {
-        accessToken?: string;
+    data: {
+        accessToken: string;
+        refreshToken: string;
+        role: string;
     };
 }
 
-interface LoginCredentials {
+export interface LoginCredentials {
     email: string;
     password: string;
 }

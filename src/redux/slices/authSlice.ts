@@ -17,6 +17,7 @@ interface User {
 interface AuthState {
   user: User | null
   token: string | null
+  refreshToken: string | null
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
@@ -26,6 +27,7 @@ interface AuthState {
 
 function getInitialAuthState(): AuthState {
   const token = localStorage.getItem('token')
+  const refreshToken = localStorage.getItem('refreshToken')
   const userStr = localStorage.getItem('user')
   let user: User | null = null
   if (token && userStr) {
@@ -41,6 +43,7 @@ function getInitialAuthState(): AuthState {
   return {
     user,
     token,
+    refreshToken,
     isAuthenticated: !!(token && user),
     isLoading: false,
     error: null,
@@ -59,14 +62,23 @@ const authSlice = createSlice({
       state.isLoading = true
       state.error = null
     },
-    loginSuccess: (state, action: PayloadAction<{ user: User; token: string }>) => {
+    loginSuccess: (
+      state,
+      action: PayloadAction<{ user: User; token: string; refreshToken?: string }>
+    ) => {
       state.isLoading = false
       state.isAuthenticated = true
       state.user = action.payload.user
       state.token = action.payload.token
+      state.refreshToken = action.payload.refreshToken ?? null
       state.error = null
       localStorage.setItem('token', action.payload.token)
       localStorage.setItem('user', JSON.stringify(action.payload.user))
+      if (action.payload.refreshToken) {
+        localStorage.setItem('refreshToken', action.payload.refreshToken)
+      } else {
+        localStorage.removeItem('refreshToken')
+      }
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false
@@ -75,9 +87,11 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null
       state.token = null
+      state.refreshToken = null
       state.isAuthenticated = false
       state.error = null
       localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
       localStorage.removeItem('user')
     },
     setPasswordResetEmail: (state, action: PayloadAction<string>) => {
@@ -94,6 +108,7 @@ const authSlice = createSlice({
     },
     loadUserFromStorage: (state) => {
       const token = localStorage.getItem('token')
+      const refreshToken = localStorage.getItem('refreshToken')
       const userStr = localStorage.getItem('user')
       if (token && userStr) {
         try {
@@ -101,6 +116,7 @@ const authSlice = createSlice({
           if (Object.values(UserRole).includes(parsed.role as UserRole)) {
             state.user = parsed
             state.token = token
+            state.refreshToken = refreshToken
             state.isAuthenticated = true
           }
         } catch {

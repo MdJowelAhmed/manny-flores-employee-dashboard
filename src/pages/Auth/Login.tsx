@@ -7,7 +7,6 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   loginStart,
@@ -15,6 +14,10 @@ import {
   loginFailure,
 } from "@/redux/slices/authSlice";
 import type { UserRoleValue } from "@/redux/slices/authSlice";
+import { UserRole } from "@/types/roles";
+import { useLoginMutation } from "@/redux/api/authApi";
+import { decodeJwt } from "@/utils/jwt";
+import { toast } from "@/utils/toast";
 import { cn } from "@/utils/cn";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -27,13 +30,44 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+interface ApiErrorShape {
+  data?: { message?: string };
+  status?: number | string;
+  error?: string;
+}
+
+function getApiErrorMessage(err: unknown, fallback: string): string {
+  if (!err || typeof err !== "object") return fallback;
+  const e = err as ApiErrorShape;
+  if (e.data?.message) return e.data.message;
+  if (typeof e.error === "string") return e.error;
+  return fallback;
+}
+
+function normalizeRole(role: string | undefined): UserRoleValue | null {
+  if (!role) return null;
+  const lower = role.toLowerCase();
+  const isValid = (Object.values(UserRole) as string[]).includes(lower);
+  return isValid ? (lower as UserRoleValue) : null;
+}
+
+function deriveNameFromEmail(email: string): { firstName: string; lastName: string } {
+  const local = email.split("@")[0] ?? "";
+  const parts = local.split(/[._-]+/).filter(Boolean);
+  const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1).toLowerCase() : "");
+  return {
+    firstName: cap(parts[0] ?? ""),
+    lastName: cap(parts[1] ?? ""),
+  };
+}
 
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { isLoading, error } = useAppSelector((state) => state.auth);
+  const { error } = useAppSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
+  const [login, { isLoading }] = useLoginMutation();
 
   const {
     register,
@@ -47,48 +81,53 @@ export default function Login() {
       remember: false,
     },
   });
-  const demoUsers = [
-    {
-      id: "1",
-      email: "employee@example.com",
-      password: "password",
-      role: "employee" as const,
-      firstName: "Jhon",
-      lastName: "Lura",
-    },
-  ];
 
   const onSubmit = async (data: LoginFormData) => {
     dispatch(loginStart());
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await login({
+        email: data.email,
+        password: data.password,
+      }).unwrap();
 
-      const matchedUser = demoUsers.find(
-        (u) => u.email === data.email && u.password === data.password
-      );
+      const { accessToken, refreshToken, role } = response.data;
+      const decoded = decodeJwt(accessToken);
+      const userId = decoded?.id ?? "";
+      const userRole = normalizeRole(decoded?.role ?? role);
 
-      if (!matchedUser) {
-        dispatch(loginFailure(t('auth.invalidEmailOrPassword')));
+      if (!userRole) {
+        const message = t("auth.invalidEmailOrPassword");
+        dispatch(loginFailure(message));
+        toast({ title: message, variant: "destructive" });
         return;
       }
+
+      const { firstName, lastName } = deriveNameFromEmail(data.email);
 
       dispatch(
         loginSuccess({
           user: {
-            id: matchedUser.id,
-            email: matchedUser.email,
-            firstName: matchedUser.firstName,
-            lastName: matchedUser.lastName,
-            role: matchedUser.role as UserRoleValue,
+            id: userId,
+            email: data.email,
+            firstName,
+            lastName,
+            role: userRole,
           },
-          token: "mock-jwt-token-" + Date.now(),
+          token: accessToken,
+          refreshToken,
         })
       );
 
+      toast({
+        title: response.message || t("auth.welcomeBack"),
+        variant: "success",
+      });
       navigate("/dashboard", { replace: true });
-    } catch {
-      dispatch(loginFailure(t('auth.anErrorOccurred')));
+    } catch (err) {
+      const message = getApiErrorMessage(err, t("auth.invalidEmailOrPassword"));
+      dispatch(loginFailure(message));
+      toast({ title: message, variant: "destructive" });
     }
   };
 
@@ -220,25 +259,6 @@ export default function Login() {
           {t('auth.signUp')}
         </Link>
       </p>
-
-      <div className="relative">
-        <Separator />
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
-          {t('auth.demoCredentials')}
-        </span>
-      </div>
-
-      <div className="p-4 rounded-lg bg-muted/50 border text-sm space-y-3">
-        <p className="font-semibold text-foreground">{t('auth.demoCredentials')}:</p>
-        <div className="space-y-2">
-          <div>
-            <p className="font-medium">{t('auth.employeeLabel')}</p>
-            <p className="text-muted-foreground">Email: employee@example.com</p>
-            <p className="text-muted-foreground">Pass:  password</p>
-
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
