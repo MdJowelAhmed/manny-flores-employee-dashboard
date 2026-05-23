@@ -20,12 +20,14 @@ export interface RequestVehicle {
  */
 export type VehicleCardData = RequestVehicle
 
-export const VEHICLE_TYPE_OPTIONS: SelectOption[] = [
-  { value: 'pickup-truck', label: 'Pickup Truck' },
+
+  export const VEHICLE_TYPE_OPTIONS: SelectOption[] = [
+   
   { value: 'truck', label: 'Truck' },
+  { value: 'car', label: 'Car' },
   { value: 'van', label: 'Van' },
-  { value: 'sedan', label: 'Sedan' },
-  { value: 'suv', label: 'SUV' },
+  { value: 'bus', label: 'Bus' },
+  { value: 'pickup', label: 'Pickup' },
 ]
 
 export const URGENCY_OPTIONS: { value: VehicleUrgencyLevel; label: string }[] =

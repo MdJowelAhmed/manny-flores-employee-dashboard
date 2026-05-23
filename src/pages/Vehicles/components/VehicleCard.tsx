@@ -1,6 +1,7 @@
-import { Truck } from 'lucide-react'
+import { Trash2, Truck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/cn'
 import { formatDateDayMonth } from '@/utils/formatters'
 import { parseISO } from 'date-fns'
@@ -16,9 +17,15 @@ import {
 
 interface VehicleCardProps {
   vehicle: RequestVehicle
+  onDelete: (vehicle: RequestVehicle) => void
+  isDeleting?: boolean
 }
 
-export function VehicleCard({ vehicle }: VehicleCardProps) {
+export function VehicleCard({
+  vehicle,
+  onDelete,
+  isDeleting = false,
+}: VehicleCardProps) {
   const { t } = useTranslation()
   const vehicleTypeLabel = getVehicleTypeLabel(vehicle.vehicleType)
 
@@ -66,6 +73,12 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
           </div>
         )}
 
+        {vehicle.createdAt && (
+          <p className="text-xs text-muted-foreground mb-3">
+            {formatDateDayMonth(parseISO(vehicle.createdAt))}
+          </p>
+        )}
+
         <div className="flex items-center justify-between gap-2 pt-2">
           <span
             className={cn(
@@ -75,11 +88,16 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
           >
             {STATUS_LABEL[vehicle.status]}
           </span>
-          {vehicle.createdAt && (
-            <span className="text-xs text-muted-foreground">
-              {formatDateDayMonth(parseISO(vehicle.createdAt))}
-            </span>
-          )}
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-destructive/30 text-destructive hover:bg-destructive/10 shrink-0 h-8"
+            onClick={() => onDelete(vehicle)}
+            disabled={isDeleting}
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            {t('common.delete')}
+          </Button>
         </div>
       </CardContent>
     </Card>

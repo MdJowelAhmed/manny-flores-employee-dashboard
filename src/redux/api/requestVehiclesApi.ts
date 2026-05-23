@@ -40,6 +40,12 @@ export interface CreateRequestVehicleResponse {
     data?: RequestVehicle
 }
 
+export interface DeleteRequestVehicleResponse {
+    success: boolean
+    statusCode?: number
+    message: string
+}
+
 const requestVehiclesApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getRequestVehicles: builder.query<
@@ -68,10 +74,22 @@ const requestVehiclesApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['RequestVehicles'],
         }),
+
+        deleteRequestVehicle: builder.mutation<
+            DeleteRequestVehicleResponse,
+            string
+        >({
+            query: (id) => ({
+                url: `/request-vehicle/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['RequestVehicles'],
+        }),
     }),
 })
 
 export const {
     useGetRequestVehiclesQuery,
     useCreateRequestVehicleMutation,
+    useDeleteRequestVehicleMutation,
 } = requestVehiclesApi

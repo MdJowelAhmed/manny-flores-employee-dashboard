@@ -52,6 +52,12 @@ export interface UpdateRequestMaterialStatusResponse {
     data?: RequestMaterial
 }
 
+export interface DeleteRequestMaterialResponse {
+    success: boolean
+    statusCode?: number
+    message: string
+}
+
 const requestMaterialsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getRequestMaterials: builder.query<
@@ -80,10 +86,22 @@ const requestMaterialsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['RequestMaterials'],
         }),
+
+        deleteRequestMaterial: builder.mutation<
+            DeleteRequestMaterialResponse,
+            string
+        >({
+            query: (id) => ({
+                url: `/request-material/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['RequestMaterials'],
+        }),
     }),
 })
 
 export const {
     useGetRequestMaterialsQuery,
     useCreateRequestMaterialMutation,
+    useDeleteRequestMaterialMutation,
 } = requestMaterialsApi

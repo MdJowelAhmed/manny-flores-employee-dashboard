@@ -27,6 +27,8 @@ export const baseApi = createApi({
         'PushNotifications',
         'MyTask',
         'RequestMaterials',
+        'RequestVehicles',
+        'RequestEquipment',
         'RequestVehicles', 
         "chats"
     ],
