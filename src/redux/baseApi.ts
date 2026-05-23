@@ -5,13 +5,15 @@ export const baseApi = createApi({
     reducerPath: 'baseApi',
     baseQuery: fetchBaseQuery({
         baseUrl: import.meta.env.VITE_API_BASE_URL + '/api/v1',
-        prepareHeaders: (headers, { getState }) => {
+        prepareHeaders: (headers, { getState, endpoint, type }) => {
             const token = (getState() as RootState).auth.token
             if (token) {
                 headers.set('authorization', `Bearer ${token}`)
             }
-            // Don't set Content-Type for FormData - browser will set it with boundary
-            // RTK Query will handle this automatically
+            // Let the browser set multipart boundary for profile updates
+            if (endpoint === 'updateMyProfile' && type === 'mutation') {
+                headers.delete('content-type')
+            }
             return headers
         },
     }),
@@ -33,4 +35,4 @@ export const baseApi = createApi({
     endpoints: () => ({}),
 }) 
 export const socketUrl = import.meta.env.VITE_API_BASE_URL 
-export const getImageUrl = import.meta.env.VITE_API_BASE_URL 
+export const imageUrl = import.meta.env.VITE_API_BASE_URL 

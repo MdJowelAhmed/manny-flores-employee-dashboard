@@ -19,7 +19,7 @@ export interface LoginCredentials {
 interface ChangePasswordPayload {
     currentPassword: string;
     newPassword: string;
-    confirmPassword: string;
+    confirmNewPassword: string;
 }
 
 interface ChangePasswordResponse {
@@ -49,36 +49,55 @@ interface ResetPasswordResponse {
     message: string;
 }
 
+export interface UserProfile {
+    id: string;
+    name: string;
+    email: string;
+    contact: string;
+    profile?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+}
+
 interface GetMyProfileResponse {
     success: boolean;
+    statusCode?: number;
     message: string;
-    data: {
-        _id: string;
-        name: string;
-        email: string;
-        role: string;
-        profileImage?: string;
-        status: string;
-        isVerified: boolean;
-        isPhoneVerified: boolean;
-        isEmailVerified: boolean;
-        isDeleted: boolean;
-        authProviders: string[];
-        createdAt: string;
-        updatedAt: string;
-        __v: number;
-    };
+    data: UserProfile;
 }
 
 interface UpdateMyProfileResponse {
     success: boolean;
+    statusCode?: number;
     message: string;
-    data: GetMyProfileResponse['data'];
+    data: UserProfile;
 }
 
-export interface UpdateMyProfilePayload {
-    name?: string;
-    profileImage?: File | null;
+export function buildProfileFormData(
+    data: {
+        name: string;
+        email: string;
+        contact: string;
+        address?: string;
+        city?: string;
+        country?: string;
+    },
+    profileFile?: File | null
+): FormData {
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    formData.append('contact', data.contact);
+    formData.append('address', data.address ?? '');
+    formData.append('city', data.city ?? '');
+    formData.append('country', data.country ?? '');
+
+    if (profileFile instanceof File) {
+        formData.append('profile', profileFile, profileFile.name);
+    }
+
+    return formData;
 }
 
 const authApi = baseApi.injectEndpoints({
@@ -198,15 +217,12 @@ const authApi = baseApi.injectEndpoints({
             providesTags: ['Auth'],
         }),
 
-        updateMyProfile: builder.mutation<UpdateMyProfileResponse, UpdateMyProfilePayload>({
-            query: (data) => {
-
-                return {
-                    url: '/user/profile',
-                    method: 'PATCH',
-                    body: data,
-                };
-            },
+        updateMyProfile: builder.mutation<UpdateMyProfileResponse, FormData>({
+            query: (formData) => ({
+                url: '/user/profile',
+                method: 'PATCH',
+                body: formData,
+            }),
             invalidatesTags: ['Auth'],
         }),
 
