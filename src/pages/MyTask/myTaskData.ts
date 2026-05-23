@@ -15,7 +15,10 @@ export interface MyTaskProject {
   status?: string
   clientId?: string
   createdAt?: string
-  updatedAt?: string
+  updatedAt?: string 
+  estimates?: {
+    userId: string
+  }
 }
 
 export interface MyTask {
