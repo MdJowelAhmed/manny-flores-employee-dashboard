@@ -1,95 +1,123 @@
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { Pagination } from '@/components/common/Pagination'
-import { TaskCard, TaskDetailsModal } from './components'
-import type { MyTask, MyTaskStatus } from './myTaskData'
-import { toast } from 'sonner'
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Pagination } from "@/components/common/Pagination";
+import { TaskCard, TaskDetailsModal } from "./components";
+import type { MyTask, MyTaskStatus } from "./myTaskData";
+import { toast } from "sonner"; 
+import { PiChatCircleTextBold } from "react-icons/pi";
 import {
   useGetMyTasksQuery,
   useUpdateMyTaskStatusMutation,
-} from '@/redux/api/myTaskApi'
+} from "@/redux/api/myTaskApi";
+import { useCreateInitialChatMutation } from "@/redux/slices/chatApi";
 
 export default function MyTask() {
-  const { t } = useTranslation()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-  const itemsPerPage = parseInt(searchParams.get('limit') || '4', 10) || 4
-
-  const [selectedTask, setSelectedTask] = useState<MyTask | null>(null)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
-  const [modalShowForm, setModalShowForm] = useState(false)
-
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Math.max(
+    1,
+    parseInt(searchParams.get("page") || "1", 10),
+  );
+  const itemsPerPage = parseInt(searchParams.get("limit") || "4", 10) || 4;
+  const navigate = useNavigate();
+  const [selectedTask, setSelectedTask] = useState<MyTask | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [modalShowForm, setModalShowForm] = useState(false);
+  const [createInitialChat] = useCreateInitialChatMutation();
   const { data, isLoading, isFetching } = useGetMyTasksQuery({
     page: currentPage,
     limit: itemsPerPage,
-  })
+  });
   const [updateMyTaskStatus, { isLoading: isUpdating }] =
-    useUpdateMyTaskStatusMutation()
+    useUpdateMyTaskStatusMutation();
 
-  const tasks: MyTask[] = data?.data ?? []
-  const totalItems = data?.meta?.total ?? tasks.length
+  const tasks: MyTask[] = data?.data ?? [];
+  const totalItems = data?.meta?.total ?? tasks.length;
   const totalPages = Math.max(
     1,
-    data?.meta?.totalPages ?? Math.ceil(totalItems / itemsPerPage)
-  )
+    data?.meta?.totalPages ?? Math.ceil(totalItems / itemsPerPage),
+  );
 
   const setPage = (p: number) => {
-    const next = new URLSearchParams(searchParams)
-    p > 1 ? next.set('page', String(p)) : next.delete('page')
-    setSearchParams(next, { replace: true })
-  }
+    const next = new URLSearchParams(searchParams);
+    p > 1 ? next.set("page", String(p)) : next.delete("page");
+    setSearchParams(next, { replace: true });
+  };
 
   const setLimit = (l: number) => {
-    const next = new URLSearchParams(searchParams)
-    l !== 4 ? next.set('limit', String(l)) : next.delete('limit')
-    next.delete('page')
-    setSearchParams(next, { replace: true })
-  }
+    const next = new URLSearchParams(searchParams);
+    l !== 4 ? next.set("limit", String(l)) : next.delete("limit");
+    next.delete("page");
+    setSearchParams(next, { replace: true });
+  };
 
   useEffect(() => {
-    if (currentPage > totalPages && totalPages >= 1) setPage(1)
-  }, [totalPages, currentPage])
+    if (currentPage > totalPages && totalPages >= 1) setPage(1);
+  }, [totalPages, currentPage]);
 
   const handleViewDetails = (task: MyTask) => {
-    setSelectedTask(task)
-    setModalShowForm(false)
-    setShowDetailsModal(true)
-  }
+    setSelectedTask(task);
+    setModalShowForm(false);
+    setShowDetailsModal(true);
+  };
 
   const handleStartOrCompleteClick = (task: MyTask) => {
-    setSelectedTask(task)
-    setModalShowForm(true)
-    setShowDetailsModal(true)
-  }
+    setSelectedTask(task);
+    setModalShowForm(true);
+    setShowDetailsModal(true);
+  };
 
   const handleSubmitFromModal = async (
     task: MyTask,
-    _data: { beforePhoto?: File; afterPhoto?: File; note?: string }
+    _data: { beforePhoto?: File; afterPhoto?: File; note?: string },
   ) => {
-    const isPending = task.taskStatus === 'PENDING'
-    const nextStatus: MyTaskStatus = isPending ? 'IN_PROGRESS' : 'COMPLETED'
+    const isPending = task.taskStatus === "PENDING";
+    const nextStatus: MyTaskStatus = isPending ? "IN_PROGRESS" : "COMPLETED";
 
     try {
-      await updateMyTaskStatus({ id: task.id, taskStatus: nextStatus }).unwrap()
-      setShowDetailsModal(false)
-      setSelectedTask(null)
+      await updateMyTaskStatus({
+        id: task.id,
+        taskStatus: nextStatus,
+      }).unwrap();
+      setShowDetailsModal(false);
+      setSelectedTask(null);
       toast.success(
-        isPending ? t('myTask.taskStarted') : t('myTask.taskSubmitted')
-      )
+        isPending ? t("myTask.taskStarted") : t("myTask.taskSubmitted"),
+      );
     } catch (err) {
       const message =
         (err as { data?: { message?: string } })?.data?.message ??
-        'Failed to update task status'
-      toast.error(message)
+        "Failed to update task status";
+      toast.error(message);
     }
-  }
+  }; 
+
+    const handelChat = async (id: string) => {
+    await createInitialChat(id).then((res: any) => {
+      if (res?.data?.success) {
+        navigate("/communication"); 
+      }
+    });
+  }; 
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-accent">
-        {t('myTask.allTask')}
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-accent">
+          {t("myTask.allTask")}
+        </h1>
+        <div
+          onClick={() => handelChat(tasks?.[0]?.project?.estimates?.userId ?? "")}
+          className=" text-white bg-primary px-4 py-2 rounded-md cursor-pointer flex items-center gap-1"
+        >
+          <span>
+            {" "}
+            <PiChatCircleTextBold size={18} />{" "}
+          </span>{" "}
+          <span className="text-lg"> Chat </span>
+        </div>
+      </div>
 
       {isLoading ? (
         <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 2xl:grid-cols-3">
@@ -130,8 +158,8 @@ export default function MyTask() {
       <TaskDetailsModal
         open={showDetailsModal}
         onClose={() => {
-          setShowDetailsModal(false)
-          setSelectedTask(null)
+          setShowDetailsModal(false);
+          setSelectedTask(null);
         }}
         task={selectedTask}
         showForm={modalShowForm}
@@ -139,5 +167,5 @@ export default function MyTask() {
         isSubmitting={isUpdating || isFetching}
       />
     </div>
-  )
+  );
 }
