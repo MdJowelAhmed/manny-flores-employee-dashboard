@@ -165,7 +165,10 @@
     "remove": "Eliminar",
     "taskStarted": "Tarea iniciada exitosamente",
     "taskSubmitted": "Tarea enviada exitosamente",
-    "inProgress": "En Progreso"
+    "inProgress": "En Progreso",
+    "confirmCompleteTitle": "¿Completar la tarea de hoy?",
+    "confirmCompleteDescription": "¿Está seguro de haber completado el trabajo de hoy para esta tarea? Esta acción no se puede deshacer.",
+    "taskCompleted": "Tarea marcada como completada"
   },
   "attendance": {
     "date": "Fecha",
@@ -484,6 +487,7 @@
     "confirm": "Confirmar",
     "cancel": "Cancelar",
     "processing": "Procesando...",
-    "select": "Seleccionar..."
+    "select": "Seleccionar...",
+    "delete": "Eliminar"
   }
 }

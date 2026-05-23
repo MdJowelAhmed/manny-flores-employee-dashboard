@@ -1,5 +1,7 @@
+import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/cn'
 import { formatDateDayMonth } from '@/utils/formatters'
 import { parseISO } from 'date-fns'
@@ -14,9 +16,15 @@ import {
 
 interface MaterialCardProps {
   material: RequestMaterial
+  onDelete: (material: RequestMaterial) => void
+  isDeleting?: boolean
 }
 
-export function MaterialCard({ material }: MaterialCardProps) {
+export function MaterialCard({
+  material,
+  onDelete,
+  isDeleting = false,
+}: MaterialCardProps) {
   const { t } = useTranslation()
 
   return (
@@ -68,7 +76,7 @@ export function MaterialCard({ material }: MaterialCardProps) {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 pt-2">
           <span
             className={cn(
               'inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium h-8',
@@ -77,6 +85,16 @@ export function MaterialCard({ material }: MaterialCardProps) {
           >
             {STATUS_LABEL[material.status]}
           </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-destructive/30 text-destructive hover:bg-destructive/10 shrink-0 h-8"
+            onClick={() => onDelete(material)}
+            disabled={isDeleting}
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            {t('common.delete')}
+          </Button>
         </div>
       </CardContent>
     </Card>

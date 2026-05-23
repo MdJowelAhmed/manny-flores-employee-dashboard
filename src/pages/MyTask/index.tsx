@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Pagination } from "@/components/common/Pagination";
-import { TaskCard, TaskDetailsModal } from "./components";
-import type { MyTask, MyTaskStatus } from "./myTaskData";
-import { toast } from "sonner"; 
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { TaskCard } from "./components";
+import type { MyTask } from "./myTaskData";
+import { toast } from "sonner";
 import { PiChatCircleTextBold } from "react-icons/pi";
 import {
   useGetMyTasksQuery,
@@ -21,11 +22,11 @@ export default function MyTask() {
   );
   const itemsPerPage = parseInt(searchParams.get("limit") || "4", 10) || 4;
   const navigate = useNavigate();
-  const [selectedTask, setSelectedTask] = useState<MyTask | null>(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [modalShowForm, setModalShowForm] = useState(false);
+
+  const [taskToComplete, setTaskToComplete] = useState<MyTask | null>(null);
+
   const [createInitialChat] = useCreateInitialChatMutation();
-  const { data, isLoading, isFetching } = useGetMyTasksQuery({
+  const { data, isLoading } = useGetMyTasksQuery({
     page: currentPage,
     limit: itemsPerPage,
   });
@@ -56,50 +57,30 @@ export default function MyTask() {
     if (currentPage > totalPages && totalPages >= 1) setPage(1);
   }, [totalPages, currentPage]);
 
-  const handleViewDetails = (task: MyTask) => {
-    setSelectedTask(task);
-    setModalShowForm(false);
-    setShowDetailsModal(true);
-  };
-
-  const handleStartOrCompleteClick = (task: MyTask) => {
-    setSelectedTask(task);
-    setModalShowForm(true);
-    setShowDetailsModal(true);
-  };
-
-  const handleSubmitFromModal = async (
-    task: MyTask,
-    _data: { beforePhoto?: File; afterPhoto?: File; note?: string },
-  ) => {
-    const isPending = task.taskStatus === "PENDING";
-    const nextStatus: MyTaskStatus = isPending ? "IN_PROGRESS" : "COMPLETED";
-
+  const handleConfirmComplete = async () => {
+    if (!taskToComplete) return;
     try {
       await updateMyTaskStatus({
-        id: task.id,
-        taskStatus: nextStatus,
+        id: taskToComplete.id,
+        taskStatus: "COMPLETED",
       }).unwrap();
-      setShowDetailsModal(false);
-      setSelectedTask(null);
-      toast.success(
-        isPending ? t("myTask.taskStarted") : t("myTask.taskSubmitted"),
-      );
+      toast.success(t("myTask.taskCompleted"));
+      setTaskToComplete(null);
     } catch (err) {
       const message =
         (err as { data?: { message?: string } })?.data?.message ??
         "Failed to update task status";
       toast.error(message);
     }
-  }; 
+  };
 
-    const handelChat = async (id: string) => {
+  const handelChat = async (id: string) => {
     await createInitialChat(id).then((res: any) => {
       if (res?.data?.success) {
-        navigate("/communication"); 
+        navigate("/communication");
       }
     });
-  }; 
+  };
 
   return (
     <div className="space-y-6">
@@ -108,13 +89,14 @@ export default function MyTask() {
           {t("myTask.allTask")}
         </h1>
         <div
-          onClick={() => handelChat(tasks?.[0]?.project?.estimates?.userId ?? "")}
-          className=" text-white bg-primary px-4 py-2 rounded-md cursor-pointer flex items-center gap-1"
+          onClick={() =>
+            handelChat(tasks?.[0]?.project?.estimates?.userId ?? "")
+          }
+          className="text-white bg-primary px-4 py-2 rounded-md cursor-pointer flex items-center gap-1"
         >
           <span>
-            {" "}
-            <PiChatCircleTextBold size={18} />{" "}
-          </span>{" "}
+            <PiChatCircleTextBold size={18} />
+          </span>
           <span className="text-lg"> Chat </span>
         </div>
       </div>
@@ -138,8 +120,8 @@ export default function MyTask() {
             <TaskCard
               key={task.id}
               task={task}
-              onViewDetails={handleViewDetails}
-              onStart={handleStartOrCompleteClick}
+              onComplete={setTaskToComplete}
+              isCompleting={isUpdating && taskToComplete?.id === task.id}
             />
           ))}
         </div>
@@ -155,16 +137,16 @@ export default function MyTask() {
         showItemsPerPage
       />
 
-      <TaskDetailsModal
-        open={showDetailsModal}
-        onClose={() => {
-          setShowDetailsModal(false);
-          setSelectedTask(null);
-        }}
-        task={selectedTask}
-        showForm={modalShowForm}
-        onSubmit={handleSubmitFromModal}
-        isSubmitting={isUpdating || isFetching}
+      <ConfirmDialog
+        open={!!taskToComplete}
+        onClose={() => setTaskToComplete(null)}
+        onConfirm={handleConfirmComplete}
+        title={t("myTask.confirmCompleteTitle")}
+        description={t("myTask.confirmCompleteDescription")}
+        confirmText={t("myTask.complete")}
+        cancelText={t("common.cancel")}
+        variant="info"
+        isLoading={isUpdating}
       />
     </div>
   );
