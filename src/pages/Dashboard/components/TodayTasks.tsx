@@ -7,7 +7,6 @@ import {
   CalendarDays, ArrowUpRight, ListTodo,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { TaskDetailsModal } from '@/pages/MyTask/components'
 import { TaskDetailModal } from './TaskDetailModal'
 
 // ── Types ──────────────────────────────────────────────────────────────────
