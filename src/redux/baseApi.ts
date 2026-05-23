@@ -25,7 +25,10 @@ export const baseApi = createApi({
         'PushNotifications',
         'MyTask',
         'RequestMaterials',
-        'RequestVehicles',
+        'RequestVehicles', 
+        "chats"
     ],
     endpoints: () => ({}),
-})
+}) 
+export const socketUrl = import.meta.env.VITE_API_BASE_URL 
+export const getImageUrl = import.meta.env.VITE_API_BASE_URL 
