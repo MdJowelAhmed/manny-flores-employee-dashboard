@@ -1,29 +1,50 @@
-import { Wrench } from 'lucide-react'
+import { Trash2, Wrench } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/utils/cn'
+import { formatDateDayMonth } from '@/utils/formatters'
+import { parseISO } from 'date-fns'
 import {
-  EQUIPMENT_STATUS_CONFIG,
-  type EquipmentCardData,
+  STATUS_CLASSES,
+  STATUS_DOT_CLASSES,
+  STATUS_LABEL,
+  URGENCY_CLASSES,
+  URGENCY_LABEL,
+  type RequestEquipment,
 } from '../equipmentData'
 
 interface EquipmentCardProps {
-  equipment: EquipmentCardData
-  onReportIssue: (equipment: EquipmentCardData) => void
+  equipment: RequestEquipment
+  onDelete: (equipment: RequestEquipment) => void
+  isDeleting?: boolean
 }
 
-export function EquipmentCard({ equipment, onReportIssue }: EquipmentCardProps) {
+export function EquipmentCard({
+  equipment,
+  onDelete,
+  isDeleting = false,
+}: EquipmentCardProps) {
   const { t } = useTranslation()
-  const statusConfig = EQUIPMENT_STATUS_CONFIG[equipment.status]
 
   return (
     <Card className="rounded-xl bg-white shadow-sm overflow-hidden border border-gray-100">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-2 mb-3">
-          <p className="text-sm text-muted-foreground">{equipment.projectName}</p>
           <span
-            className={`h-2.5 w-2.5 shrink-0 rounded-full ${statusConfig.dotColor} mt-1.5`}
-            title={equipment.status}
+            className={cn(
+              'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+              URGENCY_CLASSES[equipment.urgencyLevel]
+            )}
+          >
+            {URGENCY_LABEL[equipment.urgencyLevel]}
+          </span>
+          <span
+            className={cn(
+              'h-2.5 w-2.5 shrink-0 rounded-full mt-1.5',
+              STATUS_DOT_CLASSES[equipment.status]
+            )}
+            title={STATUS_LABEL[equipment.status]}
           />
         </div>
 
@@ -31,37 +52,46 @@ export function EquipmentCard({ equipment, onReportIssue }: EquipmentCardProps) 
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
             <Wrench className="h-5 w-5 text-primary" />
           </div>
-          <h3 className="font-bold text-accent pt-1">{equipment.equipmentType}</h3>
+          <h3 className="font-bold text-accent pt-1 line-clamp-2">
+            {equipment.equipmentName}
+          </h3>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4">
-          {t('equipment.plate')}: {equipment.plate} • {equipment.mileage}
-        </p>
+        {equipment.reason && (
+          <div className="mb-4">
+            <p className="text-xs font-medium text-foreground mb-1">
+              {t('equipment.reason')}
+            </p>
+            <p className="text-sm text-muted-foreground line-clamp-3">
+              {equipment.reason}
+            </p>
+          </div>
+        )}
 
-        <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
-          <div>
-            <p className="text-muted-foreground">{t('equipment.lastService')}</p>
-            <p className="font-medium text-foreground">{equipment.lastService}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">{t('equipment.nextService')}</p>
-            <p className="font-medium text-foreground">{equipment.nextService}</p>
-          </div>
-        </div>
+        {equipment.createdAt && (
+          <p className="text-xs text-muted-foreground mb-3">
+            {formatDateDayMonth(parseISO(equipment.createdAt))}
+          </p>
+        )}
 
         <div className="flex items-center justify-between gap-2 pt-2">
           <span
-            className={`inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium ${statusConfig.badgeClass}`}
+            className={cn(
+              'inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium',
+              STATUS_CLASSES[equipment.status]
+            )}
           >
-            {equipment.status}
+            {STATUS_LABEL[equipment.status]}
           </span>
           <Button
             size="sm"
             variant="outline"
-            className="border-primary/30 text-primary hover:bg-primary/10 shrink-0 h-8"
-            onClick={() => onReportIssue(equipment)}
+            className="border-destructive/30 text-destructive hover:bg-destructive/10 shrink-0 h-8"
+            onClick={() => onDelete(equipment)}
+            disabled={isDeleting}
           >
-            {t('equipment.reportIssue')}
+            <Trash2 className="h-4 w-4 mr-1" />
+            {t('common.delete')}
           </Button>
         </div>
       </CardContent>

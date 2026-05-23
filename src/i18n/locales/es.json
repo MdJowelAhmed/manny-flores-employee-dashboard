@@ -481,6 +481,7 @@
     "confirm": "Confirmar",
     "cancel": "Cancelar",
     "processing": "Procesando...",
-    "select": "Seleccionar..."
+    "select": "Seleccionar...",
+    "delete": "Eliminar"
   }
 }

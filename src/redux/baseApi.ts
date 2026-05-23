@@ -26,6 +26,7 @@ export const baseApi = createApi({
         'MyTask',
         'RequestMaterials',
         'RequestVehicles',
+        'RequestEquipment',
     ],
     endpoints: () => ({}),
 })

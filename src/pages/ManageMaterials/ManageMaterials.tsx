@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/common/Pagination'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { MaterialCard } from './components/MaterialCard'
 import {
   RequestMaterialModal,
@@ -13,6 +14,7 @@ import { toast } from '@/utils/toast'
 import {
   useGetRequestMaterialsQuery,
   useCreateRequestMaterialMutation,
+  useDeleteRequestMaterialMutation,
 } from '@/redux/api/requestMaterialsApi'
 
 export default function ManageMaterials() {
@@ -22,6 +24,8 @@ export default function ManageMaterials() {
   const itemsPerPage = parseInt(searchParams.get('limit') || '9', 10) || 9
 
   const [showRequestModal, setShowRequestModal] = useState(false)
+  const [materialToDelete, setMaterialToDelete] =
+    useState<RequestMaterial | null>(null)
 
   const { data, isLoading } = useGetRequestMaterialsQuery({
     page: currentPage,
@@ -29,6 +33,8 @@ export default function ManageMaterials() {
   })
   const [createRequestMaterial, { isLoading: isCreating }] =
     useCreateRequestMaterialMutation()
+  const [deleteRequestMaterial, { isLoading: isDeleting }] =
+    useDeleteRequestMaterialMutation()
 
   const materials: RequestMaterial[] = data?.data ?? []
   const meta = data?.meta ?? data?.pagination
@@ -71,6 +77,24 @@ export default function ManageMaterials() {
     }
   }
 
+  const handleConfirmDelete = async () => {
+    if (!materialToDelete) return
+    try {
+      await deleteRequestMaterial(materialToDelete.id).unwrap()
+      toast({
+        title: 'Material request deleted',
+        description: `“${materialToDelete.materialName}” was removed.`,
+        variant: 'success',
+      })
+      setMaterialToDelete(null)
+    } catch (err) {
+      const message =
+        (err as { data?: { message?: string } })?.data?.message ??
+        'Failed to delete material request'
+      toast({ title: message, variant: 'destructive' })
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -101,7 +125,12 @@ export default function ManageMaterials() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {materials.map((material) => (
-            <MaterialCard key={material.id} material={material} />
+            <MaterialCard
+              key={material.id}
+              material={material}
+              onDelete={setMaterialToDelete}
+              isDeleting={isDeleting && materialToDelete?.id === material.id}
+            />
           ))}
         </div>
       )}
@@ -121,6 +150,22 @@ export default function ManageMaterials() {
         onClose={() => setShowRequestModal(false)}
         onRequest={handleRequestMaterial}
         isSubmitting={isCreating}
+      />
+
+      <ConfirmDialog
+        open={!!materialToDelete}
+        onClose={() => setMaterialToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete material request"
+        description={
+          materialToDelete
+            ? `Are you sure you want to delete the request for “${materialToDelete.materialName}”? This action cannot be undone.`
+            : ''
+        }
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   )
