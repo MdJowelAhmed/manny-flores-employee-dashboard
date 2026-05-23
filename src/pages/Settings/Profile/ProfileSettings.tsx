@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { FormInput } from '@/components/common'
 import { toast } from '@/utils/toast'
 import { motion } from 'framer-motion'
+import { useGetMyProfileQuery } from '@/redux/api/authApi'
 
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -29,6 +30,10 @@ export default function ProfileSettings() {
   const { t } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [avatar, setAvatar] = useState('https://api.dicebear.com/7.x/avataaars/svg?seed=Employee')
+
+// API CALLS
+const { data: profileData, isLoading: isProfileLoading } = useGetMyProfileQuery()
+console.log(profileData)
 
   const {
     register,
@@ -74,6 +79,7 @@ export default function ProfileSettings() {
     
     setIsSubmitting(false)
   }
+
 
   return (
     <motion.div

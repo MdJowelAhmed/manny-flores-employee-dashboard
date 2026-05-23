@@ -29,7 +29,7 @@ interface ChangePasswordResponse {
 
 interface VerifyEmailPayload {
     email: string;
-    oneTimeCode: number ;
+    oneTimeCode: number;
 }
 
 interface VerifyEmailResponse {
@@ -192,28 +192,19 @@ const authApi = baseApi.injectEndpoints({
 
         getMyProfile: builder.query<GetMyProfileResponse, void>({
             query: () => ({
-                url: '/users/profile',
+                url: '/user/profile',
                 method: 'GET',
             }),
             providesTags: ['Auth'],
         }),
 
         updateMyProfile: builder.mutation<UpdateMyProfileResponse, UpdateMyProfilePayload>({
-            query: ({ name, profileImage }) => {
-                const formData = new FormData();
-
-                if (name) {
-                    formData.append('name', name);
-                }
-
-                if (profileImage) {
-                    formData.append('profileImage', profileImage);
-                }
+            query: (data) => {
 
                 return {
-                    url: '/users/profile',
+                    url: '/user/profile',
                     method: 'PATCH',
-                    body: formData,
+                    body: data,
                 };
             },
             invalidatesTags: ['Auth'],
@@ -236,5 +227,5 @@ export const {
     useResentOtpMutation,
     useGetMyProfileQuery,
     useUpdateMyProfileMutation,
- } =
+} =
     authApi

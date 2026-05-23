@@ -34,6 +34,7 @@ import MyTask from './pages/MyTask'
 import SafetyCompliance from './pages/SafetyCompliance/SafetyCompliance'
 import EstimatePage from './pages/Estimate'
 import InvoicePage from './pages/Invoice'
+import { UserProvider } from './provider/UserContext'
 
 function AppEntryRedirect() {
   const { user } = useAppSelector((state) => state.auth)
@@ -53,7 +54,8 @@ function App() {
     dispatch(loadUserFromStorage())
   }, [dispatch])
 
-  return (
+  return ( 
+     <UserProvider> 
     <TooltipProvider>
       <Routes>
         {/* Auth Routes - No sidebar/header */}
@@ -239,7 +241,8 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster position="top-right" richColors closeButton />
-    </TooltipProvider>
+    </TooltipProvider> 
+    </UserProvider>
   )
 }
 

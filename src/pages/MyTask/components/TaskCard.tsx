@@ -1,4 +1,4 @@
-import { Calendar, MapPin } from 'lucide-react'
+import { Calendar, CheckCircle2, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,8 +9,8 @@ import { getProjectLabel, type MyTask } from '../myTaskData'
 
 interface TaskCardProps {
   task: MyTask
-  onViewDetails: (task: MyTask) => void
-  onStart?: (task: MyTask) => void
+  onComplete: (task: MyTask) => void
+  isCompleting?: boolean
 }
 
 const priorityClasses: Record<string, string> = {
@@ -19,15 +19,14 @@ const priorityClasses: Record<string, string> = {
   Low: 'bg-gray-100 text-gray-700',
 }
 
-export function TaskCard({ task, onViewDetails, onStart }: TaskCardProps) {
+export function TaskCard({
+  task,
+  onComplete,
+  isCompleting = false,
+}: TaskCardProps) {
   const { t } = useTranslation()
   const isInProgress = task.taskStatus === 'IN_PROGRESS'
   const isCompleted = task.taskStatus === 'COMPLETED'
-  const primaryButtonText = isCompleted
-    ? t('myTask.completed')
-    : isInProgress
-    ? t('myTask.complete')
-    : t('myTask.start')
 
   const projectLabel = getProjectLabel(task)
 
@@ -41,7 +40,8 @@ export function TaskCard({ task, onViewDetails, onStart }: TaskCardProps) {
               <span
                 className={cn(
                   'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                  priorityClasses[task.priority] ?? 'bg-gray-100 text-gray-700'
+                  priorityClasses[task.priority] ??
+                    'bg-gray-100 text-gray-700'
                 )}
               >
                 {task.priority}
@@ -101,28 +101,20 @@ export function TaskCard({ task, onViewDetails, onStart }: TaskCardProps) {
           </div>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex">
           <Button
-            variant="outline"
             size="sm"
             className={cn(
-              'flex-1 rounded-lg',
-              isInProgress
-                ? 'border-primary text-accent'
-                : 'border-primary text-accent'
+              'w-full rounded-lg gap-2',
+              isCompleted
+                ? 'bg-success/15 text-success hover:bg-success/15 cursor-default'
+                : 'bg-primary text-white hover:bg-primary/90'
             )}
-            onClick={() => (onStart ?? onViewDetails)(task)}
-            disabled={isCompleted}
+            onClick={() => !isCompleted && onComplete(task)}
+            disabled={isCompleted || isCompleting}
           >
-            {primaryButtonText}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1 rounded-lg border-success text-secondary hover:bg-success/10"
-            onClick={() => onViewDetails(task)}
-          >
-            {t('myTask.viewDetails')}
+            <CheckCircle2 className="h-4 w-4" />
+            {isCompleted ? t('myTask.completed') : t('myTask.complete')}
           </Button>
         </div>
       </CardContent>

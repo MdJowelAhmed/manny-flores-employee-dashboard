@@ -165,7 +165,10 @@
     "remove": "Remove",
     "taskStarted": "Task started successfully",
     "taskSubmitted": "Task submitted successfully",
-    "inProgress": "In Progress"
+    "inProgress": "In Progress",
+    "confirmCompleteTitle": "Complete today's task?",
+    "confirmCompleteDescription": "Are you sure you have completed today's work for this task? This action cannot be undone.",
+    "taskCompleted": "Task marked as completed"
   },
   "attendance": {
     "date": "Date",
