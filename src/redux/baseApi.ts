@@ -23,6 +23,8 @@ export const baseApi = createApi({
         'Faqs',
         'Subscribers',
         'PushNotifications',
+        'MyTask',
+        'RequestMaterials',
     ],
     endpoints: () => ({}),
 })

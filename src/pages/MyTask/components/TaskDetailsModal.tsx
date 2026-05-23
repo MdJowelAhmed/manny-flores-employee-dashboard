@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { ModalWrapper } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import {  CardContent } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card'
 import { cn } from '@/utils/cn'
 import { formatDateDayMonth } from '@/utils/formatters'
 import { parseISO } from 'date-fns'
-import type { MyTask } from '../myTaskData'
+import { getProjectLabel, type MyTask } from '../myTaskData'
 import { ACCEPTED_IMAGE_TYPES } from '@/utils/constants'
 
 function PhotoAddField({
@@ -71,6 +71,7 @@ interface TaskDetailsModalProps {
   /** When true, shows Upload Photos, Add Note, Submit. When false, details only (no form). */
   showForm?: boolean
   onSubmit?: (task: MyTask, data: { beforePhoto?: File; afterPhoto?: File; note?: string }) => void
+  isSubmitting?: boolean
 }
 
 export function TaskDetailsModal({
@@ -79,13 +80,14 @@ export function TaskDetailsModal({
   task,
   showForm = false,
   onSubmit,
+  isSubmitting = false,
 }: TaskDetailsModalProps) {
   const { t } = useTranslation()
   const [beforePhoto, setBeforePhoto] = useState<File | null>(null)
   const [afterPhoto, setAfterPhoto] = useState<File | null>(null)
   const [note, setNote] = useState('')
 
-  const isInProgress = task?.status === 'In Progress'
+  const isInProgress = task?.taskStatus === 'IN_PROGRESS'
 
   const handleClose = useCallback(() => {
     setBeforePhoto(null)
@@ -110,7 +112,6 @@ export function TaskDetailsModal({
         note: note.trim() || undefined,
       })
     }
-    handleClose()
   }
 
   if (!task) return null
@@ -121,14 +122,17 @@ export function TaskDetailsModal({
     Low: 'bg-gray-100 text-gray-700',
   }
 
+  const projectLabel = getProjectLabel(task)
+
   const footer =
     showForm && onSubmit ? (
       <div className="flex justify-end">
         <Button
           onClick={handleSubmit}
+          disabled={isSubmitting}
           className="w-full bg-primary text-white rounded-lg"
         >
-          {t('myTask.submit')}
+          {isSubmitting ? '...' : t('myTask.submit')}
         </Button>
       </div>
     ) : undefined
@@ -149,19 +153,26 @@ export function TaskDetailsModal({
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <h3 className="font-bold text-lg text-accent">{task.projectName}</h3>
-                  <span
-                    className={cn(
-                      'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
-                      priorityClasses[task.priority] ?? 'bg-gray-100 text-gray-700'
-                    )}
-                  >
-                    {task.priority}
-                  </span>
+                  <h3 className="font-bold text-lg text-accent">
+                    {projectLabel}
+                  </h3>
+                  {task.priority && (
+                    <span
+                      className={cn(
+                        'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
+                        priorityClasses[task.priority] ??
+                          'bg-gray-100 text-gray-700'
+                      )}
+                    >
+                      {task.priority}
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">{t('myTask.taskName')} </span>
-                  {task.taskName}
+                  <span className="font-medium text-foreground">
+                    {t('myTask.taskName')}{' '}
+                  </span>
+                  {task.title}
                 </p>
               </div>
               {isInProgress && (
@@ -179,42 +190,56 @@ export function TaskDetailsModal({
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-success shrink-0" />
               <span>
-                <span className="font-medium text-foreground">{t('myTask.deadline')} </span>
-                {formatDateDayMonth(parseISO(task.deadline))}
+                <span className="font-medium text-foreground">
+                  {t('myTask.deadline')}{' '}
+                </span>
+                {formatDateDayMonth(parseISO(task.date))}
               </span>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-success shrink-0 mt-0.5" />
-              <span>
-                <span className="font-medium text-foreground">{t('myTask.location')} </span>
-                {task.location}
-              </span>
-            </div>
+            {task.location && (
+              <div className="flex items-start gap-2 text-sm">
+                <MapPin className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                <span>
+                  <span className="font-medium text-foreground">
+                    {t('myTask.location')}{' '}
+                  </span>
+                  {task.location}
+                </span>
+              </div>
+            )}
           </CardContent>
         </div>
 
         {/* Description */}
-        <div className="rounded-xl bg-white border shadow-sm">
-          <CardContent className="p-4">
-            <p className="font-bold text-foreground mb-2">{t('myTask.description')}</p>
-            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-              {task.description}
-            </p>
-          </CardContent>
-        </div>
+        {task.description && (
+          <div className="rounded-xl bg-white border shadow-sm">
+            <CardContent className="p-4">
+              <p className="font-bold text-foreground mb-2">
+                {t('myTask.description')}
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                {task.description}
+              </p>
+            </CardContent>
+          </div>
+        )}
 
         {/* Instruction */}
         {task.instructions && task.instructions.length > 0 && (
           <div className="rounded-xl bg-white border shadow-sm">
             <CardContent className="p-4">
-              <p className="font-bold text-foreground mb-3">{t('myTask.instruction')}</p>
+              <p className="font-bold text-foreground mb-3">
+                {t('myTask.instruction')}
+              </p>
               <ol className="space-y-2">
                 {task.instructions.map((instruction, index) => (
                   <li key={index} className="flex items-center gap-3">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-medium">
                       {index + 1}
                     </span>
-                    <span className="text-sm text-muted-foreground">{instruction}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {instruction}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -226,7 +251,9 @@ export function TaskDetailsModal({
         {task.materials && task.materials.length > 0 && (
           <div className="rounded-xl bg-white border shadow-sm">
             <CardContent className="p-4">
-              <p className="font-bold text-foreground mb-3">{t('myTask.materialRequired')}</p>
+              <p className="font-bold text-foreground mb-3">
+                {t('myTask.materialRequired')}
+              </p>
               <div className="space-y-3">
                 {task.materials.map((material) => (
                   <div
@@ -235,7 +262,9 @@ export function TaskDetailsModal({
                   >
                     <div>
                       <p className="font-medium text-sm">{material.name}</p>
-                      <p className="text-xs text-muted-foreground">{material.quantity}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {material.quantity}
+                      </p>
                     </div>
                     <Button
                       variant="outline"
@@ -256,7 +285,9 @@ export function TaskDetailsModal({
           <>
             <div className="rounded-xl bg-white border shadow-sm">
               <CardContent className="p-4 space-y-4">
-                <p className="font-bold text-foreground">{t('myTask.uploadPhotos')}</p>
+                <p className="font-bold text-foreground">
+                  {t('myTask.uploadPhotos')}
+                </p>
                 <div className="space-y-4">
                   <PhotoAddField
                     label={t('myTask.beforePhotos')}
@@ -276,7 +307,9 @@ export function TaskDetailsModal({
 
             <div className="rounded-xl bg-white border shadow-sm">
               <CardContent className="p-4">
-                <p className="font-bold text-foreground mb-2">{t('myTask.addNote')}</p>
+                <p className="font-bold text-foreground mb-2">
+                  {t('myTask.addNote')}
+                </p>
                 <Textarea
                   placeholder={t('myTask.enterNotes')}
                   value={note}

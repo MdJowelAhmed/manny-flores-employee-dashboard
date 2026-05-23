@@ -5,34 +5,50 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ModalWrapper, FormInput, FormSelect, FormTextarea } from '@/components/common'
 import { Button } from '@/components/ui/button'
-import {
-  MATERIAL_OPTIONS,
-  URGENCY_OPTIONS,
-  PROJECT_OPTIONS,
-  TASK_OPTIONS,
-} from '../materialsData'
+import { URGENCY_OPTIONS, type UrgencyLevel } from '../materialsData'
 
 const requestMaterialSchema = z.object({
-  materialName: z.string().min(1, 'Please select a material'),
-  quantityNeeded: z.string().min(1, 'Quantity is required'),
-  urgencyLevel: z.string().min(1, 'Please select urgency level'),
-  projectName: z.string().min(1, 'Please select a project'),
-  taskName: z.string().min(1, 'Please select a task'),
-  reason: z.string().optional(),
+  materialName: z.string().min(1, 'Material name is required'),
+  quantityNeeded: z
+    .string()
+    .min(1, 'Quantity is required')
+    .refine((v) => !Number.isNaN(Number(v)) && Number(v) > 0, {
+      message: 'Quantity must be a positive number',
+    }),
+  urgencyLevel: z.enum(['LOW', 'MEDIUM', 'HIGH'], {
+    errorMap: () => ({ message: 'Please select urgency level' }),
+  }),
+  reason: z.string().min(1, 'Reason is required'),
 })
 
 export type RequestMaterialFormData = z.infer<typeof requestMaterialSchema>
 
+export interface RequestMaterialPayload {
+  materialName: string
+  quantityNeeded: number
+  urgencyLevel: UrgencyLevel
+  reason: string
+}
+
 interface RequestMaterialModalProps {
   open: boolean
   onClose: () => void
-  onRequest: (data: RequestMaterialFormData) => void
+  onRequest: (data: RequestMaterialPayload) => void | Promise<void>
+  isSubmitting?: boolean
+}
+
+const defaultFormValues: RequestMaterialFormData = {
+  materialName: '',
+  quantityNeeded: '',
+  urgencyLevel: '' as UrgencyLevel,
+  reason: '',
 }
 
 export function RequestMaterialModal({
   open,
   onClose,
   onRequest,
+  isSubmitting = false,
 }: RequestMaterialModalProps) {
   const { t } = useTranslation()
   const {
@@ -40,36 +56,25 @@ export function RequestMaterialModal({
     handleSubmit,
     reset,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RequestMaterialFormData>({
     resolver: zodResolver(requestMaterialSchema),
-    defaultValues: {
-      materialName: '',
-      quantityNeeded: '',
-      urgencyLevel: '',
-      projectName: '',
-      taskName: '',
-      reason: '',
-    },
+    defaultValues: defaultFormValues,
   })
 
   useEffect(() => {
     if (open) {
-      reset({
-        materialName: '',
-        quantityNeeded: '',
-        urgencyLevel: '',
-        projectName: '',
-        taskName: '',
-        reason: '',
-      })
+      reset(defaultFormValues)
     }
   }, [open, reset])
 
-  const onSubmit = (data: RequestMaterialFormData) => {
-    onRequest(data)
-    reset()
-    onClose()
+  const onSubmit = async (data: RequestMaterialFormData) => {
+    await onRequest({
+      materialName: data.materialName.trim(),
+      quantityNeeded: Number(data.quantityNeeded),
+      urgencyLevel: data.urgencyLevel,
+      reason: data.reason.trim(),
+    })
   }
 
   return (
@@ -86,7 +91,7 @@ export function RequestMaterialModal({
           className="w-full bg-primary text-white rounded-md"
           disabled={isSubmitting}
         >
-          {t('materials.request')}
+          {isSubmitting ? '...' : t('materials.request')}
         </Button>
       }
     >
@@ -95,82 +100,48 @@ export function RequestMaterialModal({
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-4"
       >
-        <div className="grid grid-cols-2 gap-4">
-          <Controller
-            name="materialName"
-            control={control}
-            render={({ field }) => (
-              <FormSelect
-                label={t('materials.materialName')}
-                value={field.value}
-                options={MATERIAL_OPTIONS}
-                onChange={field.onChange}
-                placeholder={t('materials.selectMaterial')}
-                error={errors.materialName?.message}
-                required
-              />
-            )}
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormInput
+            label={t('materials.materialName')}
+            placeholder={t('materials.selectMaterial')}
+            {...register('materialName')}
+            error={errors.materialName?.message}
+            required
           />
           <FormInput
             label={t('materials.quantityNeeded')}
             placeholder={t('materials.enterQuantity')}
+            type="number"
+            min={1}
             {...register('quantityNeeded')}
             error={errors.quantityNeeded?.message}
             required
           />
-          <Controller
-            name="urgencyLevel"
-            control={control}
-            render={({ field }) => (
-              <FormSelect
-                label={t('materials.urgencyLevel')}
-                value={field.value}
-                options={URGENCY_OPTIONS}
-                onChange={field.onChange}
-                placeholder={t('materials.selectUrgency')}
-                error={errors.urgencyLevel?.message}
-                required
-              />
-            )}
-          />
-          <Controller
-            name="projectName"
-            control={control}
-            render={({ field }) => (
-              <FormSelect
-                label={t('materials.projectName')}
-                value={field.value}
-                options={PROJECT_OPTIONS}
-                onChange={field.onChange}
-                placeholder={t('materials.selectProject')}
-                error={errors.projectName?.message}
-                required
-              />
-            )}
-          />
         </div>
+
         <Controller
-          name="taskName"
+          name="urgencyLevel"
           control={control}
           render={({ field }) => (
             <FormSelect
-              label={t('materials.taskName')}
+              label={t('materials.urgencyLevel')}
               value={field.value}
-              options={TASK_OPTIONS}
+              options={URGENCY_OPTIONS}
               onChange={field.onChange}
-              placeholder={t('materials.selectTask')}
-              error={errors.taskName?.message}
+              placeholder={t('materials.selectUrgency')}
+              error={errors.urgencyLevel?.message}
               required
             />
           )}
         />
+
         <FormTextarea
           label={t('materials.reason')}
           placeholder={t('materials.writeReason')}
           {...register('reason')}
           error={errors.reason?.message}
-          className="min-h-[80px] resize-none"
+          required
+          className="min-h-[100px] resize-none"
         />
       </form>
     </ModalWrapper>

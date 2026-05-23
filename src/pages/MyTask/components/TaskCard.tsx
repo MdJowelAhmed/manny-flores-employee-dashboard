@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/utils/cn'
 import { formatDateDayMonth } from '@/utils/formatters'
 import { parseISO } from 'date-fns'
-import type { MyTask } from '../myTaskData'
+import { getProjectLabel, type MyTask } from '../myTaskData'
 
 interface TaskCardProps {
   task: MyTask
@@ -21,24 +21,32 @@ const priorityClasses: Record<string, string> = {
 
 export function TaskCard({ task, onViewDetails, onStart }: TaskCardProps) {
   const { t } = useTranslation()
-  const isInProgress = task.status === 'In Progress'
-  const isCompleted = task.status === 'Completed'
-  const primaryButtonText = isCompleted ? t('myTask.completed') : isInProgress ? t('myTask.complete') : t('myTask.start')
+  const isInProgress = task.taskStatus === 'IN_PROGRESS'
+  const isCompleted = task.taskStatus === 'COMPLETED'
+  const primaryButtonText = isCompleted
+    ? t('myTask.completed')
+    : isInProgress
+    ? t('myTask.complete')
+    : t('myTask.start')
+
+  const projectLabel = getProjectLabel(task)
 
   return (
     <Card className="rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-bold text-accent">{task.projectName}</h3>
-            <span
-              className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                priorityClasses[task.priority] ?? 'bg-gray-100 text-gray-700'
-              )}
-            >
-              {task.priority}
-            </span>
+            <h3 className="font-bold text-accent">{projectLabel}</h3>
+            {task.priority && (
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                  priorityClasses[task.priority] ?? 'bg-gray-100 text-gray-700'
+                )}
+              >
+                {task.priority}
+              </span>
+            )}
           </div>
           {isInProgress && (
             <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 shrink-0">
@@ -48,49 +56,60 @@ export function TaskCard({ task, onViewDetails, onStart }: TaskCardProps) {
         </div>
 
         <p className="text-sm text-muted-foreground mb-3">
-          <span className="font-medium text-foreground">{t('myTask.taskName')} </span>
-          {task.taskName}
+          <span className="font-medium text-foreground">
+            {t('myTask.taskName')}{' '}
+          </span>
+          {task.title}
         </p>
 
         <div className="space-y-5 mb-3">
-          <div className="flex flex-col  gap-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <div className="bg-secondary-foreground p-1 rounded-full">
-              <Calendar className="h-4 w-4 text-success shrink-0   " />
-              </div>
-              <span className="font-medium text-foreground">{t('myTask.deadline')} </span>
-            </div>
-            <span>
-
-              {formatDateDayMonth(parseISO(task.deadline))}
-            </span>
-          </div>
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
-             <div className="bg-secondary-foreground p-1 rounded-full">
-             <MapPin className="h-4 w-4 text-success shrink-0 mt-0.5   " />
-             </div>
-              <span className="font-medium text-foreground">{t('myTask.location')} </span>
+              <div className="bg-secondary-foreground p-1 rounded-full">
+                <Calendar className="h-4 w-4 text-success shrink-0" />
+              </div>
+              <span className="font-medium text-foreground">
+                {t('myTask.deadline')}{' '}
+              </span>
             </div>
-            <span>
-
-              {task.location}
-            </span>
+            <span>{formatDateDayMonth(parseISO(task.date))}</span>
           </div>
+
+          {task.location && (
+            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <div className="bg-secondary-foreground p-1 rounded-full">
+                  <MapPin className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                </div>
+                <span className="font-medium text-foreground">
+                  {t('myTask.location')}{' '}
+                </span>
+              </div>
+              <span>{task.location}</span>
+            </div>
+          )}
         </div>
 
-        <div className="mb-4">
-          <p className="text-xs font-medium text-foreground mb-1">{t('myTask.description')}</p>
-          <p className="text-sm text-muted-foreground line-clamp-3">{task.description}</p>
-        </div>
+        {task.description && (
+          <div className="mb-4">
+            <p className="text-xs font-medium text-foreground mb-1">
+              {t('myTask.description')}
+            </p>
+            <p className="text-sm text-muted-foreground line-clamp-3">
+              {task.description}
+            </p>
+          </div>
+        )}
 
         <div className="flex gap-3">
           <Button
-            variant={isInProgress ? 'outline' : 'outline'}
+            variant="outline"
             size="sm"
             className={cn(
               'flex-1 rounded-lg',
-              isInProgress ? 'border-primary text-accent' : 'border-primary text-accent'
+              isInProgress
+                ? 'border-primary text-accent'
+                : 'border-primary text-accent'
             )}
             onClick={() => (onStart ?? onViewDetails)(task)}
             disabled={isCompleted}

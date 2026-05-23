@@ -1,18 +1,19 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/common/Pagination'
 import { MaterialCard } from './components/MaterialCard'
-import { RequestMaterialModal } from './components/RequestMaterialModal'
 import {
-  mockProjectMaterialsData,
-  getMaterialLabel,
-  PROJECT_OPTIONS,
-  type ProjectMaterial,
-} from './materialsData'
-import type { RequestMaterialFormData } from './components/RequestMaterialModal'
+  RequestMaterialModal,
+  type RequestMaterialPayload,
+} from './components/RequestMaterialModal'
+import type { RequestMaterial } from './materialsData'
 import { toast } from '@/utils/toast'
+import {
+  useGetRequestMaterialsQuery,
+  useCreateRequestMaterialMutation,
+} from '@/redux/api/requestMaterialsApi'
 
 export default function ManageMaterials() {
   const { t } = useTranslation()
@@ -20,8 +21,22 @@ export default function ManageMaterials() {
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
   const itemsPerPage = parseInt(searchParams.get('limit') || '9', 10) || 9
 
-  const [materials, setMaterials] = useState<ProjectMaterial[]>(mockProjectMaterialsData)
   const [showRequestModal, setShowRequestModal] = useState(false)
+
+  const { data, isLoading } = useGetRequestMaterialsQuery({
+    page: currentPage,
+    limit: itemsPerPage,
+  })
+  const [createRequestMaterial, { isLoading: isCreating }] =
+    useCreateRequestMaterialMutation()
+
+  const materials: RequestMaterial[] = data?.data ?? []
+  const meta = data?.meta ?? data?.pagination
+  const totalItems = meta?.total ?? materials.length
+  const totalPages = Math.max(
+    1,
+    meta?.totalPages ?? meta?.totalPage ?? Math.ceil(totalItems / itemsPerPage)
+  )
 
   const setPage = (p: number) => {
     const next = new URLSearchParams(searchParams)
@@ -36,42 +51,24 @@ export default function ManageMaterials() {
     setSearchParams(next, { replace: true })
   }
 
-  const totalItems = materials.length
-  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
-
   useEffect(() => {
     if (currentPage > totalPages && totalPages >= 1) setPage(1)
   }, [totalPages, currentPage])
 
-  const paginatedMaterials = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage
-    return materials.slice(start, start + itemsPerPage)
-  }, [materials, currentPage, itemsPerPage])
-
-  const handleMarkTaken = (material: ProjectMaterial) => {
-    setMaterials((prev) =>
-      prev.map((m) =>
-        m.id === material.id ? { ...m, status: 'Taken' as const } : m
-      )
-    )
-    toast({ title: t('materials.markedAsTaken'), variant: 'success' })
-  }
-
-  const handleRequestMaterial = (data: RequestMaterialFormData) => {
-    const projectLabel = PROJECT_OPTIONS.find((o) => o.value === data.projectName)?.label ?? 'Green Villa Project'
-    const newMaterial: ProjectMaterial = {
-      id: `pm-${Date.now()}`,
-      projectName: projectLabel,
-      materialName: getMaterialLabel(data.materialName),
-      required: `${data.quantityNeeded} Unit`,
-      delivered: '0 Unit',
-      status: 'Delivered',
+  const handleRequestMaterial = async (payload: RequestMaterialPayload) => {
+    try {
+      await createRequestMaterial(payload).unwrap()
+      setShowRequestModal(false)
+      toast({
+        title: t('materials.requestSubmitted'),
+        variant: 'success',
+      })
+    } catch (err) {
+      const message =
+        (err as { data?: { message?: string } })?.data?.message ??
+        'Failed to submit material request'
+      toast({ title: message, variant: 'destructive' })
     }
-    setMaterials((prev) => [newMaterial, ...prev])
-    toast({
-      title: t('materials.requestSubmitted'),
-      variant: 'success',
-    })
   }
 
   return (
@@ -82,21 +79,32 @@ export default function ManageMaterials() {
         </h1>
         <Button
           onClick={() => setShowRequestModal(true)}
-          className="bg-primary text-white  shrink-0"
+          className="bg-primary text-white shrink-0"
         >
           {t('materials.requestMaterial')}
         </Button>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {paginatedMaterials.map((material) => (
-          <MaterialCard
-            key={material.id}
-            material={material}
-            onMarkTaken={handleMarkTaken}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: itemsPerPage }).map((_, idx) => (
+            <div
+              key={idx}
+              className="h-48 rounded-xl bg-muted/40 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : materials.length === 0 ? (
+        <div className="rounded-xl border border-dashed bg-white p-10 text-center text-muted-foreground">
+          No material requests yet.
+        </div>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {materials.map((material) => (
+            <MaterialCard key={material.id} material={material} />
+          ))}
+        </div>
+      )}
 
       <Pagination
         currentPage={currentPage}
@@ -112,6 +120,7 @@ export default function ManageMaterials() {
         open={showRequestModal}
         onClose={() => setShowRequestModal(false)}
         onRequest={handleRequestMaterial}
+        isSubmitting={isCreating}
       />
     </div>
   )
