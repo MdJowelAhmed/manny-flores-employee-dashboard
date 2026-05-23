@@ -1,73 +1,79 @@
-import { useEffect, useState, } from 'react'
+import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-// import { Camera } from 'lucide-react'
-import { ModalWrapper, FormSelect, FormTextarea } from '@/components/common'
+import { ModalWrapper, FormInput, FormSelect, FormTextarea } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import {
   VEHICLE_TYPE_OPTIONS,
-  PROJECT_OPTIONS,
   URGENCY_OPTIONS,
+  type VehicleUrgencyLevel,
 } from '../vehiclesData'
 
 const requestVehicleSchema = z.object({
   vehicleType: z.string().min(1, 'Please select vehicle type'),
-  projectName: z.string().min(1, 'Please select project name'),
-  urgencyLevel: z.string().min(1, 'Please select urgency level'),
+  projectName: z.string().min(1, 'Project name is required'),
+  urgencyLevel: z.enum(['LOW', 'MEDIUM', 'HIGH'], {
+    errorMap: () => ({ message: 'Please select urgency level' }),
+  }),
   reason: z.string().min(1, 'Reason is required'),
 })
 
 export type RequestVehicleFormData = z.infer<typeof requestVehicleSchema>
 
+export interface RequestVehiclePayload {
+  vehicleType: string
+  projectName: string
+  urgencyLevel: VehicleUrgencyLevel
+  reason: string
+}
+
 interface RequestVehicleModalProps {
   open: boolean
   onClose: () => void
-  onRequest: (data: RequestVehicleFormData, photo?: File | null) => void
+  onRequest: (data: RequestVehiclePayload) => void | Promise<void>
+  isSubmitting?: boolean
+}
+
+const defaultFormValues: RequestVehicleFormData = {
+  vehicleType: '',
+  projectName: '',
+  urgencyLevel: '' as VehicleUrgencyLevel,
+  reason: '',
 }
 
 export function RequestVehicleModal({
   open,
   onClose,
   onRequest,
+  isSubmitting = false,
 }: RequestVehicleModalProps) {
   const { t } = useTranslation()
-  // const fileInputRef = useRef<HTMLInputElement>(null)
-  const [photoFile, setPhotoFile] = useState<File | null>(null)
-
   const {
+    register,
     handleSubmit,
     reset,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RequestVehicleFormData>({
     resolver: zodResolver(requestVehicleSchema),
-    defaultValues: {
-      vehicleType: '',
-      projectName: '',
-      urgencyLevel: '',
-      reason: '',
-    },
+    defaultValues: defaultFormValues,
   })
 
   useEffect(() => {
     if (open) {
-      reset({
-        vehicleType: '',
-        projectName: '',
-        urgencyLevel: '',
-        reason: '',
-      })
-      setPhotoFile(null)
+      reset(defaultFormValues)
     }
   }, [open, reset])
 
-  const handleFormSubmit = (data: RequestVehicleFormData) => {
-    onRequest(data, photoFile)
-    reset()
-    setPhotoFile(null)
-    onClose()
+  const handleFormSubmit = async (data: RequestVehicleFormData) => {
+    await onRequest({
+      vehicleType: data.vehicleType,
+      projectName: data.projectName.trim(),
+      urgencyLevel: data.urgencyLevel,
+      reason: data.reason.trim(),
+    })
   }
 
   return (
@@ -84,7 +90,7 @@ export function RequestVehicleModal({
           className="w-full bg-primary text-white rounded-lg hover:bg-primary/90"
           disabled={isSubmitting}
         >
-          {t('vehicles.request')}
+          {isSubmitting ? '...' : t('vehicles.request')}
         </Button>
       }
     >
@@ -108,20 +114,12 @@ export function RequestVehicleModal({
             />
           )}
         />
-        <Controller
-          name="projectName"
-          control={control}
-          render={({ field }) => (
-            <FormSelect
-              label={t('vehicles.projectName')}
-              value={field.value}
-              options={PROJECT_OPTIONS}
-              onChange={field.onChange}
-              placeholder={t('vehicles.selectProject')}
-              error={errors.projectName?.message}
-              required
-            />
-          )}
+        <FormInput
+          label={t('vehicles.projectName')}
+          placeholder={t('vehicles.selectProject')}
+          {...register('projectName')}
+          error={errors.projectName?.message}
+          required
         />
         <Controller
           name="urgencyLevel"
@@ -138,44 +136,14 @@ export function RequestVehicleModal({
             />
           )}
         />
-        <Controller
-          name="reason"
-          control={control}
-          render={({ field }) => (
-            <FormTextarea
-              label={t('vehicles.reason')}
-              placeholder={t('vehicles.writeReason')}
-              {...field}
-              error={errors.reason?.message}
-              className="min-h-[80px] resize-none bg-gray-50"
-              required
-            />
-          )}
+        <FormTextarea
+          label={t('vehicles.reason')}
+          placeholder={t('vehicles.writeReason')}
+          {...register('reason')}
+          error={errors.reason?.message}
+          className="min-h-[100px] resize-none bg-gray-50"
+          required
         />
-        {/* <div className="space-y-2">
-          <p className="text-sm font-medium">{t('vehicles.uploadPhoto')}</p>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Camera className="h-4 w-4 mr-2" />
-            {t('vehicles.addPhoto')}
-            {photoFile && (
-              <span className="ml-2 text-muted-foreground text-xs">
-                ({photoFile.name})
-              </span>
-            )}
-          </Button>
-        </div> */}
       </form>
     </ModalWrapper>
   )
