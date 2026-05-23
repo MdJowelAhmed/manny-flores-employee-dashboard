@@ -17,6 +17,8 @@ import {
   useUpdateMyProfileMutation,
   type UserProfile,
 } from '@/redux/api/authApi'
+import { getImageUrl } from '@/components/common/getImageUrl'
+
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -31,13 +33,13 @@ type ProfileFormData = z.infer<typeof profileSchema>
 
 const DEFAULT_AVATAR = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Employee'
 
-function getProfileImageUrl(profile?: string): string {
-  if (!profile) return DEFAULT_AVATAR
-  if (profile.startsWith('http') || profile.startsWith('data:')) return profile
+// function getProfileImageUrl(profile?: string): string {
+//   if (!profile) return DEFAULT_AVATAR
+//   if (profile.startsWith('http') || profile.startsWith('data:')) return profile
 
-  const base = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
-  return `${base}${profile.startsWith('/') ? profile : `/${profile}`}`
-}
+//   const base = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+//   return `${base}${profile.startsWith('/') ? profile : `/${profile}`}`
+// }
 
 function getInitials(name?: string): string {
   if (!name?.trim()) return 'U'
@@ -76,13 +78,14 @@ function getApiErrorMessage(err: unknown, fallback: string): string {
 export default function ProfileSettings() {
   const { t } = useTranslation()
   const [avatarPreview, setAvatarPreview] = useState(DEFAULT_AVATAR)
+  console.log(avatarPreview)
   const profileFileRef = useRef<File | null>(null)
 
   const { data: profileResponse, isLoading: isProfileLoading } = useGetMyProfileQuery()
   const [updateProfile, { isLoading: isUpdating }] = useUpdateMyProfileMutation()
 
   const profile = profileResponse?.data
-
+console.log(profile)
   const {
     register,
     handleSubmit,
@@ -102,9 +105,9 @@ export default function ProfileSettings() {
 
   useEffect(() => {
     if (!profile) return
-
+// console.log(profile.profile)
     reset(profileToFormValues(profile))
-    setAvatarPreview(getProfileImageUrl(profile.profile))
+    setAvatarPreview(getImageUrl(profile?.profile ?? ''))
     profileFileRef.current = null
   }, [profile, reset])
 
@@ -116,14 +119,14 @@ export default function ProfileSettings() {
     const reader = new FileReader()
     reader.onload = () => {
       setAvatarPreview(reader.result as string)
-    }
+    } 
     reader.readAsDataURL(file)
   }
 
   const handleCancel = () => {
     if (!profile) return
     reset(profileToFormValues(profile))
-    setAvatarPreview(getProfileImageUrl(profile.profile))
+    setAvatarPreview(getImageUrl(profile.profile ?? ''))
     profileFileRef.current = null
   }
 
@@ -133,7 +136,7 @@ export default function ProfileSettings() {
       const response = await updateProfile(formData).unwrap()
 
       reset(profileToFormValues(response.data))
-      setAvatarPreview(getProfileImageUrl(response.data.profile))
+      setAvatarPreview(getImageUrl(response.data.profile ?? ''))
       profileFileRef.current = null
 
       toast({

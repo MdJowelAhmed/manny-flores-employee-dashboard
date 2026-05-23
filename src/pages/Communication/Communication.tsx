@@ -9,7 +9,7 @@ import { cn } from '@/utils/cn'
 
 import { UserContext } from '@/provider/UserContext'
 import { useGetChatListQuery, useGetMessageListQuery, useSendMessageMutation } from '@/redux/slices/chatApi'
-import { imageUrl } from '@/components/common/getImageUrl'
+import { getImageUrl } from '@/components/common/getImageUrl'
 
 type TParticipant = {
   id: string
@@ -127,7 +127,7 @@ export default function Communication() {
             <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 bg-white shrink-0">
               <Avatar className="h-10 w-10 shrink-0">
                 <AvatarImage
-                  src={participant?.profile ? imageUrl(participant.profile) : undefined}
+                  src={participant?.profile ? getImageUrl(participant.profile ?? '') : undefined}
                   alt={participant?.name}
                 />
                 <AvatarFallback className="bg-primary/20 text-primary text-sm font-medium">
@@ -155,7 +155,7 @@ export default function Communication() {
                       {!isMine && (
                         <Avatar className="h-8 w-8 shrink-0">
                           <AvatarImage
-                            src={msg?.sender?.profile ? imageUrl(msg?.sender?.profile) : undefined}
+                            src={msg?.sender?.profile ? getImageUrl(msg?.sender?.profile) : undefined}
                           />
                           <AvatarFallback className="bg-gray-200 text-gray-600 text-xs">
                             {msg?.sender?.name?.charAt(0)}
@@ -178,7 +178,7 @@ export default function Communication() {
                         >
                           {msg.type === 'image' && msg.resourceUrl && (
                             <img
-                              src={imageUrl(msg.resourceUrl)}
+                              src={getImageUrl(msg.resourceUrl)}
                               className="w-full h-[180px] object-cover rounded-lg mb-2"
                             />
                           )}

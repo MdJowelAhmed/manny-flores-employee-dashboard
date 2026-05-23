@@ -33,4 +33,4 @@ export const baseApi = createApi({
     endpoints: () => ({}),
 }) 
 export const socketUrl = import.meta.env.VITE_API_BASE_URL 
-export const getImageUrl = import.meta.env.VITE_API_BASE_URL 
+export const imageUrl = import.meta.env.VITE_API_BASE_URL 
