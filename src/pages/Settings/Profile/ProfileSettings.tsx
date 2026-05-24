@@ -11,13 +11,9 @@ import { Separator } from '@/components/ui/separator'
 import { FormInput } from '@/components/common'
 import { toast } from '@/utils/toast'
 import { motion } from 'framer-motion'
-import {
-  buildProfileFormData,
-  useGetMyProfileQuery,
-  useUpdateMyProfileMutation,
-  type UserProfile,
-} from '@/redux/api/authApi'
+import { buildProfileFormData, useGetMyProfileQuery, useUpdateMyProfileMutation } from '@/redux/api/authApi'
 import { getImageUrl } from '@/components/common/getImageUrl'
+
 
 
 const profileSchema = z.object({
@@ -52,7 +48,7 @@ function getInitials(name?: string): string {
     .toUpperCase()
 }
 
-function profileToFormValues(profile: UserProfile): ProfileFormData {
+function profileToFormValues(profile: any): ProfileFormData {
   return {
     name: profile.name ?? '',
     email: profile.email ?? '',
@@ -171,7 +167,7 @@ console.log(profile)
         <CardHeader>
           <CardTitle>{t('settings.profileInformation')}</CardTitle>
           <CardDescription>
-            {t('settings.updatePersonalInfo')}
+            {t('settings.updateProfileDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -199,7 +195,7 @@ console.log(profile)
               <div>
                 <h3 className="font-semibold">{t('settings.profilePicture')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {t('settings.imageFormats')}
+                  {t('settings.imageHint')}
                 </p>
               </div>
             </div>
@@ -226,7 +222,7 @@ console.log(profile)
                 />
                 <FormInput
                   label={t('settings.phone')}
-                  placeholder={t('settings.enterPhone')}
+                  placeholder={t('settings.phonePlaceholder')}
                   error={errors.contact?.message}
                   required
                   {...register('contact')}
@@ -237,23 +233,23 @@ console.log(profile)
             <Separator />
 
             <div className="space-y-4">
-              <h3 className="font-semibold">{t('settings.address')}</h3>
+              <h3 className="font-semibold">{t('settings.addressSection')}</h3>
               <FormInput
                 label={t('settings.streetAddress')}
-                placeholder={t('settings.enterStreetAddress')}
+                placeholder={t('settings.streetAddress')}
                 error={errors.address?.message}
                 {...register('address')}
               />
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormInput
                   label={t('settings.city')}
-                  placeholder={t('settings.enterCity')}
+                  placeholder={t('settings.cityPlaceholder')}
                   error={errors.city?.message}
                   {...register('city')}
                 />
                 <FormInput
                   label={t('settings.country')}
-                  placeholder={t('settings.enterCountry')}
+                  placeholder={t('settings.countryPlaceholder')}
                   error={errors.country?.message}
                   {...register('country')}
                 />
