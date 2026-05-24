@@ -12,15 +12,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ModalWrapper } from '@/components/common/ModalWrapper'
-import { useAppDispatch,  } from '@/redux/hooks'
+import { useAppDispatch, } from '@/redux/hooks'
 import { toggleSidebar } from '@/redux/slices/uiSlice'
 import { logout } from '@/redux/slices/authSlice'
 import { SAMPLE_NOTIFICATIONS } from '@/pages/Notifications/notificationData'
 import type { Notification } from '@/types/notification'
 import { formatDistanceToNow } from 'date-fns'
 import { useTranslation } from 'react-i18next'
-import {  useGetMyProfileQuery } from '@/redux/api/authApi'
-import { getImageUrl } from '@/components/common/getImageUrl'
+import { useGetMyProfileQuery } from '@/redux/api/authApi'
+import { imageUrl } from '@/redux/baseApi'
 
 const routeTitleKeys: Record<string, string> = {
   '/dashboard': 'header.routeTitles.dashboard',
@@ -172,7 +172,7 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={user?.profile ? getImageUrl(user.profile) : undefined} />
+                  <AvatarImage src={user?.profile ? imageUrl(user.profile) : undefined} />
                   <AvatarFallback className="text-white bg-primary" >
                     {user?.name?.charAt(0) ?? 'E'}
                   </AvatarFallback>
