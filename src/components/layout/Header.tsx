@@ -12,14 +12,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ModalWrapper } from '@/components/common/ModalWrapper'
-import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import { useAppDispatch,  } from '@/redux/hooks'
 import { toggleSidebar } from '@/redux/slices/uiSlice'
 import { logout } from '@/redux/slices/authSlice'
-import { getInitials } from '@/utils/formatters'
 import { SAMPLE_NOTIFICATIONS } from '@/pages/Notifications/notificationData'
 import type { Notification } from '@/types/notification'
 import { formatDistanceToNow } from 'date-fns'
 import { useTranslation } from 'react-i18next'
+import {  useGetMyProfileQuery } from '@/redux/api/authApi'
+import { getImageUrl } from '@/components/common/getImageUrl'
 
 const routeTitleKeys: Record<string, string> = {
   '/dashboard': 'header.routeTitles.dashboard',
@@ -54,7 +55,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
           <p className="text-xs text-muted-foreground mt-2">
             {formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true })}
           </p>
-          </div>
+        </div>
       </div>
     </div>
   )
@@ -65,14 +66,15 @@ export function Header() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const [notificationModalOpen, setNotificationModalOpen] = useState(false)
-  const { user } = useAppSelector((state) => state.auth)
   const location = useLocation()
   const titleKey = routeTitleKeys[location.pathname] || 'header.routeTitles.dashboard'
   const pageTitle = t(titleKey)
   const recentNotifications = SAMPLE_NOTIFICATIONS.slice(0, RECENT_NOTIFICATIONS_COUNT)
-
   const currentLang = i18n.language
 
+  // api calls
+  const { data: userRes } = useGetMyProfileQuery()
+  const user = userRes?.data
   const handleViewAllNotifications = () => {
     setNotificationModalOpen(false)
     navigate('/notifications')
@@ -104,7 +106,7 @@ export function Header() {
           <div>
             <h1 className="text-xl font-semibold text-accent">{pageTitle}</h1>
             <p className="text-sm text-accent hidden sm:block">
-              {t('header.welcomeBack')} {user?.firstName || t('header.employee')}
+              {t('header.welcomeBack')} {user?.name || t('header.employee')}
             </p>
           </div>
         </div>
@@ -170,9 +172,9 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={user?.avatar} />
+                  <AvatarImage src={user?.profile ? getImageUrl(user.profile) : undefined} />
                   <AvatarFallback className="text-white bg-primary" >
-                    {getInitials(user?.firstName, user?.lastName)}
+                    {user?.name?.charAt(0) ?? 'E'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -181,7 +183,7 @@ export function Header() {
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">
-                    {user ? `${user.firstName} ${user.lastName}` : t('header.employee')}
+                    {user?.name ?? t('header.employee')}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {user?.email || 'employee@example.com'}

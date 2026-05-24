@@ -221,7 +221,7 @@ console.log(profile)
                   type="email"
                   placeholder={t('settings.enterEmail')}
                   error={errors.email?.message}
-                  required
+                  disabled
                   {...register('email')}
                 />
                 <FormInput
