@@ -22,7 +22,7 @@ const incidentReportSchema = z.object({
 type IncidentReportFormData = z.infer<typeof incidentReportSchema>
 
 const inputBaseClass =
-  'flex h-11 w-full rounded-lg border border-[#E0E0E0] bg-white px-3 py-2 text-sm text-[#333333] placeholder:text-[#CCCCCC] focus:outline-none focus:ring-2 focus:ring-[#28a745]/20 focus:border-[#28a745] disabled:cursor-not-allowed disabled:opacity-50 transition-colors'
+  'flex h-11 w-full rounded-lg border border-[#E0E0E0] bg-white px-3 py-2 text-sm text-black placeholder:text-black focus:outline-none focus:ring-2 focus:ring-[#28a745]/20 focus:border-[#28a745] disabled:cursor-not-allowed disabled:opacity-50 transition-colors'
 
 export function IncidentReportForm() {
   const { t } = useTranslation()
@@ -82,22 +82,22 @@ export function IncidentReportForm() {
         <div className="rounded-xl bg-white p-6 shadow-sm space-y-6">
           {/* Logistics */}
           <div>
-            <h3 className="text-base font-bold text-[#333333] mb-4">
+            <h3 className="text-base font-bold text-black mb-4">
               {t('safety.logistics')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#333333] block">
+                <label className="text-sm font-medium text-black block">
                   {t('safety.dateTime')}
                 </label>
                 <input
                   {...register('dateTime')}
                   readOnly
-                  className={`${inputBaseClass}  text-[#666666] cursor-default`}
+                  className={`${inputBaseClass}  text-black cursor-default`}
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-[#333333] block">
+                <label className="text-sm font-medium text-black block">
                   {t('safety.locationLabel')}
                 </label>
                 <div className="relative">
@@ -107,7 +107,7 @@ export function IncidentReportForm() {
                     className={`${inputBaseClass} pr-9`}
                   />
                   <ChevronRight
-                    className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#CCCCCC]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-black"
                     strokeWidth={2}
                   />
                 </div>
@@ -120,7 +120,7 @@ export function IncidentReportForm() {
 
           {/* People Involved */}
           <div>
-            <h3 className="text-base font-bold text-[#333333] mb-4">
+            <h3 className="text-base font-bold text-black mb-4">
               {t('safety.peopleInvolved')}
             </h3>
             <div className=" grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -143,7 +143,7 @@ export function IncidentReportForm() {
 
           {/* Incident Details */}
           <div>
-            <h3 className="text-base font-bold text-[#333333] mb-4">
+            <h3 className="text-base font-bold text-black mb-4">
               {t('safety.incidentDetails')}
             </h3>
             <div className="space-y-4">
@@ -154,14 +154,14 @@ export function IncidentReportForm() {
                 options={INCIDENT_TYPE_OPTIONS}
                 placeholder={t('common.select')}
                 error={errors.incidentType?.message}
-                triggerClassName="h-11 rounded-lg border-[#E0E0E0]"
+                triggerClassName="h-11 rounded-lg border-[#E0E0E0] placeholder:text-black"
               />
               <FormTextarea
                 label={t('safety.description')}
                 placeholder={t('safety.describeWhatHappened')}
                 error={errors.description?.message}
                 {...register('description')}
-                className="flex w-full min-h-[140px] rounded-lg border border-[#E0E0E0] bg-white px-3 py-3 text-sm text-[#333333] placeholder:text-[#CCCCCC] focus:outline-none focus:ring-2 focus:ring-[#28a745]/20 focus:border-[#28a745] resize-none"
+                className="flex w-full min-h-[140px] rounded-lg border border-gray-200 bg-white px-3 py-3 text-sm text-black placeholder:text-black focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
                 rows={5}
               />
             </div>
