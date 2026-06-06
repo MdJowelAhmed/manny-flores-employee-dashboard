@@ -37,7 +37,7 @@ export interface ChatMessage {
   createdAt: string
   updatedAt: string
   resourceUrl: string | null
-  type: 'text' | 'image'
+  type: string
   sender: {
     id: string
     name: string
