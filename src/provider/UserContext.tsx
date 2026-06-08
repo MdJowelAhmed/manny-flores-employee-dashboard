@@ -2,22 +2,19 @@
 import React, { useContext, useEffect, useState } from 'react';
 import io from "socket.io-client";
 import { useMemo } from "react";
-import { useGetMyProfileQuery } from '@/redux/api/authApi';
+import { useGetMyProfileQuery, type UserProfile } from '@/redux/api/authApi';
 import { socketUrl } from '@/redux/baseApi';
 
-type User = {
-    _id: string
-    name: string
-    email: string
-    role: string
-    profileImage?: string
-    status: string
+type ContextUser = UserProfile & {
+    _id?: string
+    role?: string
+    status?: string
 }
 
 interface UserContextType {
-    user: User | null;
-    socket: any;
-    setUser: any;
+    user: ContextUser | null;
+    socket: ReturnType<typeof io> | null;
+    setUser: React.Dispatch<React.SetStateAction<ContextUser | null>>;
 }
 
 export const UserContext = React.createContext<UserContextType | null>(null);
@@ -28,7 +25,7 @@ export const useUser = () => {
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: profile } = useGetMyProfileQuery(undefined)
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<ContextUser | null>(null);
     const socket = useMemo(() => io(socketUrl), []);
 
 
@@ -47,8 +44,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
 
     useEffect(() => {
-        if (profile) {
-            setUser(profile?.data);
+        if (profile?.data) {
+            setUser(profile.data);
         }
     }, [profile])
 
