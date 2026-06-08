@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { format, parseISO } from 'date-fns'
-import { Search, Send, Paperclip, ArrowLeft, FileText, X } from 'lucide-react'
+import { Search, Send, Paperclip, ArrowLeft, FileText, X, Users } from 'lucide-react'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,14 @@ import {
 } from '@/redux/slices/chatApi'
 import { UserContext } from '@/provider/UserContext'
 import { getImageUrl } from '@/components/common/getImageUrl'
+import { GroupMembersModal } from './components'
+import {
+  getConversationAvatar,
+  getConversationTitle,
+  getLastMessagePreview,
+  getMemberCount,
+  isGroupChat,
+} from './communicationUtils'
 
 type TUserContext = {
   socket: {
@@ -34,37 +42,10 @@ type TUserContext = {
 type AttachmentKind = 'image' | 'pdf'
 
 const ACCEPTED_FILE_TYPES = 'image/*,application/pdf,.pdf'
+const SCROLL_NEAR_BOTTOM_THRESHOLD = 100
 
 function getCurrentUserId(user: TUserContext['user']) {
   return user?.id ?? user?._id ?? ''
-}
-
-function getOtherParticipants(conversation: ChatConversation, currentUserId?: string) {
-  if (!currentUserId) return conversation.participants ?? []
-  return conversation.participants?.filter((participant) => participant.id !== currentUserId) ?? []
-}
-
-function getConversationTitle(conversation: ChatConversation, currentUserId?: string) {
-  const groupName = conversation.groupName?.trim()
-  if (groupName) return groupName
-
-  const others = getOtherParticipants(conversation, currentUserId)
-  if (others.length === 1) return others[0].name
-  if (others.length > 1) {
-    return others.map((participant) => participant.name).join(', ')
-  }
-
-  return conversation.participants?.[0]?.name || 'Conversation'
-}
-
-function getConversationAvatar(conversation: ChatConversation, currentUserId?: string) {
-  const others = getOtherParticipants(conversation, currentUserId)
-  return others[0]?.profile ?? conversation.participants?.[0]?.profile ?? null
-}
-
-function getLastMessagePreview(lastMessage: ChatConversation['lastMessage']) {
-  const text = lastMessage?.text?.trim()
-  return text || 'No messages yet'
 }
 
 function getFileKind(file: File): AttachmentKind | null {
@@ -101,12 +82,51 @@ function sortMessagesAsc(messages: ChatMessage[]) {
   )
 }
 
+function ConversationAvatar({
+  conversation,
+  currentUserId,
+  className,
+  iconClassName,
+}: {
+  conversation: ChatConversation
+  currentUserId: string
+  className?: string
+  iconClassName?: string
+}) {
+  const isGroup = isGroupChat(conversation)
+  const avatar = getConversationAvatar(conversation, currentUserId)
+  const title = getConversationTitle(conversation, currentUserId)
+
+  if (isGroup) {
+    return (
+      <div
+        className={cn(
+          'flex items-center justify-center rounded-full bg-primary/15 shrink-0',
+          className
+        )}
+      >
+        <Users className={cn('text-primary', iconClassName ?? 'h-6 w-6')} />
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn('rounded-full overflow-hidden bg-gray-200 shrink-0', className)}>
+      <img
+        src={avatar ? getImageUrl(avatar) : '/default-image.png'}
+        alt={title}
+        className="w-full h-full object-cover"
+      />
+    </div>
+  )
+}
+
 export default function Communication() {
   const { socket, user } = useContext(UserContext) as TUserContext
   const currentUserId = getCurrentUserId(user)
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
-  const chatIdParam = searchParams.get('chatId')
+  const chatIdFromUrl = searchParams.get('chatId')
 
   const [selectedConversation, setSelectedConversation] = useState<ChatConversation | null>(null)
   const [messageInput, setMessageInput] = useState('')
@@ -114,57 +134,68 @@ export default function Communication() {
   const [messageList, setMessageList] = useState<ChatMessage[]>([])
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [showChatPanel, setShowChatPanel] = useState(false)
+  const [membersModalOpen, setMembersModalOpen] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const messageInputRef = useRef<HTMLInputElement | null>(null)
+  const isNearBottomRef = useRef(true)
+  const prevChatIdRef = useRef<string | null>(null)
+  const pendingChatHandledRef = useRef(false)
 
   const { data: chatList, isLoading: isChatListLoading } = useGetChatListQuery(keyword)
 
-  useEffect(() => {
-    if (!chatIdParam) return
+  const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight, behavior })
+  }
 
+  const updateNearBottom = () => {
+    const el = scrollRef.current
+    if (!el) return
+    isNearBottomRef.current =
+      el.scrollHeight - el.scrollTop - el.clientHeight < SCROLL_NEAR_BOTTOM_THRESHOLD
+  }
+
+  const focusMessageInput = () => {
+    requestAnimationFrame(() => messageInputRef.current?.focus())
+  }
+
+  useEffect(() => {
     const pendingChat = (location.state as { pendingChat?: ChatConversation } | null)?.pendingChat
+    if (!pendingChat?.id || pendingChatHandledRef.current) return
 
-    if (pendingChat?.id === chatIdParam) {
-      setSelectedConversation({
-        id: pendingChat.id,
-        status: pendingChat.status ?? true,
-        groupName: pendingChat.groupName ?? '',
-        participants: pendingChat.participants ?? [],
-        lastMessage: null,
-      })
-      setShowChatPanel(true)
-    }
-
-    const fromList = chatList?.data?.find((conversation) => conversation.id === chatIdParam)
-    if (fromList) {
-      setSelectedConversation(fromList)
-      setShowChatPanel(true)
-    } else if (pendingChat?.id !== chatIdParam) {
-      setSelectedConversation({
-        id: chatIdParam,
-        status: true,
-        groupName: '',
-        participants: [],
-        lastMessage: null,
-      })
-      setShowChatPanel(true)
-    }
-
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev)
-        next.delete('chatId')
-        return next
-      },
-      { replace: true }
-    )
-  }, [chatIdParam, chatList?.data, location.state, setSearchParams])
+    pendingChatHandledRef.current = true
+    setSelectedConversation({
+      id: pendingChat.id,
+      status: pendingChat.status ?? true,
+      groupName: pendingChat.groupName ?? null,
+      participants: pendingChat.participants ?? [],
+      lastMessage: pendingChat.lastMessage ?? null,
+    })
+    setShowChatPanel(true)
+    setSearchParams({ chatId: pendingChat.id }, { replace: true })
+  }, [location.state, setSearchParams])
 
   useEffect(() => {
-    if (selectedConversation || !chatList?.data?.length) return
-    setSelectedConversation(chatList.data[0])
-  }, [chatList?.data, selectedConversation])
+    if (!chatList?.data?.length) return
+
+    if (chatIdFromUrl) {
+      const fromList = chatList.data.find((conversation) => conversation.id === chatIdFromUrl)
+      if (fromList) {
+        setSelectedConversation(fromList)
+        setShowChatPanel(true)
+        return
+      }
+    }
+
+    if (!chatIdFromUrl && !selectedConversation) {
+      const first = chatList.data[0]
+      setSelectedConversation(first)
+      setSearchParams({ chatId: first.id }, { replace: true })
+    }
+  }, [chatList?.data, chatIdFromUrl, selectedConversation, setSearchParams])
 
   const { data: messageData, refetch: refetchMessages } = useGetMessageListQuery(
     selectedConversation?.id ?? '',
@@ -183,39 +214,72 @@ export default function Communication() {
 
   const sortedMessages = useMemo(() => sortMessagesAsc(messageList), [messageList])
 
+  const selectedIsGroup = selectedConversation ? isGroupChat(selectedConversation) : false
+
   useEffect(() => {
     setMessageInput('')
     setSelectedFile(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
+    isNearBottomRef.current = true
+    focusMessageInput()
   }, [selectedConversation?.id])
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: 'smooth',
-    })
-  }, [sortedMessages])
+    const el = scrollRef.current
+    if (!el) return
+
+    const onScroll = () => updateNearBottom()
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [selectedConversation?.id])
+
+  useEffect(() => {
+    const chatChanged = prevChatIdRef.current !== selectedConversation?.id
+    prevChatIdRef.current = selectedConversation?.id ?? null
+
+    if (!sortedMessages.length) return
+
+    if (chatChanged) {
+      requestAnimationFrame(() => scrollToBottom('auto'))
+      isNearBottomRef.current = true
+      return
+    }
+
+    if (isNearBottomRef.current) {
+      requestAnimationFrame(() => scrollToBottom('smooth'))
+    }
+  }, [sortedMessages, selectedConversation?.id])
 
   useEffect(() => {
     if (!socket || !selectedConversation?.id) return
 
     const event = `getMessage::${selectedConversation.id}`
     const handleNewMessage = (data: ChatMessage) => {
+      const isMine =
+        currentUserId === data.senderId ||
+        user?.id === data.senderId ||
+        user?._id === data.senderId
+
       setMessageList((prev) => {
         if (prev.some((message) => message.id === data.id)) return prev
         return sortMessagesAsc([...prev, data])
       })
+
+      if (isNearBottomRef.current || isMine) {
+        requestAnimationFrame(() => scrollToBottom('smooth'))
+      }
     }
 
     socket.on(event, handleNewMessage)
     return () => {
       socket.off(event, handleNewMessage)
     }
-  }, [socket, selectedConversation?.id])
+  }, [socket, selectedConversation?.id, currentUserId, user?.id, user?._id])
 
   const clearSelectedFile = () => {
     setSelectedFile(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
+    focusMessageInput()
   }
 
   const handleFileSelect = (file: File | undefined) => {
@@ -223,11 +287,14 @@ export default function Communication() {
     const kind = getFileKind(file)
     if (!kind) return
     setSelectedFile(file)
+    focusMessageInput()
   }
 
   const handleSelectConversation = (conversation: ChatConversation) => {
     setSelectedConversation(conversation)
     setShowChatPanel(true)
+    setSearchParams({ chatId: conversation.id }, { replace: true })
+    isNearBottomRef.current = true
   }
 
   const handleSendMessage = async () => {
@@ -249,7 +316,10 @@ export default function Communication() {
     if ((res as { data?: { success?: boolean } })?.data?.success) {
       setMessageInput('')
       clearSelectedFile()
+      isNearBottomRef.current = true
       await refetchMessages()
+      requestAnimationFrame(() => scrollToBottom('smooth'))
+      focusMessageInput()
     }
   }
 
@@ -298,7 +368,8 @@ export default function Communication() {
               chatList.data.map((conversation) => {
                 const active = selectedConversation?.id === conversation.id
                 const title = getConversationTitle(conversation, currentUserId)
-                const avatar = getConversationAvatar(conversation, currentUserId)
+                const group = isGroupChat(conversation)
+                const memberCount = getMemberCount(conversation)
 
                 return (
                   <button
@@ -312,13 +383,12 @@ export default function Communication() {
                         : 'bg-white hover:bg-gray-100'
                     )}
                   >
-                    <div className="h-12 w-12 shrink-0 rounded-full overflow-hidden bg-gray-200">
-                      <img
-                        src={avatar ? getImageUrl(avatar) : '/default-image.png'}
-                        alt={title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                    <ConversationAvatar
+                      conversation={conversation}
+                      currentUserId={currentUserId}
+                      className="h-12 w-12"
+                      iconClassName="h-6 w-6"
+                    />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
@@ -329,6 +399,11 @@ export default function Communication() {
                             : ''}
                         </span>
                       </div>
+                      {group && (
+                        <p className="text-[11px] text-primary font-medium mt-0.5">
+                          {memberCount} members
+                        </p>
+                      )}
                       <p className="text-sm text-black truncate mt-1">
                         {getLastMessagePreview(conversation.lastMessage)}
                       </p>
@@ -352,7 +427,7 @@ export default function Communication() {
         >
           {selectedConversation ? (
             <>
-              <div className="h-[66px] shrink-0 bg-primary px-5 flex items-center">
+              <div className="h-[66px] shrink-0 bg-primary px-5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <Button
                     type="button"
@@ -364,26 +439,37 @@ export default function Communication() {
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
 
-                  <div className="h-11 w-11 rounded-full overflow-hidden bg-white/20 shrink-0">
-                    <img
-                      src={
-                        getConversationAvatar(selectedConversation, currentUserId)
-                          ? getImageUrl(
-                              getConversationAvatar(selectedConversation, currentUserId)!
-                            )
-                          : '/default-image.png'
-                      }
-                      alt={getConversationTitle(selectedConversation, currentUserId)}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <ConversationAvatar
+                    conversation={selectedConversation}
+                    currentUserId={currentUserId}
+                    className="h-11 w-11"
+                    iconClassName="h-5 w-5"
+                  />
 
                   <div className="min-w-0">
                     <p className="text-white font-semibold text-base truncate">
                       {getConversationTitle(selectedConversation, currentUserId)}
                     </p>
+                    {selectedIsGroup && (
+                      <p className="text-xs text-white/80">
+                        {getMemberCount(selectedConversation)} members
+                      </p>
+                    )}
                   </div>
                 </div>
+
+                {/* {selectedIsGroup && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                    onClick={() => setMembersModalOpen(true)}
+                  >
+                    <Users className="h-4 w-4 mr-1.5" />
+                    View Members
+                  </Button>
+                )} */}
               </div>
 
               <div
@@ -391,9 +477,7 @@ export default function Communication() {
                 className="flex-1 min-h-0 overflow-y-auto px-5 py-6 bg-[#F7F7F7] space-y-4 scrollbar-thin"
               >
                 {sortedMessages.length === 0 ? (
-                  <p className="text-sm text-black text-center py-8">
-                    No messages yet
-                  </p>
+                  <p className="text-sm text-black text-center py-8">No messages yet</p>
                 ) : (
                   sortedMessages.map((message) => {
                     const isMine =
@@ -542,6 +626,7 @@ export default function Communication() {
                   </Button>
 
                   <Input
+                    ref={messageInputRef}
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -551,7 +636,7 @@ export default function Communication() {
                       }
                     }}
                     placeholder="Type your message"
-                    className="flex-1 min-w-0 h-11 sm:h-12 rounded-full bg-white px-4 "
+                    className="flex-1 min-w-0 h-11 sm:h-12 rounded-full bg-white px-4"
                   />
 
                   <Button
@@ -564,14 +649,21 @@ export default function Communication() {
                   </Button>
                 </div>
               </div>
+
+              {selectedIsGroup && (
+                <GroupMembersModal
+                  open={membersModalOpen}
+                  onClose={() => setMembersModalOpen(false)}
+                  groupName={getConversationTitle(selectedConversation, currentUserId)}
+                  members={selectedConversation.participants}
+                />
+              )}
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center bg-[#F7F7F7]">
               <div className="text-center">
                 <p className="text-lg font-medium text-gray-700">Select a conversation</p>
-                <p className="text-sm text-black mt-1">
-                  Start messaging with your users
-                </p>
+                <p className="text-sm text-black mt-1">Start messaging with your users</p>
               </div>
             </div>
           )}
