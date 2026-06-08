@@ -19,6 +19,10 @@ export default defineConfig(({ mode }) => {
       host: true,
       port: 3005,
       open: true,
+      allowedHosts: [
+        '193.46.198.251',
+        "10.10.7.30",
+      ],
       proxy: {
         '/api': {
           target: apiTarget,
@@ -36,6 +40,15 @@ export default defineConfig(({ mode }) => {
           secure: false,
         },
       },
+    },
+    preview: {
+      host: true,
+      port: 5175,
+      allowedHosts: [
+        '193.46.198.251',
+        "10.10.7.30",
+        'localhost',
+      ],
     },
   }
 })
