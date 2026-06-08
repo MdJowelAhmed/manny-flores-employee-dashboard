@@ -17,7 +17,7 @@ export interface ChatLastMessage {
 export interface ChatConversation {
   id: string
   status: boolean
-  groupName: string
+  groupName: string | null
   participants: ChatParticipant[]
   lastMessage: ChatLastMessage | null
 }
