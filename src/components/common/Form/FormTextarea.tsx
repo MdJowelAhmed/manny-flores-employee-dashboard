@@ -16,9 +16,9 @@ export const FormTextarea = React.forwardRef<HTMLTextAreaElement, FormTextareaPr
     return (
       <div className="space-y-1.5">
         {label && (
-          <Label htmlFor={textareaId} className={cn(error && 'text-destructive')}>
+          <Label htmlFor={textareaId} className={cn(error && 'text-black')}>
             {label}
-            {props.required && <span className="text-destructive ml-1">*</span>}
+            {props.required && <span className="text-black ml-1">*</span>}
           </Label>
         )}
         <Textarea

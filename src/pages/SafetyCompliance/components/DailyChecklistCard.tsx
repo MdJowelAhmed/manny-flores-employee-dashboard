@@ -14,7 +14,7 @@ export function DailyChecklistCard({ item, onCheck }: DailyChecklistCardProps) {
   return (
     <Card className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
       <CardContent className="p-4 flex items-center justify-between gap-4">
-        <p className="font-medium text-foreground">
+        <p className="font-medium text-black">
           {item.order}. {item.projectName}
         </p>
         {item.isCompleted ? (

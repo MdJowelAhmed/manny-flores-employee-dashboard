@@ -64,7 +64,7 @@ export function VehicleCard({
 
         {vehicle.reason && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-foreground mb-1">
+            <p className="text-xs font-medium text-black mb-1">
               {t('vehicles.reason')}
             </p>
             <p className="text-sm text-muted-foreground line-clamp-3">

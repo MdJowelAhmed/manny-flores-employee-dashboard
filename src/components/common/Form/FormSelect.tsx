@@ -42,9 +42,9 @@ export function FormSelect({
   return (
     <div className={cn('space-y-1.5', className)}>
       {label && (
-        <Label htmlFor={name} className={cn(error && 'text-destructive')}>
+        <Label htmlFor={name} className={cn(error && 'text-black')}>
           {label}
-          {required && <span className="text-destructive ml-1">*</span>}
+          {required && <span className="text-black ml-1">*</span>}
         </Label>
       )}
       <Select value={value} onValueChange={onChange} disabled={disabled}>

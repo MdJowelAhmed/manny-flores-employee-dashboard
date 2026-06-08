@@ -59,7 +59,7 @@ export function MaterialCard({
         <div className="flex justify-between text-sm text-muted-foreground mb-4">
           <span>
             {t('materials.quantityNeeded')}{' '}
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-black">
               {material.quantityNeeded}
             </span>
           </span>
@@ -67,7 +67,7 @@ export function MaterialCard({
 
         {material.reason && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-foreground mb-1">
+            <p className="text-xs font-medium text-black mb-1">
               {t('materials.reason')}
             </p>
             <p className="text-sm text-muted-foreground line-clamp-3">

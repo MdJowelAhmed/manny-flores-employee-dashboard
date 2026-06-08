@@ -69,7 +69,7 @@ export function SafetyVerificationModal({
     >
       <div className="space-y-6">
         <div>
-          <h3 className="text-sm font-semibold text-foreground mb-3">
+          <h3 className="text-sm font-semibold text-black mb-3">
             {t('safety.completeDailyChecks')}
           </h3>
           <div className="space-y-3">
@@ -78,7 +78,7 @@ export function SafetyVerificationModal({
                 key={index}
                 className="flex items-center justify-between gap-4 p-3 rounded-xl border border-gray-200 bg-white"
               >
-                <span className="text-sm  text-foreground">
+                <span className="text-sm  text-black">
                   {index + 1}. {label}
                 </span>
                 <div className="flex items-center gap-4 shrink-0">
@@ -92,7 +92,7 @@ export function SafetyVerificationModal({
                       }
                       className="w-4 h-4 text-[#22c55e] border-gray-300 focus:ring-[#22c55e]"
                     />
-                    <span className="text-sm text-foreground">{t('safety.yes')}</span>
+                    <span className="text-sm text-black">{t('safety.yes')}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -104,7 +104,7 @@ export function SafetyVerificationModal({
                       }
                       className="w-4 h-4 text-[#22c55e] border-gray-300 focus:ring-[#22c55e]"
                     />
-                    <span className="text-sm text-foreground">{t('safety.no')}</span>
+                    <span className="text-sm text-black">{t('safety.no')}</span>
                   </label>
                 </div>
               </div>
@@ -113,7 +113,7 @@ export function SafetyVerificationModal({
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-foreground mb-2">{t('safety.notes')}</h3>
+          <h3 className="text-sm font-semibold text-black mb-2">{t('safety.notes')}</h3>
           <FormTextarea
             placeholder={t('safety.describeIssue')}
             value={notes}

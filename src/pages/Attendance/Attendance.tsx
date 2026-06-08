@@ -9,68 +9,22 @@ import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/common/Pagination'
 import { FilterDropdown } from '@/components/common/FilterDropdown'
 import {
+  buildTodayRecord,
   createEmptyDaySession,
+  formatDurationMs,
+  formatTimeLabel,
   getLocalDateKey,
-  mockAttendanceRecords,
-  type AttendanceRecord,
-  type AttendanceDaySession,
+  mapRecordFromApi,
+  sessionFromTodayApi,
 } from './attendanceData'
+import {
+  useCheckInMutation,
+  useCheckOutMutation,
+  useGetAttendenceQuery,
+  useTodayAttendenceQuery,
+} from '@/redux/api/attendenceApi'
 import { cn } from '@/utils/cn'
 import { toast } from '@/utils/toast'
-
-function formatDurationMs(ms: number) {
-  if (ms < 0) ms = 0
-  const totalMin = Math.floor(ms / 60000)
-  const h = Math.floor(totalMin / 60)
-  const m = totalMin % 60
-  return `${h} hr ${m} min`
-}
-
-function formatTimeLabel(iso: string) {
-  return format(parseISO(iso), 'hh:mm a')
-}
-
-function buildTodayRecord(
-  session: AttendanceDaySession,
-  dateLabel: string,
-  nowMs: number
-): AttendanceRecord {
-  const { checkInIso, checkOutIso } = session
-  if (!checkInIso) {
-    return {
-      id: `today-${session.workDate}`,
-      date: dateLabel,
-      checkIn: '--:--',
-      checkOut: '--:--',
-      workHour: '--:--',
-      attendance: 'Absent',
-    }
-  }
-
-  const checkInStr = formatTimeLabel(checkInIso)
-  if (!checkOutIso) {
-    const elapsed = nowMs - parseISO(checkInIso).getTime()
-    return {
-      id: `today-${session.workDate}`,
-      date: dateLabel,
-      checkIn: checkInStr,
-      checkOut: '--:--',
-      workHour: formatDurationMs(elapsed),
-      attendance: 'Present',
-    }
-  }
-
-  const checkOutStr = formatTimeLabel(checkOutIso)
-  const worked = parseISO(checkOutIso).getTime() - parseISO(checkInIso).getTime()
-  return {
-    id: `today-${session.workDate}`,
-    date: dateLabel,
-    checkIn: checkInStr,
-    checkOut: checkOutStr,
-    workHour: formatDurationMs(worked),
-    attendance: 'Present',
-  }
-}
 
 export default function Attendance() {
   const { t } = useTranslation()
@@ -78,10 +32,22 @@ export default function Attendance() {
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
   const itemsPerPage = parseInt(searchParams.get('limit') || '10', 10) || 10
 
-  const [session, setSession] = useState<AttendanceDaySession>(createEmptyDaySession)
+  const { data: monthRes, isLoading: isMonthLoading } = useGetAttendenceQuery()
+  const { data: todayRes, isLoading: isTodayLoading } = useTodayAttendenceQuery()
+  const [checkIn, { isLoading: isCheckingIn }] = useCheckInMutation()
+  const [checkOut, { isLoading: isCheckingOut }] = useCheckOutMutation()
+
+  const todayApi = todayRes?.data
+  const session = useMemo(
+    () => (todayApi ? sessionFromTodayApi(todayApi) : createEmptyDaySession()),
+    [todayApi]
+  )
+
   const [nowTick, setNowTick] = useState(() => Date.now())
 
-  const todayLabel = format(new Date(), 'dd MMMM, yyyy')
+  const todayLabel = todayApi
+    ? format(parseISO(todayApi.todayDate), 'dd MMMM, yyyy')
+    : format(new Date(), 'dd MMMM, yyyy')
 
   useEffect(() => {
     if (!session.checkInIso || session.checkOutIso) return
@@ -126,10 +92,25 @@ export default function Attendance() {
   )
 
   const allRecords = useMemo(() => {
-    const todayRow = buildTodayRecord(session, todayLabel, nowTick)
-    const rest = mockAttendanceRecords.filter((r) => r.date !== todayLabel)
-    return [todayRow, ...rest]
-  }, [session, todayLabel, nowTick])
+    const items = [...(monthRes?.data ?? [])].sort(
+      (a, b) => parseISO(b.todayDate).getTime() - parseISO(a.todayDate).getTime()
+    )
+    const todayKey = todayApi
+      ? getLocalDateKey(parseISO(todayApi.todayDate))
+      : getLocalDateKey()
+
+    return items.map((item) => {
+      const itemDateKey = getLocalDateKey(parseISO(item.todayDate))
+      if (todayApi && itemDateKey === todayKey) {
+        return buildTodayRecord(
+          sessionFromTodayApi(todayApi),
+          format(parseISO(item.todayDate), 'dd MMMM, yyyy'),
+          nowTick
+        )
+      }
+      return mapRecordFromApi(item)
+    })
+  }, [monthRes, todayApi, nowTick])
 
   const filteredRecords = useMemo(() => {
     if (filterStatus === 'all') return allRecords
@@ -148,8 +129,7 @@ export default function Attendance() {
     return filteredRecords.slice(start, start + itemsPerPage)
   }, [filteredRecords, currentPage, itemsPerPage])
 
-  const handleCheckIn = useCallback(() => {
-    const today = getLocalDateKey()
+  const handleCheckIn = useCallback(async () => {
     if (session.checkInIso) {
       toast({ title: t('attendance.alreadyCheckedIn'), variant: 'warning' })
       return
@@ -158,17 +138,18 @@ export default function Attendance() {
       toast({ title: t('attendance.dayComplete'), variant: 'info' })
       return
     }
-    const next: AttendanceDaySession = {
-      workDate: today,
-      checkInIso: new Date().toISOString(),
-      checkOutIso: null,
+    try {
+      await checkIn().unwrap()
+      setNowTick(Date.now())
+      toast({ title: t('attendance.checkedInSuccess'), variant: 'success' })
+    } catch (err) {
+      const message =
+        (err as { data?: { message?: string } })?.data?.message ?? 'Failed to check in'
+      toast({ title: message, variant: 'destructive' })
     }
-    setSession(next)
-    setNowTick(Date.now())
-    toast({ title: t('attendance.checkedInSuccess'), variant: 'success' })
-  }, [session.checkInIso, session.checkOutIso, t])
+  }, [session.checkInIso, session.checkOutIso, checkIn, t])
 
-  const handleCheckOut = useCallback(() => {
+  const handleCheckOut = useCallback(async () => {
     if (!session.checkInIso) {
       toast({ title: t('attendance.checkInFirst'), variant: 'destructive' })
       return
@@ -177,18 +158,21 @@ export default function Attendance() {
       toast({ title: t('attendance.alreadyCheckedOut'), variant: 'warning' })
       return
     }
-    const next: AttendanceDaySession = {
-      ...session,
-      checkOutIso: new Date().toISOString(),
+    try {
+      await checkOut().unwrap()
+      setNowTick(Date.now())
+      toast({ title: t('attendance.checkedOutSuccess'), variant: 'success' })
+    } catch (err) {
+      const message =
+        (err as { data?: { message?: string } })?.data?.message ?? 'Failed to check out'
+      toast({ title: message, variant: 'destructive' })
     }
-    setSession(next)
-    setNowTick(Date.now())
-    toast({ title: t('attendance.checkedOutSuccess'), variant: 'success' })
-  }, [session, t])
+  }, [session, checkOut, t])
 
   const canCheckIn = !session.checkInIso && !session.checkOutIso
   const canCheckOut = !!session.checkInIso && !session.checkOutIso
   const dayFinished = !!session.checkOutIso
+  const isHeaderLoading = isTodayLoading
 
   return (
     <div className="flex flex-col gap-6">
@@ -208,13 +192,13 @@ export default function Attendance() {
               <div className="flex flex-1 min-w-[100px] flex-col items-center justify-center gap-1 px-3 sm:px-6 border-r-2 border-emerald-500/70">
                 <span className="text-xs sm:text-sm text-gray-500">{t('attendance.checkIn')}</span>
                 <span className="text-base sm:text-lg font-bold text-gray-900 tabular-nums">
-                  {headerCheckIn}
+                  {isHeaderLoading ? '...' : headerCheckIn}
                 </span>
               </div>
               <div className="flex flex-1 min-w-[100px] flex-col items-center justify-center gap-1 px-3 sm:px-6 border-r-2 border-orange-400/80">
                 <span className="text-xs sm:text-sm text-gray-500">{t('attendance.checkOut')}</span>
                 <span className="text-base sm:text-lg font-bold text-gray-900 tabular-nums">
-                  {headerCheckOut}
+                  {isHeaderLoading ? '...' : headerCheckOut}
                 </span>
               </div>
               <div className="flex flex-1 min-w-[120px] flex-col items-center justify-center gap-1 px-3 sm:px-6">
@@ -222,7 +206,7 @@ export default function Attendance() {
                   {t('attendance.todayWorkingPeriod')}
                 </span>
                 <span className="text-base sm:text-lg font-bold text-gray-900 tabular-nums text-center">
-                  {headerWorkingPeriod}
+                  {isHeaderLoading ? '...' : headerWorkingPeriod}
                 </span>
               </div>
             </div>
@@ -232,18 +216,20 @@ export default function Attendance() {
                 <Button
                   type="button"
                   onClick={handleCheckIn}
+                  disabled={isCheckingIn || isHeaderLoading}
                   className="min-w-[140px] rounded-xl bg-emerald-600 px-8 text-white hover:bg-emerald-700 h-11"
                 >
-                  {t('attendance.checkInButton')}
+                  {isCheckingIn ? '...' : t('attendance.checkInButton')}
                 </Button>
               )}
               {canCheckOut && (
                 <Button
                   type="button"
                   onClick={handleCheckOut}
+                  disabled={isCheckingOut || isHeaderLoading}
                   className="min-w-[140px] rounded-xl bg-orange-500 px-8 text-white hover:bg-orange-600 h-11"
                 >
-                  {t('attendance.checkOutButton')}
+                  {isCheckingOut ? '...' : t('attendance.checkOutButton')}
                 </Button>
               )}
               {dayFinished && (
@@ -293,39 +279,57 @@ export default function Attendance() {
               </tr>
             </thead>
             <tbody>
-              {paginatedRecords.map((record, index) => (
-                <tr
-                  key={record.id}
-                  className={cn(
-                    'border-t border-gray-200 transition-colors',
-                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50/40',
-                    'hover:bg-gray-50/80'
-                  )}
-                >
-                  <td className="px-5 sm:px-6 py-4 text-sm text-gray-900">{record.date}</td>
-                  <td className="px-5 sm:px-6 py-4 text-sm text-gray-800 tabular-nums">
-                    {record.checkIn}
-                  </td>
-                  <td className="px-5 sm:px-6 py-4 text-sm text-gray-800 tabular-nums">
-                    {record.checkOut}
-                  </td>
-                  <td className="px-5 sm:px-6 py-4 text-sm text-gray-800 tabular-nums">
-                    {record.workHour}
-                  </td>
-                  <td className="px-5 sm:px-6 py-4 text-sm">
-                    <span
-                      className={cn(
-                        'font-semibold',
-                        record.attendance === 'Present' ? 'text-emerald-600' : 'text-red-600'
-                      )}
-                    >
-                      {record.attendance === 'Present'
-                        ? t('attendance.present')
-                        : t('attendance.absent')}
-                    </span>
+              {isMonthLoading ? (
+                Array.from({ length: itemsPerPage }).map((_, index) => (
+                  <tr key={index} className="border-t border-gray-200">
+                    {Array.from({ length: 5 }).map((__, cellIndex) => (
+                      <td key={cellIndex} className="px-5 sm:px-6 py-4">
+                        <div className="h-4 rounded bg-gray-100 animate-pulse" />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : paginatedRecords.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-5 sm:px-6 py-10 text-center text-sm text-gray-500">
+                    No attendance records found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedRecords.map((record, index) => (
+                  <tr
+                    key={record.id}
+                    className={cn(
+                      'border-t border-gray-200 transition-colors',
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50/40',
+                      'hover:bg-gray-50/80'
+                    )}
+                  >
+                    <td className="px-5 sm:px-6 py-4 text-sm text-gray-900">{record.date}</td>
+                    <td className="px-5 sm:px-6 py-4 text-sm text-gray-800 tabular-nums">
+                      {record.checkIn}
+                    </td>
+                    <td className="px-5 sm:px-6 py-4 text-sm text-gray-800 tabular-nums">
+                      {record.checkOut}
+                    </td>
+                    <td className="px-5 sm:px-6 py-4 text-sm text-gray-800 tabular-nums">
+                      {record.workHour}
+                    </td>
+                    <td className="px-5 sm:px-6 py-4 text-sm">
+                      <span
+                        className={cn(
+                          'font-semibold',
+                          record.attendance === 'Present' ? 'text-emerald-600' : 'text-red-600'
+                        )}
+                      >
+                        {record.attendance === 'Present'
+                          ? t('attendance.present')
+                          : t('attendance.absent')}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

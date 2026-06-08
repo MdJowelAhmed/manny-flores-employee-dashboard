@@ -16,9 +16,9 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
     return (
       <div className="space-y-1.5">
         {label && (
-          <Label htmlFor={inputId} className={cn(error && 'text-destructive')}>
+          <Label htmlFor={inputId} className={cn(error && 'text-black')}>
             {label}
-            {props.required && <span className="text-destructive ml-1">*</span>}
+            {props.required && <span className="text-black ml-1">*</span>}
           </Label>
         )}
         <Input
