@@ -322,14 +322,14 @@ export default function Communication() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold truncate">{title}</p>
-                        <span className="text-xs text-muted-foreground shrink-0">
+                        <p className="font-semibold truncate text-black">{title}</p>
+                        <span className="text-xs text-black shrink-0">
                           {conversation.lastMessage?.createdAt
                             ? format(parseISO(conversation.lastMessage.createdAt), 'hh:mm a')
                             : ''}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground truncate mt-1">
+                      <p className="text-sm text-black truncate mt-1">
                         {getLastMessagePreview(conversation.lastMessage)}
                       </p>
                     </div>
@@ -337,7 +337,7 @@ export default function Communication() {
                 )
               })
             ) : (
-              <div className="flex items-center justify-center py-16 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center py-16 text-sm text-black">
                 No conversations found
               </div>
             )}
@@ -391,7 +391,7 @@ export default function Communication() {
                 className="flex-1 min-h-0 overflow-y-auto px-5 py-6 bg-[#F7F7F7] space-y-4 scrollbar-thin"
               >
                 {sortedMessages.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
+                  <p className="text-sm text-black text-center py-8">
                     No messages yet
                   </p>
                 ) : (
@@ -458,7 +458,7 @@ export default function Communication() {
                                 <p
                                   className={cn(
                                     'text-xs',
-                                    isMine ? 'text-white/80' : 'text-muted-foreground'
+                                    isMine ? 'text-white/80' : 'text-black'
                                   )}
                                 >
                                   PDF document
@@ -482,7 +482,7 @@ export default function Communication() {
                             <span
                               className={cn(
                                 'text-[11px]',
-                                isMine ? 'text-white/80' : 'text-muted-foreground'
+                                isMine ? 'text-white/80' : 'text-black'
                               )}
                             >
                               {format(parseISO(message.createdAt), 'hh:mm a')}
@@ -535,7 +535,7 @@ export default function Communication() {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="shrink-0 h-11 w-11"
+                    className="shrink-0 h-11 w-11 text-black"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Paperclip className="h-5 w-5" />
@@ -551,7 +551,7 @@ export default function Communication() {
                       }
                     }}
                     placeholder="Type your message"
-                    className="flex-1 min-w-0 h-11 sm:h-12 rounded-full bg-white px-4"
+                    className="flex-1 min-w-0 h-11 sm:h-12 rounded-full bg-white px-4 "
                   />
 
                   <Button
@@ -569,7 +569,7 @@ export default function Communication() {
             <div className="flex-1 flex items-center justify-center bg-[#F7F7F7]">
               <div className="text-center">
                 <p className="text-lg font-medium text-gray-700">Select a conversation</p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-black mt-1">
                   Start messaging with your users
                 </p>
               </div>
