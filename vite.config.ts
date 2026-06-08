@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
     },
     preview: {
       host: true,
-      port: 5175,
+      port: 5177,
       allowedHosts: [
         '193.46.198.251',
         "10.10.7.30",
