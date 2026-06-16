@@ -18,6 +18,18 @@ export interface TodayAttendenceResponse {
   data: AttendanceDayApi
 }
 
+export interface CheckInPayload {
+  checkInLatitude: number | null
+  checkInLongitude: number | null
+  checkInAccuracy: number | null
+}
+
+export interface CheckOutPayload {
+  checkOutLatitude: number | null
+  checkOutLongitude: number | null
+  checkOutAccuracy: number | null
+}
+
 export interface CheckInResponse {
   success: boolean
   statusCode?: number
@@ -50,18 +62,20 @@ const attendenceApi = baseApi.injectEndpoints({
       providesTags: ['Attendence'],
     }),
 
-    checkIn: builder.mutation<CheckInResponse, void>({
-      query: () => ({
+    checkIn: builder.mutation<CheckInResponse, CheckInPayload>({
+      query: (body) => ({
         url: '/attendance',
         method: 'POST',
+        body,
       }),
       invalidatesTags: ['Attendence'],
     }),
 
-    checkOut: builder.mutation<CheckOutResponse, void>({
-      query: () => ({
+    checkOut: builder.mutation<CheckOutResponse, CheckOutPayload>({
+      query: (body) => ({
         url: '/attendance/checkout',
         method: 'POST',
+        body,
       }),
       invalidatesTags: ['Attendence'],
     }),
