@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true,
       port: 4177,
-      open: true,
+      open: false,
       allowedHosts: [
         '46.202.176.52',
         "10.10.7.30",
@@ -43,6 +43,7 @@ export default defineConfig(({ mode }) => {
     },
     preview: {
       host: true,
+      open: false,
       port: 4177,
       proxy: {
         '/uploads': {
