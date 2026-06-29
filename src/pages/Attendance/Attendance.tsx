@@ -25,6 +25,7 @@ import {
 } from '@/redux/api/attendenceApi'
 import { cn } from '@/utils/cn'
 import { toast } from '@/utils/toast'
+import { getCurrentLocation, getGeolocationErrorMessage } from '@/utils/geolocation'
 
 export default function Attendance() {
   const { t } = useTranslation()
@@ -139,12 +140,22 @@ export default function Attendance() {
       return
     }
     try {
-      await checkIn().unwrap()
+      const location = await getCurrentLocation()
+      await checkIn({
+        checkInLatitude: location.latitude,
+        checkInLongitude: location.longitude,
+        checkInAccuracy: location.accuracy,
+      }).unwrap()
       setNowTick(Date.now())
       toast({ title: t('attendance.checkedInSuccess'), variant: 'success' })
     } catch (err) {
+      const geoMessage = getGeolocationErrorMessage(err)
+      const apiMessage = (err as { data?: { message?: string } })?.data?.message
       const message =
-        (err as { data?: { message?: string } })?.data?.message ?? 'Failed to check in'
+        apiMessage ??
+        (err instanceof GeolocationPositionError || err instanceof Error
+          ? geoMessage
+          : 'Failed to check in')
       toast({ title: message, variant: 'destructive' })
     }
   }, [session.checkInIso, session.checkOutIso, checkIn, t])
@@ -159,12 +170,22 @@ export default function Attendance() {
       return
     }
     try {
-      await checkOut().unwrap()
+      const location = await getCurrentLocation()
+      await checkOut({
+        checkOutLatitude: location.latitude,
+        checkOutLongitude: location.longitude,
+        checkOutAccuracy: location.accuracy,
+      }).unwrap()
       setNowTick(Date.now())
       toast({ title: t('attendance.checkedOutSuccess'), variant: 'success' })
     } catch (err) {
+      const geoMessage = getGeolocationErrorMessage(err)
+      const apiMessage = (err as { data?: { message?: string } })?.data?.message
       const message =
-        (err as { data?: { message?: string } })?.data?.message ?? 'Failed to check out'
+        apiMessage ??
+        (err instanceof GeolocationPositionError || err instanceof Error
+          ? geoMessage
+          : 'Failed to check out')
       toast({ title: message, variant: 'destructive' })
     }
   }, [session, checkOut, t])

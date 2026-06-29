@@ -27,7 +27,7 @@ export interface RequestEquipmentListResponse {
 }
 
 export interface CreateRequestEquipmentPayload {
-    equipmentName: string
+    equipmentId: string
     urgencyLevel: EquipmentUrgencyLevel
     reason: string
 }
@@ -44,6 +44,34 @@ export interface DeleteRequestEquipmentResponse {
     statusCode?: number
     message: string
 }
+
+export interface EquipmentItem {
+    id: string
+    equipmentName: string
+    purchaseDate?: string
+    purchaseCost?: number
+    warrantyExpiryDate?: string
+    isDeleted: boolean
+    userId?: string
+    categoryId?: string
+    createdAt?: string
+    updatedAt?: string
+}
+
+export interface GetEquipmentParams {
+    page?: number
+    limit?: number
+}
+
+export interface EquipmentListResponse {
+    success: boolean
+    statusCode?: number
+    message: string
+    data: EquipmentItem[]
+    pagination?: RequestEquipmentPagination
+}
+
+const EQUIPMENT_DROPDOWN_LIMIT = 150
 
 const requestEquipmentApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -84,6 +112,18 @@ const requestEquipmentApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['RequestEquipment'],
         }),
+
+        getEquipment: builder.query<EquipmentListResponse, GetEquipmentParams | void>({
+            query: (params) => ({
+                url: '/equipment',
+                method: 'GET',
+                params: {
+                    page: params?.page ?? 1,
+                    limit: params?.limit ?? EQUIPMENT_DROPDOWN_LIMIT,
+                },
+            }),
+            providesTags: ['RequestEquipment'],
+        }),
     }),
 })
 
@@ -91,4 +131,5 @@ export const {
     useGetRequestEquipmentQuery,
     useCreateRequestEquipmentMutation,
     useDeleteRequestEquipmentMutation,
+    useGetEquipmentQuery,
 } = requestEquipmentApi

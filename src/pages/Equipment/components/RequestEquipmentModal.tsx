@@ -1,14 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ModalWrapper, FormInput, FormSelect, FormTextarea } from '@/components/common'
+import { ModalWrapper, FormSelect, FormTextarea } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { URGENCY_OPTIONS, type EquipmentUrgencyLevel } from '../equipmentData'
+import { useGetEquipmentQuery } from '@/redux/api/requestEquipmentApi'
 
 const requestEquipmentSchema = z.object({
-  equipmentName: z.string().min(1, 'Equipment name is required'),
+  equipmentId: z.string().min(1, 'Please select equipment'),
   urgencyLevel: z.enum(['LOW', 'MEDIUM', 'HIGH'], {
     errorMap: () => ({ message: 'Please select urgency level' }),
   }),
@@ -18,7 +19,7 @@ const requestEquipmentSchema = z.object({
 export type RequestEquipmentFormData = z.infer<typeof requestEquipmentSchema>
 
 export interface RequestEquipmentPayload {
-  equipmentName: string
+  equipmentId: string
   urgencyLevel: EquipmentUrgencyLevel
   reason: string
 }
@@ -31,7 +32,7 @@ interface RequestEquipmentModalProps {
 }
 
 const defaultFormValues: RequestEquipmentFormData = {
-  equipmentName: '',
+  equipmentId: '',
   urgencyLevel: '' as EquipmentUrgencyLevel,
   reason: '',
 }
@@ -43,6 +44,22 @@ export function RequestEquipmentModal({
   isSubmitting = false,
 }: RequestEquipmentModalProps) {
   const { t } = useTranslation()
+  const { data: equipmentRes, isLoading: isEquipmentLoading } = useGetEquipmentQuery(
+    { page: 1, limit: 150 },
+    { skip: !open }
+  )
+
+  const equipmentOptions = useMemo(
+    () =>
+      (equipmentRes?.data ?? [])
+        .filter((item) => !item.isDeleted)
+        .map((item) => ({
+          value: item.id,
+          label: item.equipmentName,
+        })),
+    [equipmentRes?.data]
+  )
+
   const {
     register,
     handleSubmit,
@@ -62,7 +79,7 @@ export function RequestEquipmentModal({
 
   const handleFormSubmit = async (data: RequestEquipmentFormData) => {
     await onRequest({
-      equipmentName: data.equipmentName.trim(),
+      equipmentId: data.equipmentId,
       urgencyLevel: data.urgencyLevel,
       reason: data.reason.trim(),
     })
@@ -80,7 +97,7 @@ export function RequestEquipmentModal({
           type="submit"
           form="request-equipment-form"
           className="w-full bg-primary text-white rounded-lg hover:bg-primary/90"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isEquipmentLoading}
         >
           {isSubmitting ? '...' : t('equipment.request')}
         </Button>
@@ -91,12 +108,25 @@ export function RequestEquipmentModal({
         onSubmit={handleSubmit(handleFormSubmit)}
         className="space-y-4"
       >
-        <FormInput
-          label={t('equipment.equipmentName')}
-          placeholder={t('equipment.selectEquipmentName')}
-          {...register('equipmentName')}
-          error={errors.equipmentName?.message}
-          required
+        <Controller
+          name="equipmentId"
+          control={control}
+          render={({ field }) => (
+            <FormSelect
+              label={t('equipment.equipmentName')}
+              value={field.value}
+              options={equipmentOptions}
+              onChange={field.onChange}
+              placeholder={
+                isEquipmentLoading
+                  ? 'Loading equipment...'
+                  : t('equipment.selectEquipmentName')
+              }
+              error={errors.equipmentId?.message}
+              disabled={isEquipmentLoading}
+              required
+            />
+          )}
         />
         <Controller
           name="urgencyLevel"
