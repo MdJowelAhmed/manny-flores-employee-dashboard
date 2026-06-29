@@ -28,7 +28,7 @@ export interface RequestMaterialsListResponse {
 }
 
 export interface CreateRequestMaterialPayload {
-    materialName: string
+    materialId: string
     quantityNeeded: number
     urgencyLevel: UrgencyLevel
     reason: string
@@ -57,6 +57,39 @@ export interface DeleteRequestMaterialResponse {
     statusCode?: number
     message: string
 }
+
+export interface MaterialCategory {
+    id: string
+    name: string
+}
+
+export interface MaterialItem {
+    id: string
+    name: string
+    unitPrice: number
+    quantity: number
+    stock: number
+    categoryId: string
+    isDeleted: boolean
+    category?: MaterialCategory
+    createdAt?: string
+    updatedAt?: string
+}
+
+export interface GetMaterialsParams {
+    page?: number
+    limit?: number
+}
+
+export interface MaterialsListResponse {
+    success: boolean
+    statusCode?: number
+    message: string
+    data: MaterialItem[]
+    pagination?: RequestMaterialsMeta
+}
+
+const MATERIALS_DROPDOWN_LIMIT = 150
 
 const requestMaterialsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -97,6 +130,18 @@ const requestMaterialsApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['RequestMaterials'],
         }),
+
+        getMaterials: builder.query<MaterialsListResponse, GetMaterialsParams | void>({
+            query: (params) => ({
+                url: '/materials',
+                method: 'GET',
+                params: {
+                    page: params?.page ?? 1,
+                    limit: params?.limit ?? MATERIALS_DROPDOWN_LIMIT,
+                },
+            }),
+            providesTags: ['RequestMaterials'],
+        }),
     }),
 })
 
@@ -104,4 +149,5 @@ export const {
     useGetRequestMaterialsQuery,
     useCreateRequestMaterialMutation,
     useDeleteRequestMaterialMutation,
+    useGetMaterialsQuery,
 } = requestMaterialsApi

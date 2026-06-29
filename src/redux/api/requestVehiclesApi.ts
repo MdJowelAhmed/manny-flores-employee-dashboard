@@ -27,7 +27,7 @@ export interface RequestVehiclesListResponse {
 }
 
 export interface CreateRequestVehiclePayload {
-    vehicleType: string
+    vehicleId: string
     projectName: string
     urgencyLevel: VehicleUrgencyLevel
     reason: string
@@ -45,6 +45,44 @@ export interface DeleteRequestVehicleResponse {
     statusCode?: number
     message: string
 }
+
+export interface VehicleAssignedEmployee {
+    id: string
+    name: string
+    email: string
+    profile: string | null
+}
+
+export interface VehicleItem {
+    id: string
+    model: string
+    year: number
+    type: string
+    purchaseDate?: string
+    purchaseCost?: number
+    insuranceExpires?: string
+    isDeleted: boolean
+    assignEmployeeId?: string | null
+    categoryId?: string
+    assignedEmployee?: VehicleAssignedEmployee | null
+    createdAt?: string
+    updatedAt?: string
+}
+
+export interface GetVehiclesParams {
+    page?: number
+    limit?: number
+}
+
+export interface VehicleListResponse {
+    success: boolean
+    statusCode?: number
+    message: string
+    data: VehicleItem[]
+    pagination?: RequestVehiclesPagination
+}
+
+const VEHICLES_DROPDOWN_LIMIT = 150
 
 const requestVehiclesApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -85,6 +123,18 @@ const requestVehiclesApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ['RequestVehicles'],
         }),
+
+        getVehicles: builder.query<VehicleListResponse, GetVehiclesParams | void>({
+            query: (params) => ({
+              url: '/vehicles',
+              method: 'GET',
+              params: {
+                page: params?.page ?? 1,
+                limit: params?.limit ?? VEHICLES_DROPDOWN_LIMIT,
+              },
+            }),
+            providesTags: ['RequestVehicles'],
+          }),
     }),
 })
 
@@ -92,4 +142,5 @@ export const {
     useGetRequestVehiclesQuery,
     useCreateRequestVehicleMutation,
     useDeleteRequestVehicleMutation,
+    useGetVehiclesQuery,
 } = requestVehiclesApi

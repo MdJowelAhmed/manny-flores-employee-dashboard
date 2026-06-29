@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -6,9 +6,10 @@ import { z } from 'zod'
 import { ModalWrapper, FormInput, FormSelect, FormTextarea } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { URGENCY_OPTIONS, type UrgencyLevel } from '../materialsData'
+import { useGetMaterialsQuery } from '@/redux/api/requestMaterialsApi'
 
 const requestMaterialSchema = z.object({
-  materialName: z.string().min(1, 'Material name is required'),
+  materialId: z.string().min(1, 'Please select a material'),
   quantityNeeded: z
     .string()
     .min(1, 'Quantity is required')
@@ -24,7 +25,7 @@ const requestMaterialSchema = z.object({
 export type RequestMaterialFormData = z.infer<typeof requestMaterialSchema>
 
 export interface RequestMaterialPayload {
-  materialName: string
+  materialId: string
   quantityNeeded: number
   urgencyLevel: UrgencyLevel
   reason: string
@@ -38,7 +39,7 @@ interface RequestMaterialModalProps {
 }
 
 const defaultFormValues: RequestMaterialFormData = {
-  materialName: '',
+  materialId: '',
   quantityNeeded: '',
   urgencyLevel: '' as UrgencyLevel,
   reason: '',
@@ -51,6 +52,22 @@ export function RequestMaterialModal({
   isSubmitting = false,
 }: RequestMaterialModalProps) {
   const { t } = useTranslation()
+  const { data: materialsRes, isLoading: isMaterialsLoading } = useGetMaterialsQuery(
+    { page: 1, limit: 150 },
+    { skip: !open }
+  )
+
+  const materialOptions = useMemo(
+    () =>
+      (materialsRes?.data ?? [])
+        .filter((item) => !item.isDeleted)
+        .map((item) => ({
+          value: item.id,
+          label: item.category?.name ? `${item.name} (${item.category.name})` : item.name,
+        })),
+    [materialsRes?.data]
+  )
+
   const {
     register,
     handleSubmit,
@@ -70,7 +87,7 @@ export function RequestMaterialModal({
 
   const onSubmit = async (data: RequestMaterialFormData) => {
     await onRequest({
-      materialName: data.materialName.trim(),
+      materialId: data.materialId,
       quantityNeeded: Number(data.quantityNeeded),
       urgencyLevel: data.urgencyLevel,
       reason: data.reason.trim(),
@@ -89,7 +106,7 @@ export function RequestMaterialModal({
           type="submit"
           form="request-material-form"
           className="w-full bg-primary text-white rounded-md"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isMaterialsLoading}
         >
           {isSubmitting ? '...' : t('materials.request')}
         </Button>
@@ -101,12 +118,23 @@ export function RequestMaterialModal({
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormInput
-            label={t('materials.materialName')}
-            placeholder={t('materials.selectMaterial')}
-            {...register('materialName')}
-            error={errors.materialName?.message}
-            required
+          <Controller
+            name="materialId"
+            control={control}
+            render={({ field }) => (
+              <FormSelect
+                label={t('materials.materialName')}
+                value={field.value}
+                options={materialOptions}
+                onChange={field.onChange}
+                placeholder={
+                  isMaterialsLoading ? 'Loading materials...' : t('materials.selectMaterial')
+                }
+                error={errors.materialId?.message}
+                disabled={isMaterialsLoading}
+                required
+              />
+            )}
           />
           <FormInput
             label={t('materials.quantityNeeded')}
