@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ModalWrapper } from '@/components/common/ModalWrapper'
-import { getImageUrl } from '@/components/common/getImageUrl'
+import { imageUrl } from '@/components/common/getImageUrl'
 import type { ChatParticipant } from '@/redux/slices/chatApi'
 
 interface GroupMembersModalProps {
@@ -32,7 +32,7 @@ export function GroupMembersModal({
           >
             <Avatar className="h-10 w-10 shrink-0">
               <AvatarImage
-                src={member.profile ? getImageUrl(member.profile) : undefined}
+                src={member.profile ? imageUrl(member.profile) : undefined}
                 alt={member.name}
               />
               <AvatarFallback className="bg-primary/15 text-primary text-sm font-medium">

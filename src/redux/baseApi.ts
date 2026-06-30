@@ -1,15 +1,18 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { API_V1_URL } from '@/config/api'
 import type { RootState } from './store'
-
-const backendOrigin = (import.meta.env.VITE_API_BASE_URL || 'http://10.10.7.28:5000').replace(/\/$/, '')
-const apiBaseUrl = import.meta.env.DEV ? '/api/v1' : `${backendOrigin}/api/v1`
 
 export const baseApi = createApi({
     reducerPath: 'baseApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: apiBaseUrl,
+        baseUrl: API_V1_URL,
         prepareHeaders: (headers, { getState, endpoint, type }) => {
-            const token = (getState() as RootState).auth.token
+            const stateToken = (getState() as RootState).auth.token
+            const token =
+                stateToken ??
+                (typeof localStorage !== 'undefined'
+                    ? localStorage.getItem('token')
+                    : null)
             if (token) {
                 headers.set('authorization', `Bearer ${token}`)
             }
@@ -33,10 +36,8 @@ export const baseApi = createApi({
         'RequestMaterials',
         'RequestVehicles',
         'RequestEquipment',
-        'RequestVehicles', 
-        "chats"
+        'RequestVehicles',
+        'chats',
     ],
     endpoints: () => ({}),
-}) 
-export const socketUrl = backendOrigin
-export const imageUrl = backendOrigin 
+})
