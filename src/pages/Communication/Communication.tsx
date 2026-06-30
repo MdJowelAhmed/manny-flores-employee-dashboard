@@ -16,7 +16,7 @@ import {
   type ChatMessage,
 } from '@/redux/slices/chatApi'
 import { UserContext } from '@/provider/UserContext'
-import { getImageUrl } from '@/components/common/getImageUrl'
+import { imageUrl, imageUrlAbsolute } from '@/components/common/getImageUrl'
 import { GroupMembersModal } from './components'
 import {
   getConversationAvatar,
@@ -113,7 +113,7 @@ function ConversationAvatar({
   return (
     <div className={cn('rounded-full overflow-hidden bg-gray-200 shrink-0', className)}>
       <img
-        src={avatar ? getImageUrl(avatar) : '/default-image.png'}
+        src={avatar ? imageUrl(avatar) : '/default-image.png'}
         alt={title}
         className="w-full h-full object-cover"
       />
@@ -500,7 +500,7 @@ export default function Communication() {
                         >
                           {isImageMessage(message) && (
                             <img
-                              src={getImageUrl(message.resourceUrl!)}
+                              src={imageUrl(message.resourceUrl!)}
                               alt="chat attachment"
                               className="max-w-full w-full max-h-[320px] min-h-[120px] object-contain rounded-xl bg-black/5 mb-2"
                               loading="lazy"
@@ -512,7 +512,7 @@ export default function Communication() {
                               type="button"
                               onClick={() =>
                                 window.open(
-                                  getImageUrl(message.resourceUrl!),
+                                  imageUrlAbsolute(message.resourceUrl!),
                                   '_blank',
                                   'noopener,noreferrer'
                                 )

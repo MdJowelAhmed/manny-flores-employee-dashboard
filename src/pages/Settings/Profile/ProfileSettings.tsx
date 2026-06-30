@@ -12,7 +12,7 @@ import { FormInput } from '@/components/common'
 import { toast } from '@/utils/toast'
 import { motion } from 'framer-motion'
 import { buildProfileFormData, useGetMyProfileQuery, useUpdateMyProfileMutation } from '@/redux/api/authApi'
-import { getImageUrl } from '@/components/common/getImageUrl'
+import { imageUrl } from '@/components/common/getImageUrl'
 
 
 
@@ -103,7 +103,7 @@ console.log(profile)
     if (!profile) return
 // console.log(profile.profile)
     reset(profileToFormValues(profile))
-    setAvatarPreview(getImageUrl(profile?.profile ?? ''))
+    setAvatarPreview(imageUrl(profile?.profile ?? ''))
     profileFileRef.current = null
   }, [profile, reset])
 
@@ -122,7 +122,7 @@ console.log(profile)
   const handleCancel = () => {
     if (!profile) return
     reset(profileToFormValues(profile))
-    setAvatarPreview(getImageUrl(profile.profile ?? ''))
+    setAvatarPreview(imageUrl(profile.profile ?? ''))
     profileFileRef.current = null
   }
 
@@ -132,7 +132,7 @@ console.log(profile)
       const response = await updateProfile(formData).unwrap()
 
       reset(profileToFormValues(response.data))
-      setAvatarPreview(getImageUrl(response.data.profile ?? ''))
+      setAvatarPreview(imageUrl(response.data.profile ?? ''))
       profileFileRef.current = null
 
       toast({
