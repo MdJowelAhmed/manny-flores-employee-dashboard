@@ -21,6 +21,8 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       allowedHosts: [
         '46.202.176.52',
+        'api.stoneyportal.com',
+        'employee.stoneyportal.com',
       ],
       proxy: uploadsProxyTarget
         ? {
@@ -58,6 +60,7 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         '46.202.176.52',
         'api.stoneyportal.com',
+        'employee.stoneyportal.com',
       ],
     },
   }
