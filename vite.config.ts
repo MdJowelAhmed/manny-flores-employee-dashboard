@@ -57,6 +57,7 @@ export default defineConfig(({ mode }) => {
         : undefined,
       allowedHosts: [
         '46.202.176.52',
+        'api.stoneyportal.com',
       ],
     },
   }
