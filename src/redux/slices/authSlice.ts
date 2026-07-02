@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { UserRole } from '@/types/roles'
+import { isTokenExpired } from '@/utils/jwt'
 
 export type UserRoleValue = (typeof UserRole)[keyof typeof UserRole]
 
@@ -25,10 +26,31 @@ interface AuthState {
   verificationEmail: string | null
 }
 
+function clearStoredAuth(): void {
+  localStorage.removeItem('token')
+  localStorage.removeItem('refreshToken')
+  localStorage.removeItem('user')
+}
+
 function getInitialAuthState(): AuthState {
   const token = localStorage.getItem('token')
   const refreshToken = localStorage.getItem('refreshToken')
   const userStr = localStorage.getItem('user')
+
+  if (token && isTokenExpired(token)) {
+    clearStoredAuth()
+    return {
+      user: null,
+      token: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+      passwordResetEmail: null,
+      verificationEmail: null,
+    }
+  }
+
   let user: User | null = null
   if (token && userStr) {
     try {
@@ -42,8 +64,8 @@ function getInitialAuthState(): AuthState {
   }
   return {
     user,
-    token,
-    refreshToken,
+    token: user ? token : null,
+    refreshToken: user ? refreshToken : null,
     isAuthenticated: !!(token && user),
     isLoading: false,
     error: null,
@@ -110,6 +132,16 @@ const authSlice = createSlice({
       const token = localStorage.getItem('token')
       const refreshToken = localStorage.getItem('refreshToken')
       const userStr = localStorage.getItem('user')
+
+      if (token && isTokenExpired(token)) {
+        clearStoredAuth()
+        state.user = null
+        state.token = null
+        state.refreshToken = null
+        state.isAuthenticated = false
+        return
+      }
+
       if (token && userStr) {
         try {
           const parsed = JSON.parse(userStr) as User

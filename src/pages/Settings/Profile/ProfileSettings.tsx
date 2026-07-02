@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { FormInput } from '@/components/common'
 import { toast } from '@/utils/toast'
+import { getApiErrorMessage } from '@/utils/apiError'
 import { motion } from 'framer-motion'
 import { buildProfileFormData, useGetMyProfileQuery, useUpdateMyProfileMutation } from '@/redux/api/authApi'
 import { imageUrl } from '@/components/common/getImageUrl'
@@ -57,18 +58,6 @@ function profileToFormValues(profile: any): ProfileFormData {
     city: profile.city ?? '',
     country: profile.country ?? '',
   }
-}
-
-function getApiErrorMessage(err: unknown, fallback: string): string {
-  if (
-    typeof err === 'object' &&
-    err !== null &&
-    'data' in err &&
-    typeof (err as { data?: { message?: string } }).data?.message === 'string'
-  ) {
-    return (err as { data: { message: string } }).data.message
-  }
-  return fallback
 }
 
 export default function ProfileSettings() {

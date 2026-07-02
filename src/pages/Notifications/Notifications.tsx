@@ -25,17 +25,17 @@ export default function Notifications() {
     )
   }
 
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-  }
+  // const handleMarkAllAsRead = () => {
+  //   setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
+  // }
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length
+  // const unreadCount = notifications.filter((n) => !n.isRead).length
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-xl font-semibold text-accent">{t('notifications.title')}</h2>
-        <Button
+        {/* <Button
           variant="outline"
           size="sm"
           onClick={handleMarkAllAsRead}
@@ -43,7 +43,7 @@ export default function Notifications() {
           className="sm:ml-auto"
         >
           {t('notifications.readAll')}
-        </Button>
+        </Button> */}
       </div>
 
       <div className="rounded-lg border bg-card">

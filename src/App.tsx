@@ -6,6 +6,8 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import AuthLayout from '@/components/layout/AuthLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { RoleBasedRoute } from '@/components/auth/RoleBasedRoute'
+import { SessionManager } from '@/components/auth/SessionManager'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { UserRole } from '@/types/roles'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 import { loadUserFromStorage } from '@/redux/slices/authSlice'
@@ -54,10 +56,12 @@ function App() {
     dispatch(loadUserFromStorage())
   }, [dispatch])
 
-  return ( 
-     <UserProvider> 
-    <TooltipProvider>
-      <Routes>
+  return (
+    <ErrorBoundary>
+      <UserProvider>
+        <SessionManager />
+        <TooltipProvider>
+          <Routes>
         {/* Auth Routes - No sidebar/header */}
         <Route path="/auth" element={<AuthLayout />}>
           <Route index element={<Navigate to="/auth/login" replace />} />
@@ -240,9 +244,10 @@ function App() {
         {/* Catch all - 404 Not Found */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toaster position="top-right" richColors closeButton />
-    </TooltipProvider> 
-    </UserProvider>
+          <Toaster position="top-right" richColors closeButton />
+        </TooltipProvider>
+      </UserProvider>
+    </ErrorBoundary>
   )
 }
 
