@@ -47,3 +47,17 @@ export function decodeJwt<T extends DecodedJwtPayload = DecodedJwtPayload>(
     return null
   }
 }
+
+/** Returns true when the token has a valid `exp` claim that is in the past. */
+export function isTokenExpired(token: string, bufferSeconds = 0): boolean {
+  const payload = decodeJwt(token)
+  if (!payload?.exp) return false
+  return Date.now() >= (payload.exp - bufferSeconds) * 1000
+}
+
+/** Milliseconds until token expiry, or null when `exp` is missing. */
+export function getTokenExpiryMs(token: string): number | null {
+  const payload = decodeJwt(token)
+  if (!payload?.exp) return null
+  return payload.exp * 1000 - Date.now()
+}

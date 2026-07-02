@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,7 +16,9 @@ import {
 import type { UserRoleValue } from "@/redux/slices/authSlice";
 import { UserRole } from "@/types/roles";
 import { useLoginMutation } from "@/redux/api/authApi";
+import { baseApi } from "@/redux/baseApi";
 import { decodeJwt } from "@/utils/jwt";
+import { getApiErrorMessage } from "@/utils/apiError";
 import { toast } from "@/utils/toast";
 import { cn } from "@/utils/cn";
 import { motion } from "framer-motion";
@@ -29,20 +31,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
-
-interface ApiErrorShape {
-  data?: { message?: string };
-  status?: number | string;
-  error?: string;
-}
-
-function getApiErrorMessage(err: unknown, fallback: string): string {
-  if (!err || typeof err !== "object") return fallback;
-  const e = err as ApiErrorShape;
-  if (e.data?.message) return e.data.message;
-  if (typeof e.error === "string") return e.error;
-  return fallback;
-}
 
 function normalizeRole(role: string | undefined): UserRoleValue | null {
   if (!role) return null;
@@ -64,8 +52,11 @@ function deriveNameFromEmail(email: string): { firstName: string; lastName: stri
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const { error } = useAppSelector((state) => state.auth);
+  const sessionExpired = (location.state as { sessionExpired?: boolean } | null)
+    ?.sessionExpired;
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading }] = useLoginMutation();
 
@@ -119,6 +110,8 @@ export default function Login() {
         })
       );
 
+      dispatch(baseApi.util.invalidateTags(['Auth']));
+
       toast({
         title: response.message || t("auth.welcomeBack"),
         variant: "success",
@@ -148,6 +141,16 @@ export default function Login() {
           {t('auth.enterCredentials')}
         </p>
       </div>
+
+      {sessionExpired && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-sm"
+        >
+          Your session has expired. Please sign in again to continue.
+        </motion.div>
+      )}
 
       {error && (
         <motion.div
