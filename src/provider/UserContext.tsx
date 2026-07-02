@@ -1,8 +1,8 @@
-
 import React, { useContext, useEffect, useState } from 'react';
 import io from "socket.io-client";
 import { useMemo } from "react";
 import { useGetMyProfileQuery, type UserProfile } from '@/redux/api/authApi';
+import { useAppSelector } from '@/redux/hooks';
 import { API_BASE_URL } from '@/config/api';
 
 type ContextUser = UserProfile & {
@@ -24,7 +24,10 @@ export const useUser = () => {
 }
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-    const { data: profile } = useGetMyProfileQuery(undefined)
+    const { isAuthenticated } = useAppSelector((state) => state.auth)
+    const { data: profile } = useGetMyProfileQuery(undefined, {
+        skip: !isAuthenticated,
+    })
     const [user, setUser] = useState<ContextUser | null>(null);
     const socket = useMemo(() => io(API_BASE_URL), []);
 
