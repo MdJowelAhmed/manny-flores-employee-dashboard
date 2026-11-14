@@ -11,10 +11,7 @@ export interface RoutePermission {
   description?: string
 }
 
-/**
- * Feature-based access matrix (Employee Dashboard):
- * - employee: Dashboard, Profile, Attendance, Payroll, Projects, Documents, Communication, Safety Reports, Notifications
- */
+
 export const FEATURE_ACCESS: Record<string, UserRole[]> = {
   dashboard: [UserRole.EMPLOYEE],
   profile: [UserRole.EMPLOYEE],
